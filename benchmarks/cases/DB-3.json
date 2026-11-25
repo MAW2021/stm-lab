@@ -1,0 +1,19 @@
+{
+ "template": "deep_beam",
+ "code": "ACI318-19",
+ "element": "DB-3",
+ "params": {
+  "L": 4000,
+  "h": 1800,
+  "b": 400,
+  "P": 900,
+  "a": 1200,
+  "fc": 35,
+  "fy": 420,
+  "lb_load": 150,
+  "lb_sup": 150,
+  "d_tie": 100,
+  "rho_h": 0.003,
+  "rho_v": 0.003
+ }
+}

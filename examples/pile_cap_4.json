@@ -1,0 +1,3 @@
+{"template": "pile_cap_4", "code": "ACI318-19", "project": "Example", "element": "PC-4 four-pile cap",
+ "params": {"s": 1800, "a": 800, "h": 1200, "D": 600, "P": 4000, "fc": 30, "fy": 420, "d_tie": 150,
+            "strut_class": "interior_sizeeffect"}}

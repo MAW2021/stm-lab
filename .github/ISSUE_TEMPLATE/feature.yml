@@ -1,0 +1,9 @@
+name: Template / feature request
+description: New D-region template, design code or output
+labels: [enhancement]
+body:
+  - type: textarea
+    attributes: {label: What and why}
+    validations: {required: true}
+  - type: textarea
+    attributes: {label: Code clauses / references}

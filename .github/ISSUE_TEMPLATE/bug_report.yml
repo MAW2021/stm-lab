@@ -1,0 +1,13 @@
+name: Bug report
+description: Something crashes, or the report or UI misbehaves
+labels: [bug]
+body:
+  - type: textarea
+    attributes: {label: What happened, description: Include the error message if any}
+    validations: {required: true}
+  - type: textarea
+    attributes: {label: Case JSON or inputs, render: json}
+  - type: input
+    attributes: {label: STM-Lab version / commit}
+  - type: input
+    attributes: {label: OS and Python version}

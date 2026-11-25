@@ -1,0 +1,24 @@
+name: Calibration discrepancy
+description: STM-Lab disagrees with a hand calc, a textbook example or other software
+labels: [calibration]
+body:
+  - type: dropdown
+    attributes:
+      label: Element type
+      options: [Deep beam, Corbel, Two-pile cap, Four-pile cap, Pier cap, Custom]
+    validations: {required: true}
+  - type: dropdown
+    attributes: {label: Code, options: [ACI 318-19, ECP 203, Other]}
+  - type: textarea
+    attributes: {label: Inputs (attach the STM-Lab case JSON), render: json}
+    validations: {required: true}
+  - type: textarea
+    attributes:
+      label: Comparison table
+      description: "Quantity | STM-Lab | Reference | Difference %  (member forces, strut/node/tie capacities, As,req)"
+    validations: {required: true}
+  - type: input
+    attributes: {label: Reference source, description: "e.g. hand calc, ACI SP-208 Example 2, other program + version"}
+    validations: {required: true}
+  - type: textarea
+    attributes: {label: Suspected cause}
