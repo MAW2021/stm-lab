@@ -1,0 +1,887 @@
+{
+ "code": "ACI318-19",
+ "interior_width_rule": "secant",
+ "element": "Pile footing — two columns (PF2-AST-1)",
+ "custom": {
+  "title": "Pile footing — two columns (AStrutTie worked example)",
+  "dim": 2,
+  "b": 4500,
+  "fc": 24,
+  "fy": 300,
+  "interior_width_rule": "secant",
+  "stiffness": "section",
+  "nodes": [
+   {
+    "name": "b1",
+    "xyz": [
+     650,
+     200
+    ],
+    "load": [
+     -271.4,
+     763.2
+    ],
+    "lb": 508,
+    "wt": 400,
+    "wt_v": 1300
+   },
+   {
+    "name": "b2",
+    "xyz": [
+     1600,
+     200
+    ],
+    "lb": 0,
+    "wt": 400,
+    "wt_v": 3200,
+    "smeared": true
+   },
+   {
+    "name": "b3",
+    "xyz": [
+     2250,
+     200
+    ],
+    "load": [
+     -271.4,
+     1032.6
+    ],
+    "lb": 508,
+    "wt": 400,
+    "wt_v": 4500
+   },
+   {
+    "name": "b4",
+    "xyz": [
+     2900,
+     200
+    ],
+    "lb": 0,
+    "wt": 400,
+    "wt_v": 5800,
+    "smeared": true
+   },
+   {
+    "name": "b5",
+    "xyz": [
+     3850,
+     200
+    ],
+    "load": [
+     -271.4,
+     1302
+    ],
+    "lb": 508,
+    "wt": 400,
+    "wt_v": 7700
+   },
+   {
+    "name": "b6",
+    "xyz": [
+     5450,
+     200
+    ],
+    "load": [
+     -271.4,
+     1571.4
+    ],
+    "lb": 508,
+    "wt": 400,
+    "wt_v": 10900
+   },
+   {
+    "name": "b7",
+    "xyz": [
+     7050,
+     200
+    ],
+    "load": [
+     -271.4,
+     1840.8
+    ],
+    "lb": 508,
+    "wt": 400,
+    "wt_v": 7700
+   },
+   {
+    "name": "b8",
+    "xyz": [
+     8000,
+     200
+    ],
+    "lb": 0,
+    "wt": 400,
+    "wt_v": 5800,
+    "smeared": true
+   },
+   {
+    "name": "b9",
+    "xyz": [
+     8650,
+     200
+    ],
+    "load": [
+     -271.4,
+     2110.3
+    ],
+    "lb": 508,
+    "wt": 400,
+    "wt_v": 4500
+   },
+   {
+    "name": "b10",
+    "xyz": [
+     9300,
+     200
+    ],
+    "lb": 0,
+    "wt": 400,
+    "wt_v": 3200,
+    "smeared": true
+   },
+   {
+    "name": "b11",
+    "xyz": [
+     10250,
+     200
+    ],
+    "load": [
+     -271.4,
+     2379.7
+    ],
+    "lb": 508,
+    "wt": 400,
+    "wt_v": 1300
+   },
+   {
+    "name": "t1",
+    "xyz": [
+     650,
+     1400
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 1300,
+    "smeared": true
+   },
+   {
+    "name": "t2",
+    "xyz": [
+     1600,
+     1400
+    ],
+    "fix": [
+     true,
+     true
+    ],
+    "lb": 200,
+    "wt": 200,
+    "wt_v": 3200
+   },
+   {
+    "name": "t3",
+    "xyz": [
+     2250,
+     1400
+    ],
+    "fix": [
+     false,
+     true
+    ],
+    "lb": 1100,
+    "wt": 200,
+    "wt_v": 4500
+   },
+   {
+    "name": "t4",
+    "xyz": [
+     2900,
+     1400
+    ],
+    "fix": [
+     false,
+     true
+    ],
+    "lb": 200,
+    "wt": 200,
+    "wt_v": 5800
+   },
+   {
+    "name": "t5",
+    "xyz": [
+     3850,
+     1400
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 7700,
+    "smeared": true
+   },
+   {
+    "name": "t6",
+    "xyz": [
+     5450,
+     1400
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 10900,
+    "smeared": true
+   },
+   {
+    "name": "t7",
+    "xyz": [
+     7050,
+     1400
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 7700,
+    "smeared": true
+   },
+   {
+    "name": "t8",
+    "xyz": [
+     8000,
+     1400
+    ],
+    "fix": [
+     false,
+     true
+    ],
+    "lb": 200,
+    "wt": 200,
+    "wt_v": 5800
+   },
+   {
+    "name": "t9",
+    "xyz": [
+     8650,
+     1400
+    ],
+    "fix": [
+     false,
+     true
+    ],
+    "lb": 1100,
+    "wt": 200,
+    "wt_v": 4500
+   },
+   {
+    "name": "t10",
+    "xyz": [
+     9300,
+     1400
+    ],
+    "fix": [
+     false,
+     true
+    ],
+    "lb": 200,
+    "wt": 200,
+    "wt_v": 3200
+   },
+   {
+    "name": "t11",
+    "xyz": [
+     10250,
+     1400
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 1300,
+    "smeared": true
+   }
+  ],
+  "members": [
+   {
+    "name": "m1",
+    "i": "b1",
+    "j": "b2",
+    "As": 21788.4,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m2",
+    "i": "b2",
+    "j": "b3",
+    "As": 21788.4,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m3",
+    "i": "b3",
+    "j": "b4",
+    "As": 21788.4,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m4",
+    "i": "b4",
+    "j": "b5",
+    "As": 21788.4,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m5",
+    "i": "b5",
+    "j": "b6",
+    "As": 21788.4,
+    "strut_class": "boundary",
+    "beta_s": 0.6
+   },
+   {
+    "name": "m6",
+    "i": "b6",
+    "j": "b7",
+    "As": 21788.4,
+    "strut_class": "boundary",
+    "beta_s": 0.6
+   },
+   {
+    "name": "m7",
+    "i": "b7",
+    "j": "b8",
+    "As": 21788.4,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m8",
+    "i": "b8",
+    "j": "b9",
+    "As": 21788.4,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m9",
+    "i": "b9",
+    "j": "b10",
+    "As": 21788.4,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m10",
+    "i": "b10",
+    "j": "b11",
+    "As": 21788.4,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m11",
+    "i": "t1",
+    "j": "t2",
+    "As": 8534.9,
+    "width_max": 450,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m12",
+    "i": "t2",
+    "j": "t3",
+    "As": 8534.9,
+    "width_max": 450,
+    "strut_class": "interior_reinf",
+    "beta_s": 0.6
+   },
+   {
+    "name": "m13",
+    "i": "t3",
+    "j": "t4",
+    "As": 8534.9,
+    "width_max": 450,
+    "strut_class": "interior_reinf",
+    "beta_s": 0.6
+   },
+   {
+    "name": "m14",
+    "i": "t4",
+    "j": "t5",
+    "As": 8534.9,
+    "width_max": 450,
+    "strut_class": "boundary",
+    "beta_s": 0.6
+   },
+   {
+    "name": "m15",
+    "i": "t5",
+    "j": "t6",
+    "As": 8534.9,
+    "width_max": 450,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m16",
+    "i": "t6",
+    "j": "t7",
+    "As": 8534.9,
+    "width_max": 450,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m17",
+    "i": "t7",
+    "j": "t8",
+    "As": 8534.9,
+    "width_max": 450,
+    "strut_class": "boundary",
+    "beta_s": 0.6
+   },
+   {
+    "name": "m18",
+    "i": "t8",
+    "j": "t9",
+    "As": 8534.9,
+    "width_max": 450,
+    "strut_class": "interior_reinf",
+    "beta_s": 0.6
+   },
+   {
+    "name": "m19",
+    "i": "t9",
+    "j": "t10",
+    "As": 8534.9,
+    "width_max": 450,
+    "strut_class": "interior_reinf",
+    "beta_s": 0.6
+   },
+   {
+    "name": "m20",
+    "i": "t10",
+    "j": "t11",
+    "As": 8534.9,
+    "width_max": 450,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m21",
+    "i": "b1",
+    "j": "t1",
+    "As": 7980.6,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m22",
+    "i": "b2",
+    "j": "t2",
+    "As": 5700.5,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m23",
+    "i": "b3",
+    "j": "t3",
+    "As": 4560.4,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m24",
+    "i": "b4",
+    "j": "t4",
+    "As": 5700.5,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m25",
+    "i": "b5",
+    "j": "t5",
+    "As": 8835.7,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m26",
+    "i": "b6",
+    "j": "t6",
+    "As": 11400.9,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m27",
+    "i": "b7",
+    "j": "t7",
+    "As": 8835.7,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m28",
+    "i": "b8",
+    "j": "t8",
+    "As": 5700.5,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m29",
+    "i": "b9",
+    "j": "t9",
+    "As": 4560.4,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m30",
+    "i": "b10",
+    "j": "t10",
+    "As": 5700.5,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m31",
+    "i": "b11",
+    "j": "t11",
+    "As": 7980.6,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m32",
+    "i": "t2",
+    "j": "b1",
+    "width_max": 450,
+    "strut_class": "interior_reinf",
+    "beta_s": 0.6
+   },
+   {
+    "name": "m33",
+    "i": "b3",
+    "j": "t2",
+    "width_max": 450,
+    "strut_class": "interior_reinf",
+    "beta_s": 0.6
+   },
+   {
+    "name": "m34",
+    "i": "b3",
+    "j": "t4",
+    "width_max": 450,
+    "strut_class": "interior_reinf",
+    "beta_s": 0.6
+   },
+   {
+    "name": "m35",
+    "i": "t4",
+    "j": "b5",
+    "width_max": 450,
+    "strut_class": "interior_reinf",
+    "beta_s": 0.6
+   },
+   {
+    "name": "m36",
+    "i": "t5",
+    "j": "b6",
+    "width_max": 450,
+    "strut_class": "interior_reinf",
+    "beta_s": 0.6
+   },
+   {
+    "name": "m37",
+    "i": "t7",
+    "j": "b6",
+    "width_max": 450,
+    "strut_class": "interior_reinf",
+    "beta_s": 0.6
+   },
+   {
+    "name": "m38",
+    "i": "t8",
+    "j": "b7",
+    "width_max": 450,
+    "strut_class": "interior_reinf",
+    "beta_s": 0.6
+   },
+   {
+    "name": "m39",
+    "i": "b9",
+    "j": "t8",
+    "width_max": 450,
+    "strut_class": "interior_reinf",
+    "beta_s": 0.6
+   },
+   {
+    "name": "m40",
+    "i": "b9",
+    "j": "t10",
+    "width_max": 450,
+    "strut_class": "interior_reinf",
+    "beta_s": 0.6
+   },
+   {
+    "name": "m41",
+    "i": "t10",
+    "j": "b11",
+    "width_max": 450,
+    "strut_class": "interior_reinf",
+    "beta_s": 0.6
+   }
+  ],
+  "outline": [
+   [
+    [
+     0,
+     0
+    ],
+    [
+     10900,
+     0
+    ],
+    [
+     10900,
+     1500
+    ],
+    [
+     0,
+     1500
+    ]
+   ]
+  ],
+  "meta": {
+   "template": "custom",
+   "source": "AStrutTie Technical Book example 2.2 — complete file built from the book's inputs"
+  }
+ },
+ "reference": {
+  "source": "AStrutTie worked example 'Pile footing — two columns' (AStrutTie Technical Book example 2.2 — complete file built from the book's inputs), run 25 Nov 2026",
+  "forces": {
+   "m5": -781.4,
+   "m6": -769.7,
+   "m12": -1916.6,
+   "m13": -1916.6,
+   "m14": -304.3,
+   "m17": -44.6,
+   "m18": -1351.1,
+   "m19": -1351.1,
+   "m32": -973.4,
+   "m33": -1233.7,
+   "m34": -247.0,
+   "m35": -2787.0,
+   "m36": -1471.9,
+   "m37": -1147.2,
+   "m38": -3225.8,
+   "m39": -1460.7,
+   "m40": -1118.6,
+   "m41": -3035.1,
+   "m1": 875.6,
+   "m2": 875.6,
+   "m3": 677.1,
+   "m4": 677.1,
+   "m7": 1504.0,
+   "m8": 1504.0,
+   "m9": 1612.5,
+   "m10": 1612.5,
+   "m15": 873.2,
+   "m16": 873.2,
+   "m23": 269.4,
+   "m25": 883.1,
+   "m27": 688.3,
+   "m29": 157.7
+  },
+  "As_req": {
+   "m1": 3892.0,
+   "m2": 3892.0,
+   "m3": 3009.0,
+   "m4": 3009.0,
+   "m7": 6684.0,
+   "m8": 6684.0,
+   "m9": 7167.0,
+   "m10": 7167.0,
+   "m15": 3881.0,
+   "m16": 3881.0,
+   "m23": 1197.0,
+   "m25": 3925.0,
+   "m27": 3059.0,
+   "m29": 701.0
+  },
+  "strut_sf": {
+   "m5": 21.15,
+   "m6": 21.47,
+   "m12": 4.31,
+   "m13": 4.31,
+   "m14": 27.15,
+   "m17": 185.34,
+   "m18": 6.11,
+   "m19": 6.11,
+   "m32": 11.92,
+   "m33": 9.08,
+   "m34": 45.35,
+   "m35": 4.16,
+   "m36": 7.02,
+   "m37": 9.0,
+   "m38": 3.6,
+   "m39": 7.67,
+   "m40": 10.01,
+   "m41": 3.82
+  },
+  "strut_wmax": {
+   "m5": 400.0,
+   "m6": 400.0,
+   "m12": 200.0,
+   "m13": 200.0,
+   "m14": 200.0,
+   "m17": 200.0,
+   "m18": 200.0,
+   "m19": 200.0,
+   "m32": 280.9,
+   "m33": 271.1,
+   "m34": 271.1,
+   "m35": 280.9,
+   "m36": 250.0,
+   "m37": 250.0,
+   "m38": 280.9,
+   "m39": 271.1,
+   "m40": 271.1,
+   "m41": 280.9
+  },
+  "strut_nu": {
+   "m5": 0.51,
+   "m6": 0.51,
+   "m12": 0.51,
+   "m13": 0.51,
+   "m14": 0.51,
+   "m17": 0.51,
+   "m18": 0.51,
+   "m19": 0.51,
+   "m32": 0.51,
+   "m33": 0.51,
+   "m34": 0.51,
+   "m35": 0.51,
+   "m36": 0.51,
+   "m37": 0.51,
+   "m38": 0.51,
+   "m39": 0.51,
+   "m40": 0.51,
+   "m41": 0.51
+  },
+  "tie_sf": {
+   "m1": 5.6,
+   "m2": 5.6,
+   "m3": 7.24,
+   "m4": 7.24,
+   "m7": 3.26,
+   "m8": 3.26,
+   "m9": 3.04,
+   "m10": 3.04,
+   "m15": 2.2,
+   "m16": 2.2,
+   "m23": 3.81,
+   "m25": 2.25,
+   "m27": 2.89,
+   "m29": 6.51
+  },
+  "node_sf": {
+   "b1/m1": 25.16,
+   "b1/m32": 36.59,
+   "b1/bearing": 36.66,
+   "b3/m2": 18.87,
+   "b3/m3": 24.41,
+   "b3/m33": 21.34,
+   "b3/m34": 106.58,
+   "b3/bearing": 20.32,
+   "b5/m4": 24.41,
+   "b5/m5": 21.15,
+   "b5/m35": 9.58,
+   "b5/bearing": 16.12,
+   "b6/m5": 35.24,
+   "b6/m6": 35.78,
+   "b6/m36": 29.23,
+   "b6/m37": 37.5,
+   "b6/bearing": 22.26,
+   "b7/m6": 21.47,
+   "b7/m7": 10.99,
+   "b7/m38": 8.28,
+   "b7/bearing": 11.4,
+   "b9/m8": 10.99,
+   "b9/m9": 10.25,
+   "b9/m39": 18.02,
+   "b9/m40": 23.53,
+   "b9/bearing": 9.94,
+   "b11/m10": 13.66,
+   "b11/m41": 11.73,
+   "b11/bearing": 11.76,
+   "t2/m12": 7.18,
+   "t2/m32": 19.87,
+   "t2/m33": 15.13,
+   "t2/bearing": 7.45,
+   "t3/m12": 5.75,
+   "t3/m13": 5.75,
+   "t4/m13": 7.18,
+   "t4/m14": 45.25,
+   "t4/m34": 75.58,
+   "t4/m35": 6.94,
+   "t4/bearing": 5.73,
+   "t5/m14": 27.15,
+   "t5/m15": 9.46,
+   "t5/m36": 7.02,
+   "t7/m16": 9.46,
+   "t7/m17": 185.34,
+   "t7/m37": 9.0,
+   "t8/m17": 308.89,
+   "t8/m18": 10.19,
+   "t8/m38": 6.0,
+   "t8/m39": 12.78,
+   "t8/bearing": 3.61,
+   "t9/m18": 8.15,
+   "t9/m19": 8.15,
+   "t10/m19": 10.19,
+   "t10/m40": 16.69,
+   "t10/m41": 6.37,
+   "t10/bearing": 4.09
+  },
+  "node_kind": {
+   "b1": "CCT",
+   "b3": "CTT",
+   "b5": "CTT",
+   "b6": "CCC",
+   "b7": "CTT",
+   "b9": "CTT",
+   "b11": "CCT",
+   "t2": "CCC",
+   "t3": "CCT",
+   "t4": "CCC",
+   "t5": "CTT",
+   "t7": "CTT",
+   "t8": "CCC",
+   "t9": "CCT",
+   "t10": "CCC"
+  },
+  "anchorage": {
+   "m1@b1": {
+    "termination": "Straight",
+    "db": 25.4,
+    "ld": 915.0,
+    "lanc": 1022.0,
+    "sf": 1.12
+   },
+   "m4@b5": {
+    "termination": "Straight",
+    "db": 25.4,
+    "ld": 915.0,
+    "lanc": 7422.0,
+    "sf": 8.11
+   },
+   "m7@b7": {
+    "termination": "Straight",
+    "db": 25.4,
+    "ld": 915.0,
+    "lanc": 7422.0,
+    "sf": 8.11
+   },
+   "m10@b11": {
+    "termination": "Straight",
+    "db": 25.4,
+    "ld": 915.0,
+    "lanc": 1022.0,
+    "sf": 1.12
+   },
+   "m15@t5": {
+    "termination": "Straight",
+    "db": 22.2,
+    "ld": 801.0,
+    "lanc": 4018.0,
+    "sf": 5.02
+   },
+   "m16@t7": {
+    "termination": "Straight",
+    "db": 22.2,
+    "ld": 801.0,
+    "lanc": 4018.0,
+    "sf": 5.02
+   }
+  }
+ }
+}

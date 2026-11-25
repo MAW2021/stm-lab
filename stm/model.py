@@ -23,12 +23,15 @@ class Node:
     # Nodal geometry used for strut-end width / node face checks
     lb: float = 0.0         # bearing plate length in plane (mm)
     wt: float = 0.0         # height of tie / chord zone through the node (mm)
+    wt_v: float = 0.0       # width of a vertical tie band through the node (mm), secant rule only
+    band_dir: float = 0.0   # direction of the chord band of width wt (degrees from x; 0 = horizontal)
     bearing_area: float = 0.0  # 3D: bearing area (mm2) of plate/pile/column part
     bearing_axis: int = -1  # 3D: axis normal to bearing face (default vertical)
     confine: float = 1.0    # beta_c confinement factor (ACI 23.4.3), 1.0..2.0
     kind_override: str = ""  # force CCC / CCT / CTT if given
     spring: Tuple[float, ...] = ()  # elastic support stiffness per DOF (kN/mm); 0 = none
     anchor_ext: float = -1.0  # tie anchorage: distance node centre -> bar end (mm); <0 = not an anchorage
+    smeared: bool = False   # smeared (continuous) node: no nodal-zone face checks
 
 
 @dataclass
@@ -39,7 +42,9 @@ class Member:
     role: str = "auto"       # auto | strut | tie
     # Strut data
     strut_class: str = "interior_no_reinf"  # see codes.STRUT_CLASSES
+    beta_s: float = 0.0      # user strut efficiency factor; 0 = from strut_class and the code table
     width: float = 0.0       # override strut width (2D, mm); 0 = derive from nodes
+    width_max: float = 0.0   # provided strut/tie band width, used at nodes without own geometry; 0 = none
     area: float = 0.0        # override strut area (3D, mm2); 0 = derive
     # Tie data
     As: float = 0.0          # provided tie steel area (mm2)
@@ -62,6 +67,12 @@ class STModel:
     #   "projection": wt*cos(theta)  (face of the chord zone; conservative, default)
     #   "secant":     wt/cos(theta)  (strut spread over the chord band; matches AStrutTie)
     interior_width_rule: str = "projection"
+    # Member stiffness for statically indeterminate models:
+    #   "uniform": the same EA for every member (default)
+    #   "section": Es*As for members with provided steel, Ec*w*b (2D) or Ec*A (3D)
+    #              otherwise, w = governing strut width; Ec = 4700*sqrt(f'c) (ACI 19.2.2.1)
+    stiffness: str = "uniform"
+    Es: float = 200000.0
 
     # ------------------------------------------------------------------
     def add_node(self, name, xyz, **kw):
@@ -88,6 +99,18 @@ class STModel:
             raise ValueError(f"member {m.name} has zero length")
         return L, d / L
 
+    def section_EA(self, m: "Member") -> float:
+        """Axial stiffness (kN) for the "section" stiffness option."""
+        if m.As > 0:
+            return self.Es * m.As / 1e3
+        Ec = 4700.0 * self.fc ** 0.5
+        if self.dim == 2:
+            from .checks import strut_width_2d
+            w = strut_width_2d(self, m) or 0.25 * self.b
+            return Ec * w * self.b / 1e3
+        A = m.area or max((self.nodes[n].bearing_area for n in (m.i, m.j)), default=0) or 1e5
+        return Ec * A / 1e3
+
     def solve(self) -> "Result":
         dim = self.dim
         names = list(self.nodes)
@@ -101,7 +124,12 @@ class STModel:
         units = []
         for m in self.members:
             L, u = self.geometry(m)
-            EA = m.EA if m.EA > 0 else 1.0e6
+            if m.EA > 0:
+                EA = m.EA
+            elif self.stiffness == "section":
+                EA = self.section_EA(m)
+            else:
+                EA = 1.0e6
             k = EA / L * np.outer(u, u)
             di = slice(idx[m.i] * dim, idx[m.i] * dim + dim)
             dj = slice(idx[m.j] * dim, idx[m.j] * dim + dim)
@@ -149,6 +177,8 @@ class STModel:
         # Global equilibrium check
         sumF = F.reshape(-1, dim).sum(0) + sum(np.array(r) for r in reactions.values())
         eq_err = float(np.max(np.abs(sumF)))
+        fscale = max([fscale] + [abs(v) for r in reactions.values() for v in r])
+        stable = resid < 1e-6 * fscale
         return Result(self, forces, reactions, stable and eq_err < 1e-6 * fscale,
                       resid, eq_err)
 

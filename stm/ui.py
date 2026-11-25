@@ -43,10 +43,12 @@ DEFAULTS = {
     "pile_cap_4": dict(s=1800, a=800, h=1200, D=600, P=4000, fc=30, fy=420),
     "pier_cap": dict(xb=2500, cw=1500, h=1800, b=1500, P1=3000, P2=3000, fc=35, fy=420),
     "dapped_end": dict(H=1200, hn=600, ln=500, xb=250, b=500, Vu=400, fc=30, fy=420),
+    "footing": {},
 }
 NAMES = {"deep_beam": "Deep beam / transfer girder", "corbel": "Corbel",
          "pile_cap_2": "Two-pile cap", "pile_cap_4": "Four-pile cap (3D)",
-         "pier_cap": "Hammerhead pier cap", "dapped_end": "Dapped end", "custom": "Custom model (JSON)"}
+         "pier_cap": "Hammerhead pier cap", "dapped_end": "Dapped end", "footing": "Pile / spread / abutment footing",
+         "custom": "Custom model (JSON)"}
 
 CUSTOM_EXAMPLE = json.dumps({
     "title": "Custom deep beam", "dim": 2, "b": 400, "fc": 35, "fy": 420,

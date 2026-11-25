@@ -1,0 +1,540 @@
+{
+ "code": "ACI318-19",
+ "interior_width_rule": "secant",
+ "element": "Abutment footing — spread (AB2-AST-1)",
+ "custom": {
+  "title": "Abutment footing — spread (AStrutTie worked example)",
+  "dim": 2,
+  "b": 11400,
+  "fc": 24,
+  "fy": 400,
+  "interior_width_rule": "secant",
+  "stiffness": "section",
+  "nodes": [
+   {
+    "name": "N1",
+    "xyz": [
+     100,
+     1500
+    ],
+    "load": [
+     0,
+     -558.5
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 200
+   },
+   {
+    "name": "N2",
+    "xyz": [
+     1350,
+     1500
+    ],
+    "load": [
+     0,
+     -838.4
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 2700,
+    "smeared": true
+   },
+   {
+    "name": "N3",
+    "xyz": [
+     2600,
+     1500
+    ],
+    "load": [
+     0,
+     -1148.8
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 5200,
+    "smeared": true
+   },
+   {
+    "name": "N4",
+    "xyz": [
+     3850,
+     1500
+    ],
+    "fix": [
+     false,
+     true
+    ],
+    "load": [
+     0,
+     -1061.9
+    ],
+    "lb": 1600,
+    "wt": 200
+   },
+   {
+    "name": "N5",
+    "xyz": [
+     5150,
+     1500
+    ],
+    "fix": [
+     true,
+     true
+    ],
+    "lb": 1600,
+    "wt": 200
+   },
+   {
+    "name": "N6",
+    "xyz": [
+     6800,
+     1500
+    ],
+    "lb": 0,
+    "wt": 200,
+    "smeared": true
+   },
+   {
+    "name": "N7",
+    "xyz": [
+     100,
+     100
+    ],
+    "load": [
+     -377.2,
+     -3323.4
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 200,
+    "smeared": true
+   },
+   {
+    "name": "N8",
+    "xyz": [
+     1350,
+     100
+    ],
+    "load": [
+     -650.4,
+     -2908.4
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 2700
+   },
+   {
+    "name": "N9",
+    "xyz": [
+     2600,
+     100
+    ],
+    "load": [
+     -650.3,
+     663.2
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 5200
+   },
+   {
+    "name": "N10",
+    "xyz": [
+     3850,
+     100
+    ],
+    "load": [
+     -663.3,
+     4356
+    ],
+    "lb": 1250,
+    "wt": 200
+   },
+   {
+    "name": "N11",
+    "xyz": [
+     5150,
+     100
+    ],
+    "load": [
+     -767.5,
+     9675.3
+    ],
+    "lb": 0,
+    "wt": 200,
+    "smeared": true
+   },
+   {
+    "name": "N12",
+    "xyz": [
+     6800,
+     100
+    ],
+    "load": [
+     -481.2,
+     8604.9
+    ],
+    "lb": 0,
+    "wt": 200
+   }
+  ],
+  "members": [
+   {
+    "name": "E1",
+    "i": "N1",
+    "j": "N2",
+    "As": 58670.1,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E2",
+    "i": "N2",
+    "j": "N3",
+    "As": 58670.1,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E3",
+    "i": "N3",
+    "j": "N4",
+    "As": 58670.1,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E4",
+    "i": "N4",
+    "j": "N5",
+    "As": 58670.1,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E5",
+    "i": "N5",
+    "j": "N6",
+    "As": 58670.1,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E6",
+    "i": "N1",
+    "j": "N7",
+    "As": 15106.2,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E7",
+    "i": "N1",
+    "j": "N8",
+    "width_max": 268,
+    "strut_class": "interior_no_reinf"
+   },
+   {
+    "name": "E8",
+    "i": "N2",
+    "j": "N8",
+    "As": 25937.1,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E9",
+    "i": "N2",
+    "j": "N9",
+    "width_max": 300,
+    "strut_class": "interior_no_reinf"
+   },
+   {
+    "name": "E10",
+    "i": "N3",
+    "j": "N9",
+    "As": 25937.1,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E11",
+    "i": "N3",
+    "j": "N10",
+    "width_max": 300,
+    "strut_class": "interior_no_reinf"
+   },
+   {
+    "name": "E12",
+    "i": "N10",
+    "j": "N4",
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E13",
+    "i": "N10",
+    "j": "N5",
+    "width_max": 1052,
+    "strut_class": "interior_no_reinf"
+   },
+   {
+    "name": "E14",
+    "i": "N5",
+    "j": "N11",
+    "width_max": 1300,
+    "strut_class": "interior_no_reinf"
+   },
+   {
+    "name": "E15",
+    "i": "N5",
+    "j": "N12",
+    "width_max": 262,
+    "strut_class": "interior_no_reinf"
+   },
+   {
+    "name": "E16",
+    "i": "N6",
+    "j": "N12",
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E17",
+    "i": "N7",
+    "j": "N8",
+    "As": 58670.1,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E18",
+    "i": "N8",
+    "j": "N9",
+    "width_max": 200,
+    "strut_class": "interior_no_reinf"
+   },
+   {
+    "name": "E19",
+    "i": "N9",
+    "j": "N10",
+    "width_max": 200,
+    "strut_class": "interior_no_reinf"
+   },
+   {
+    "name": "E20",
+    "i": "N10",
+    "j": "N11",
+    "As": 58670.1,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E21",
+    "i": "N11",
+    "j": "N12",
+    "As": 58670.1,
+    "strut_class": "interior_reinf"
+   }
+  ],
+  "outline": [
+   [
+    [
+     0,
+     0
+    ],
+    [
+     6900,
+     0
+    ],
+    [
+     6900,
+     1600
+    ],
+    [
+     0,
+     1600
+    ]
+   ]
+  ],
+  "meta": {
+   "template": "custom",
+   "source": "AStrutTie Technical Book example 3.2 — complete file built from the book's inputs"
+  }
+ },
+ "reference": {
+  "source": "AStrutTie worked example 'Abutment footing — spread' (AStrutTie Technical Book example 3.2 — complete file built from the book's inputs), run 25 Nov 2026",
+  "forces": {
+   "E7": -5204.1,
+   "E9": -10227.0,
+   "E11": -10878.0,
+   "E13": -35379.0,
+   "E14": -9675.3,
+   "E15": -13300.1,
+   "E18": -2438.4,
+   "E19": -8599.4,
+   "E1": 3466.0,
+   "E2": 10277.4,
+   "E3": 17522.3,
+   "E4": 17522.3,
+   "E6": 3323.4,
+   "E8": 6790.3,
+   "E10": 6965.5,
+   "E12": 29683.8,
+   "E17": 377.2,
+   "E20": 8892.7,
+   "E21": 9660.2
+  },
+  "As_req": {
+   "E1": 11553.0,
+   "E2": 34258.0,
+   "E3": 58408.0,
+   "E4": 58408.0,
+   "E6": 11078.0,
+   "E8": 22634.0,
+   "E10": 23218.0,
+   "E12": 98946.0,
+   "E17": 1257.0,
+   "E20": 29642.0,
+   "E21": 32201.0
+  },
+  "strut_sf": {
+   "E7": 3.59,
+   "E9": 2.05,
+   "E11": 1.93,
+   "E13": 2.07,
+   "E14": 9.37,
+   "E15": 1.38,
+   "E18": 5.72,
+   "E19": 1.62
+  },
+  "strut_wmax": {
+   "E7": 268.1,
+   "E9": 300.3,
+   "E11": 300.3,
+   "E13": 1052.1,
+   "E14": 1300.0,
+   "E15": 262.3,
+   "E18": 200.0,
+   "E19": 200.0
+  },
+  "strut_nu": {
+   "E7": 0.34,
+   "E9": 0.34,
+   "E11": 0.34,
+   "E13": 0.34,
+   "E14": 0.34,
+   "E15": 0.34,
+   "E18": 0.34,
+   "E19": 0.34
+  },
+  "tie_sf": {
+   "E1": 5.08,
+   "E2": 1.71,
+   "E3": 1.0,
+   "E4": 1.0,
+   "E6": 1.36,
+   "E8": 1.15,
+   "E10": 1.12,
+   "E17": 46.66,
+   "E20": 1.98,
+   "E21": 1.82
+  },
+  "node_sf": {
+   "N1/E1": 6.04,
+   "N1/E7": 5.39,
+   "N2/E1": 6.04,
+   "N2/E2": 2.04,
+   "N2/E9": 3.07,
+   "N3/E2": 2.04,
+   "N3/E3": 1.19,
+   "N3/E11": 2.89,
+   "N4/E3": 1.19,
+   "N4/E4": 1.19,
+   "N4/E12": 5.64,
+   "N5/E4": 1.59,
+   "N5/E13": 5.16,
+   "N5/E14": 23.08,
+   "N5/E15": 12.46,
+   "N5/bearing": 5.05,
+   "N7/E17": 55.49,
+   "N8/E7": 6.04,
+   "N8/E17": 55.49,
+   "N8/E18": 8.58,
+   "N9/E9": 4.1,
+   "N9/E18": 11.44,
+   "N9/E19": 3.25,
+   "N10/E11": 10.25,
+   "N10/E12": 4.41,
+   "N10/E13": 3.11,
+   "N10/E19": 2.43,
+   "N10/E20": 2.35,
+   "N10/bearing": 30.03,
+   "N11/E14": 14.06,
+   "N11/E20": 2.35,
+   "N11/E21": 2.17,
+   "N12/E15": 2.75,
+   "N12/E21": 2.89
+  },
+  "node_kind": {
+   "N1": "CTT",
+   "N2": "CTT",
+   "N3": "CTT",
+   "N4": "CTT",
+   "N5": "CCT",
+   "N7": "CTT",
+   "N8": "CTT",
+   "N9": "CCT",
+   "N10": "CTT",
+   "N11": "CTT",
+   "N12": "CCT"
+  },
+  "anchorage": {
+   "E1@N1": {
+    "termination": "Straight",
+    "db": 28.7,
+    "ld": 1376.0,
+    "lanc": 240.0,
+    "sf": 0.17
+   },
+   "E4@N5": {
+    "termination": "Straight",
+    "db": 28.7,
+    "ld": 1376.0,
+    "lanc": 2628.0,
+    "sf": 1.91
+   },
+   "E12@N10": {
+    "termination": "Straight",
+    "db": 19.1,
+    "ld": 743.0,
+    "lanc": 860.0,
+    "sf": 1.16
+   },
+   "E12@N4": {
+    "termination": "Straight",
+    "db": 19.1,
+    "ld": 743.0,
+    "lanc": 60.0,
+    "sf": 0.08
+   },
+   "E17@N7": {
+    "termination": "Straight",
+    "db": 28.7,
+    "ld": 1376.0,
+    "lanc": 60.0,
+    "sf": 0.04
+   },
+   "E17@N8": {
+    "termination": "Straight",
+    "db": 28.7,
+    "ld": 1376.0,
+    "lanc": 5711.0,
+    "sf": 4.15
+   },
+   "E20@N10": {
+    "termination": "Straight",
+    "db": 28.7,
+    "ld": 1376.0,
+    "lanc": 4528.0,
+    "sf": 3.29
+   },
+   "E21@N12": {
+    "termination": "Straight",
+    "db": 28.7,
+    "ld": 1376.0,
+    "lanc": 263.0,
+    "sf": 0.19
+   }
+  }
+ }
+}

@@ -1,0 +1,831 @@
+{
+ "code": "ACI318-19",
+ "interior_width_rule": "secant",
+ "element": "Spread footing — two columns (SF2-AST-1)",
+ "custom": {
+  "title": "Spread footing — two columns (AStrutTie worked example)",
+  "dim": 2,
+  "b": 5000,
+  "fc": 24,
+  "fy": 400,
+  "interior_width_rule": "secant",
+  "stiffness": "section",
+  "nodes": [
+   {
+    "name": "b1",
+    "xyz": [
+     350,
+     100
+    ],
+    "load": [
+     -24,
+     1129.9
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 700,
+    "smeared": true
+   },
+   {
+    "name": "b2",
+    "xyz": [
+     1950,
+     100
+    ],
+    "load": [
+     -28.1,
+     1476.5
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 3900,
+    "smeared": true
+   },
+   {
+    "name": "b3",
+    "xyz": [
+     3050,
+     100
+    ],
+    "load": [
+     -23.7,
+     1333.9
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 6100,
+    "smeared": true
+   },
+   {
+    "name": "b4",
+    "xyz": [
+     4230,
+     100
+    ],
+    "load": [
+     -24.6,
+     1477.4
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 8460,
+    "smeared": true
+   },
+   {
+    "name": "b5",
+    "xyz": [
+     5410,
+     100
+    ],
+    "load": [
+     -24.6,
+     1574.1
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 10820,
+    "smeared": true
+   },
+   {
+    "name": "b6",
+    "xyz": [
+     6590,
+     100
+    ],
+    "load": [
+     -24.6,
+     1670.9
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 10820,
+    "smeared": true
+   },
+   {
+    "name": "b7",
+    "xyz": [
+     7770,
+     100
+    ],
+    "load": [
+     -24.6,
+     1767.6
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 8460,
+    "smeared": true
+   },
+   {
+    "name": "b8",
+    "xyz": [
+     8950,
+     100
+    ],
+    "load": [
+     -23.7,
+     1801.1
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 6100,
+    "smeared": true
+   },
+   {
+    "name": "b9",
+    "xyz": [
+     10050,
+     100
+    ],
+    "load": [
+     -28.1,
+     2236
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 3900,
+    "smeared": true
+   },
+   {
+    "name": "b10",
+    "xyz": [
+     11650,
+     100
+    ],
+    "load": [
+     -24,
+     2032.6
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 700,
+    "smeared": true
+   },
+   {
+    "name": "t1",
+    "xyz": [
+     350,
+     1400
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 700,
+    "smeared": true
+   },
+   {
+    "name": "t2",
+    "xyz": [
+     1950,
+     1400
+    ],
+    "fix": [
+     true,
+     true
+    ],
+    "lb": 200,
+    "wt": 200,
+    "wt_v": 3900
+   },
+   {
+    "name": "t3",
+    "xyz": [
+     3050,
+     1400
+    ],
+    "fix": [
+     false,
+     true
+    ],
+    "lb": 200,
+    "wt": 200,
+    "wt_v": 6100
+   },
+   {
+    "name": "t4",
+    "xyz": [
+     4230,
+     1400
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 8460,
+    "smeared": true
+   },
+   {
+    "name": "t5",
+    "xyz": [
+     5410,
+     1400
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 10820,
+    "smeared": true
+   },
+   {
+    "name": "t6",
+    "xyz": [
+     6590,
+     1400
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 10820,
+    "smeared": true
+   },
+   {
+    "name": "t7",
+    "xyz": [
+     7770,
+     1400
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 8460,
+    "smeared": true
+   },
+   {
+    "name": "t8",
+    "xyz": [
+     8950,
+     1400
+    ],
+    "fix": [
+     false,
+     true
+    ],
+    "lb": 200,
+    "wt": 200,
+    "wt_v": 6100
+   },
+   {
+    "name": "t9",
+    "xyz": [
+     10050,
+     1400
+    ],
+    "fix": [
+     false,
+     true
+    ],
+    "lb": 200,
+    "wt": 200,
+    "wt_v": 3900
+   },
+   {
+    "name": "t10",
+    "xyz": [
+     11650,
+     1400
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 700,
+    "smeared": true
+   }
+  ],
+  "members": [
+   {
+    "name": "m1",
+    "i": "b1",
+    "j": "b2",
+    "As": 16721.3,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m2",
+    "i": "b2",
+    "j": "b3",
+    "As": 16721.3,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m3",
+    "i": "b3",
+    "j": "b4",
+    "As": 16721.3,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m4",
+    "i": "b4",
+    "j": "b5",
+    "As": 16721.3,
+    "strut_class": "boundary",
+    "beta_s": 0.749
+   },
+   {
+    "name": "m5",
+    "i": "b5",
+    "j": "b6",
+    "As": 16721.3,
+    "strut_class": "boundary",
+    "beta_s": 0.749
+   },
+   {
+    "name": "m6",
+    "i": "b6",
+    "j": "b7",
+    "As": 16721.3,
+    "strut_class": "boundary",
+    "beta_s": 0.749
+   },
+   {
+    "name": "m7",
+    "i": "b7",
+    "j": "b8",
+    "As": 16721.3,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m8",
+    "i": "b8",
+    "j": "b9",
+    "As": 16721.3,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m9",
+    "i": "b9",
+    "j": "b10",
+    "As": 16721.3,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m10",
+    "i": "t1",
+    "j": "t2",
+    "As": 16721.3,
+    "width_max": 450,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m11",
+    "i": "t2",
+    "j": "t3",
+    "As": 16721.3,
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m12",
+    "i": "t3",
+    "j": "t4",
+    "As": 16721.3,
+    "width_max": 450,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m13",
+    "i": "t4",
+    "j": "t5",
+    "As": 16721.3,
+    "width_max": 450,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m14",
+    "i": "t5",
+    "j": "t6",
+    "As": 16721.3,
+    "width_max": 450,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m15",
+    "i": "t6",
+    "j": "t7",
+    "As": 16721.3,
+    "width_max": 450,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m16",
+    "i": "t7",
+    "j": "t8",
+    "As": 16721.3,
+    "width_max": 450,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m17",
+    "i": "t8",
+    "j": "t9",
+    "As": 16721.3,
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m18",
+    "i": "t9",
+    "j": "t10",
+    "As": 16721.3,
+    "width_max": 450,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m19",
+    "i": "b1",
+    "j": "t1",
+    "As": 7410.6,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m20",
+    "i": "b2",
+    "j": "t2",
+    "As": 8835.7,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m21",
+    "i": "b3",
+    "j": "t3",
+    "As": 7410.6,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m22",
+    "i": "b4",
+    "j": "t4",
+    "As": 7695.6,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m23",
+    "i": "b5",
+    "j": "t5",
+    "As": 7695.6,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m24",
+    "i": "b6",
+    "j": "t6",
+    "As": 7695.6,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m25",
+    "i": "b7",
+    "j": "t7",
+    "As": 7695.6,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m26",
+    "i": "b8",
+    "j": "t8",
+    "As": 7410.6,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m27",
+    "i": "b9",
+    "j": "t9",
+    "As": 8835.7,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m28",
+    "i": "b10",
+    "j": "t10",
+    "As": 7410.6,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m29",
+    "i": "t2",
+    "j": "b1",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m30",
+    "i": "t3",
+    "j": "b2",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m31",
+    "i": "t3",
+    "j": "b4",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m32",
+    "i": "t4",
+    "j": "b5",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m33",
+    "i": "t5",
+    "j": "b6",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m34",
+    "i": "t7",
+    "j": "b6",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m35",
+    "i": "t8",
+    "j": "b7",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m36",
+    "i": "t9",
+    "j": "b8",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m37",
+    "i": "t9",
+    "j": "b10",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   }
+  ],
+  "outline": [
+   [
+    [
+     0,
+     0
+    ],
+    [
+     12000,
+     0
+    ],
+    [
+     12000,
+     1500
+    ],
+    [
+     0,
+     1500
+    ]
+   ]
+  ],
+  "meta": {
+   "template": "custom",
+   "source": "AStrutTie Technical Book example 2.4 — complete file built from the book's inputs"
+  }
+ },
+ "reference": {
+  "source": "AStrutTie worked example 'Spread footing — two columns' (AStrutTie Technical Book example 2.4 — complete file built from the book's inputs), run 25 Nov 2026",
+  "forces": {
+   "m4": -449.4,
+   "m5": -2107.3,
+   "m6": -1073.4,
+   "m11": -1640.7,
+   "m17": -1894.4,
+   "m20": -196.5,
+   "m21": -1333.9,
+   "m26": -1083.4,
+   "m27": -2236.0,
+   "m29": -1791.9,
+   "m30": -1676.7,
+   "m31": -4498.6,
+   "m32": -2503.3,
+   "m33": -377.4,
+   "m34": -1879.1,
+   "m35": -4266.3,
+   "m36": -940.1,
+   "m37": -3223.3,
+   "m1": 1414.6,
+   "m2": 2525.8,
+   "m3": 2549.6,
+   "m7": 1818.5,
+   "m8": 2449.5,
+   "m9": 2477.7,
+   "m12": 299.8,
+   "m13": 1982.3,
+   "m14": 2236.0,
+   "m15": 2236.0,
+   "m16": 973.0,
+   "m22": 1853.6,
+   "m23": 279.5,
+   "m25": 1391.4
+  },
+  "As_req": {
+   "m1": 4715.0,
+   "m2": 8419.0,
+   "m3": 8499.0,
+   "m7": 6062.0,
+   "m8": 8165.0,
+   "m9": 8259.0,
+   "m12": 999.0,
+   "m13": 6608.0,
+   "m14": 7453.0,
+   "m15": 7453.0,
+   "m16": 3243.0,
+   "m22": 6179.0,
+   "m23": 932.0,
+   "m25": 4638.0
+  },
+  "strut_sf": {
+   "m4": 25.54,
+   "m5": 5.45,
+   "m6": 10.69,
+   "m11": 6.99,
+   "m17": 6.06,
+   "m20": 58.4,
+   "m21": 8.6,
+   "m26": 10.59,
+   "m27": 5.13,
+   "m29": 8.25,
+   "m30": 9.65,
+   "m31": 3.6,
+   "m32": 6.82,
+   "m33": 45.24,
+   "m34": 9.09,
+   "m35": 3.8,
+   "m36": 17.2,
+   "m37": 4.59
+  },
+  "strut_wmax": {
+   "m4": 200.0,
+   "m5": 200.0,
+   "m6": 200.0,
+   "m11": 200.0,
+   "m17": 200.0,
+   "m20": 200.0,
+   "m21": 200.0,
+   "m26": 200.0,
+   "m27": 200.0,
+   "m29": 257.7,
+   "m30": 281.9,
+   "m31": 282.5,
+   "m32": 297.6,
+   "m33": 297.6,
+   "m34": 297.6,
+   "m35": 282.5,
+   "m36": 281.9,
+   "m37": 257.7
+  },
+  "strut_nu": {
+   "m4": 0.637,
+   "m5": 0.637,
+   "m6": 0.637,
+   "m11": 0.637,
+   "m17": 0.637,
+   "m20": 0.637,
+   "m21": 0.637,
+   "m26": 0.637,
+   "m27": 0.637,
+   "m29": 0.637,
+   "m30": 0.637,
+   "m31": 0.637,
+   "m32": 0.637,
+   "m33": 0.637,
+   "m34": 0.637,
+   "m35": 0.637,
+   "m36": 0.637,
+   "m37": 0.637
+  },
+  "tie_sf": {
+   "m1": 3.55,
+   "m2": 1.99,
+   "m3": 1.97,
+   "m7": 2.76,
+   "m8": 2.05,
+   "m9": 2.02,
+   "m12": 16.73,
+   "m13": 2.53,
+   "m14": 2.24,
+   "m15": 2.24,
+   "m16": 5.16,
+   "m22": 1.25,
+   "m23": 8.26,
+   "m25": 1.66
+  },
+  "node_sf": {
+   "b1/m1": 8.65,
+   "b1/m29": 8.8,
+   "b2/m1": 6.49,
+   "b2/m2": 3.63,
+   "b2/m30": 8.48,
+   "b3/m2": 3.63,
+   "b3/m3": 3.6,
+   "b4/m3": 3.6,
+   "b4/m4": 20.43,
+   "b4/m31": 3.04,
+   "b5/m4": 27.24,
+   "b5/m5": 5.81,
+   "b5/m32": 7.27,
+   "b6/m5": 7.26,
+   "b6/m6": 14.25,
+   "b6/m33": 60.32,
+   "b6/m34": 12.11,
+   "b7/m6": 8.55,
+   "b7/m7": 5.05,
+   "b7/m35": 3.2,
+   "b8/m7": 5.05,
+   "b8/m8": 3.75,
+   "b8/m36": 15.12,
+   "b9/m8": 3.75,
+   "b9/m9": 3.71,
+   "b10/m9": 4.94,
+   "b10/m37": 4.89,
+   "t2/m11": 9.33,
+   "t2/m29": 12.01,
+   "t2/bearing": 11.53,
+   "t3/m11": 7.46,
+   "t3/m12": 40.83,
+   "t3/m30": 10.29,
+   "t3/m31": 3.84,
+   "t3/bearing": 2.06,
+   "t4/m12": 30.62,
+   "t4/m13": 4.63,
+   "t4/m32": 5.46,
+   "t5/m13": 4.63,
+   "t5/m14": 4.11,
+   "t5/m33": 36.19,
+   "t7/m15": 4.11,
+   "t7/m16": 9.43,
+   "t7/m34": 7.27,
+   "t8/m16": 12.58,
+   "t8/m17": 6.46,
+   "t8/m35": 4.05,
+   "t8/bearing": 2.89,
+   "t9/m17": 8.08,
+   "t9/m36": 22.94,
+   "t9/m37": 6.68,
+   "t9/bearing": 3.07
+  },
+  "node_kind": {
+   "b1": "CCT",
+   "b2": "CTT",
+   "b3": "CTT",
+   "b4": "CTT",
+   "b5": "CCT",
+   "b6": "CCC",
+   "b7": "CTT",
+   "b8": "CTT",
+   "b9": "CTT",
+   "b10": "CCT",
+   "t2": "CCC",
+   "t3": "CCT",
+   "t4": "CTT",
+   "t5": "CTT",
+   "t7": "CTT",
+   "t8": "CCT",
+   "t9": "CCC"
+  },
+  "anchorage": {
+   "m1@b1": {
+    "termination": "Straight",
+    "db": 25.4,
+    "ld": 1220.0,
+    "lanc": 514.0,
+    "sf": 0.42
+   },
+   "m3@b4": {
+    "termination": "Straight",
+    "db": 25.4,
+    "ld": 1220.0,
+    "lanc": 7931.0,
+    "sf": 6.5
+   },
+   "m7@b7": {
+    "termination": "Straight",
+    "db": 25.4,
+    "ld": 1220.0,
+    "lanc": 7931.0,
+    "sf": 6.5
+   },
+   "m9@b10": {
+    "termination": "Straight",
+    "db": 25.4,
+    "ld": 1220.0,
+    "lanc": 514.0,
+    "sf": 0.42
+   },
+   "m12@t3": {
+    "termination": "Straight",
+    "db": 25.4,
+    "ld": 1220.0,
+    "lanc": 3201.0,
+    "sf": 2.62
+   },
+   "m16@t8": {
+    "termination": "Straight",
+    "db": 25.4,
+    "ld": 1220.0,
+    "lanc": 3201.0,
+    "sf": 2.62
+   }
+  }
+ }
+}

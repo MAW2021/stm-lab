@@ -1,0 +1,226 @@
+{
+ "code": "AASHTO-LRFD",
+ "interior_width_rule": "secant",
+ "element": "Simply supported deep beam (FH1-AST-1)",
+ "custom": {
+  "title": "Simply supported deep beam (FHWA DE1, AStrutTie worked example)",
+  "dim": 2,
+  "b": 1219.2,
+  "fc": 34.474,
+  "fy": 413.685,
+  "interior_width_rule": "secant",
+  "stiffness": "section",
+  "nodes": [
+   {
+    "name": "A",
+    "xyz": [
+     304.8,
+     127
+    ],
+    "fix": [
+     true,
+     true
+    ],
+    "lb": 355.6,
+    "wt": 254
+   },
+   {
+    "name": "B",
+    "xyz": [
+     1676.4,
+     127
+    ],
+    "wt": 254
+   },
+   {
+    "name": "C",
+    "xyz": [
+     8534.4,
+     127
+    ],
+    "fix": [
+     false,
+     true
+    ],
+    "lb": 355.6,
+    "wt": 254
+   },
+   {
+    "name": "D",
+    "xyz": [
+     1676.4,
+     1752.6
+    ],
+    "wt": 152.4
+   },
+   {
+    "name": "E",
+    "xyz": [
+     3048,
+     1752.6
+    ],
+    "load": [
+     0,
+     -2668.93
+    ],
+    "lb": 355.6,
+    "wt": 152.4
+   },
+   {
+    "name": "F",
+    "xyz": [
+     5791.2,
+     1752.6
+    ],
+    "load": [
+     0,
+     -2668.93
+    ],
+    "lb": 355.6,
+    "wt": 152.4
+   }
+  ],
+  "members": [
+   {
+    "name": "AB",
+    "i": "A",
+    "j": "B",
+    "strut_class": "interior_reinf",
+    "As": 13109.65
+   },
+   {
+    "name": "BC",
+    "i": "B",
+    "j": "C",
+    "strut_class": "interior_reinf",
+    "As": 13109.65
+   },
+   {
+    "name": "BD",
+    "i": "B",
+    "j": "D",
+    "strut_class": "interior_reinf",
+    "As": 7200
+   },
+   {
+    "name": "AD",
+    "i": "A",
+    "j": "D",
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "BE",
+    "i": "B",
+    "j": "E",
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "CF",
+    "i": "C",
+    "j": "F",
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "DE",
+    "i": "D",
+    "j": "E",
+    "strut_class": "boundary"
+   },
+   {
+    "name": "EF",
+    "i": "E",
+    "j": "F",
+    "strut_class": "boundary"
+   }
+  ],
+  "outline": [
+   [
+    [
+     0,
+     0
+    ],
+    [
+     8839.2,
+     0
+    ],
+    [
+     8839.2,
+     1828.8
+    ],
+    [
+     0,
+     1828.8
+    ]
+   ]
+  ],
+  "meta": {
+   "template": "custom",
+   "source": "FHWA-NHI-17-071 Design Example 1 (AASHTO LRFD), rebuilt in AStrutTie"
+  }
+ },
+ "reference": {
+  "source": "AStrutTie US verification example 'Simply supported deep beam' (FHWA-NHI-17-071 Design Example 1, AASHTO LRFD), run 25 Nov 2026; source forces from FHWA",
+  "forces": {
+   "AB": 2252.134603806391,
+   "BC": 4503.824385451256,
+   "BD": 2668.9329691563,
+   "AD": -3491.853967979492,
+   "BE": -3491.853967979492,
+   "CF": -5235.112019000082,
+   "DE": -2251.689781644865,
+   "EF": -4503.824385451256
+  },
+  "As_req": {
+   "AB": 6048.375,
+   "BC": 12096.75,
+   "BD": 7168.37276
+  },
+  "strut_sf": {
+   "AD": 1.19,
+   "BE": 1.87,
+   "CF": 1.05,
+   "DE": 1.19,
+   "EF": 0.6
+  },
+  "strut_wmax": {
+   "AD": 236.22,
+   "BE": 370.078,
+   "CF": 312.42,
+   "DE": 152.39999999999998,
+   "EF": 152.39999999999998
+  },
+  "tie_sf": {
+   "AB": 2.17,
+   "BC": 1.08,
+   "BD": 1.0
+  },
+  "node_sf": {
+   "A/AB": 2.32,
+   "A/AD": 2.2,
+   "A/bearing": 2.74,
+   "B/AB": 1.99,
+   "B/BC": 1.0,
+   "B/BE": 1.99,
+   "C/BC": 1.16,
+   "C/CF": 1.35,
+   "C/bearing": 2.74,
+   "D/AD": 1.19,
+   "D/DE": 1.19,
+   "E/BE": 1.87,
+   "E/DE": 1.19,
+   "E/EF": 0.6,
+   "E/bearing": 3.33,
+   "F/CF": 1.05,
+   "F/EF": 0.6,
+   "F/bearing": 3.33
+  },
+  "node_kind": {
+   "A": "CCT",
+   "B": "CTT",
+   "C": "CCT",
+   "D": "CCT",
+   "E": "CCC",
+   "F": "CCC"
+  }
+ }
+}

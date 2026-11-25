@@ -1,0 +1,363 @@
+{
+ "code": "ACI318-19",
+ "interior_width_rule": "secant",
+ "element": "Pile footing — one column (PF1-AST-1)",
+ "custom": {
+  "title": "Pile footing — one column (AStrutTie worked example)",
+  "dim": 2,
+  "b": 7000,
+  "fc": 35,
+  "fy": 400,
+  "interior_width_rule": "secant",
+  "stiffness": "section",
+  "nodes": [
+   {
+    "name": "N1",
+    "xyz": [
+     650,
+     1900
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 1300
+   },
+   {
+    "name": "N2",
+    "xyz": [
+     2450,
+     1900
+    ],
+    "fix": [
+     true,
+     true
+    ],
+    "lb": 200,
+    "wt": 200
+   },
+   {
+    "name": "N3",
+    "xyz": [
+     4550,
+     1900
+    ],
+    "fix": [
+     false,
+     true
+    ],
+    "lb": 200,
+    "wt": 200
+   },
+   {
+    "name": "N4",
+    "xyz": [
+     6350,
+     1900
+    ],
+    "lb": 0,
+    "wt": 200,
+    "smeared": true
+   },
+   {
+    "name": "N5",
+    "xyz": [
+     650,
+     100
+    ],
+    "load": [
+     -1250,
+     -7223.7
+    ],
+    "lb": 508,
+    "wt": 200,
+    "wt_v": 1300
+   },
+   {
+    "name": "N6",
+    "xyz": [
+     2550,
+     100
+    ],
+    "load": [
+     -1250,
+     -907.9
+    ],
+    "lb": 508,
+    "wt": 200
+   },
+   {
+    "name": "N7",
+    "xyz": [
+     4450,
+     100
+    ],
+    "load": [
+     -1250,
+     5407.9
+    ],
+    "lb": 508,
+    "wt": 200
+   },
+   {
+    "name": "N8",
+    "xyz": [
+     6350,
+     100
+    ],
+    "load": [
+     -1250,
+     11723.7
+    ],
+    "lb": 508,
+    "wt": 200
+   }
+  ],
+  "members": [
+   {
+    "name": "E1",
+    "i": "N1",
+    "j": "N2",
+    "As": 34962.8,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E2",
+    "i": "N2",
+    "j": "N3",
+    "As": 34962.8,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E3",
+    "i": "N3",
+    "j": "N4",
+    "As": 34962.8,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E4",
+    "i": "N1",
+    "j": "N5",
+    "As": 24512,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E5",
+    "i": "N1",
+    "j": "N6",
+    "width_max": 275.5,
+    "strut_class": "interior_no_reinf",
+    "beta_s": 0.6
+   },
+   {
+    "name": "E6",
+    "i": "N2",
+    "j": "N6",
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E7",
+    "i": "N3",
+    "j": "N6",
+    "width_max": 282.5,
+    "strut_class": "interior_no_reinf",
+    "beta_s": 0.6
+   },
+   {
+    "name": "E8",
+    "i": "N3",
+    "j": "N7",
+    "width_max": 210.8,
+    "strut_class": "interior_no_reinf",
+    "beta_s": 0.6
+   },
+   {
+    "name": "E9",
+    "i": "N3",
+    "j": "N8",
+    "width_max": 282.8,
+    "strut_class": "interior_no_reinf",
+    "beta_s": 0.6
+   },
+   {
+    "name": "E10",
+    "i": "N4",
+    "j": "N8",
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E11",
+    "i": "N5",
+    "j": "N6",
+    "As": 34962.8,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E12",
+    "i": "N6",
+    "j": "N7",
+    "As": 34962.8,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E13",
+    "i": "N7",
+    "j": "N8",
+    "As": 34962.8,
+    "strut_class": "interior_reinf"
+   }
+  ],
+  "outline": [
+   [
+    [
+     0,
+     0
+    ],
+    [
+     7000,
+     0
+    ],
+    [
+     7000,
+     2000
+    ],
+    [
+     0,
+     2000
+    ]
+   ]
+  ],
+  "meta": {
+   "template": "custom",
+   "source": "AStrutTie Technical Book example 2.1 — complete file built from the book's inputs"
+  }
+ },
+ "reference": {
+  "source": "AStrutTie worked example 'Pile footing — one column' (AStrutTie Technical Book example 2.1 — complete file built from the book's inputs), run 25 Nov 2026",
+  "forces": {
+   "E5": -10503.5,
+   "E7": -17421.2,
+   "E8": -5416.2,
+   "E9": -16579.8,
+   "E1": 7625.0,
+   "E2": 1525.8,
+   "E4": 7223.7,
+   "E6": 19816.3,
+   "E11": 1250.0,
+   "E12": 8923.3,
+   "E13": 10473.7
+  },
+  "As_req": {
+   "E1": 25417.0,
+   "E2": 5086.0,
+   "E4": 24079.0,
+   "E6": 66054.0,
+   "E11": 4167.0,
+   "E12": 29744.0,
+   "E13": 34912.0
+  },
+  "strut_sf": {
+   "E5": 2.46,
+   "E7": 1.52,
+   "E8": 3.65,
+   "E9": 1.6
+  },
+  "strut_wmax": {
+   "E5": 275.5,
+   "E7": 282.5,
+   "E8": 210.8,
+   "E9": 282.8
+  },
+  "strut_nu": {
+   "E5": 0.51,
+   "E7": 0.51,
+   "E8": 0.51,
+   "E9": 0.51
+  },
+  "tie_sf": {
+   "E1": 1.38,
+   "E2": 6.87,
+   "E4": 1.02,
+   "E11": 8.39,
+   "E12": 1.18,
+   "E13": 1.0
+  },
+  "node_sf": {
+   "N1/E1": 2.46,
+   "N1/E5": 2.46,
+   "N2/E1": 2.46,
+   "N2/E2": 12.28,
+   "N2/E6": 1.0,
+   "N3/E2": 16.38,
+   "N3/E7": 2.03,
+   "N3/E8": 4.86,
+   "N3/E9": 2.13,
+   "N3/bearing": 0.87,
+   "N5/E11": 14.99,
+   "N6/E5": 4.41,
+   "N6/E6": 2.45,
+   "N6/E7": 2.63,
+   "N6/E11": 14.99,
+   "N6/E12": 2.1,
+   "N7/E8": 8.97,
+   "N7/E12": 2.1,
+   "N7/E13": 1.79,
+   "N7/bearing": 8.8,
+   "N8/E9": 3.77,
+   "N8/E13": 2.39,
+   "N8/bearing": 5.41
+  },
+  "node_kind": {
+   "N1": "CTT",
+   "N2": "CTT",
+   "N3": "CCT",
+   "N5": "CTT",
+   "N6": "CTT",
+   "N7": "CTT",
+   "N8": "CCT"
+  },
+  "anchorage": {
+   "E1@N1": {
+    "termination": "Straight",
+    "db": 25.4,
+    "ld": 1010.0,
+    "lanc": 810.0,
+    "sf": 0.8
+   },
+   "E2@N3": {
+    "termination": "Straight",
+    "db": 25.4,
+    "ld": 1010.0,
+    "lanc": 2621.0,
+    "sf": 2.59
+   },
+   "E6@N2": {
+    "termination": "Straight",
+    "db": 19.1,
+    "ld": 615.0,
+    "lanc": 60.0,
+    "sf": 0.1
+   },
+   "E6@N6": {
+    "termination": "Straight",
+    "db": 19.1,
+    "ld": 615.0,
+    "lanc": 420.0,
+    "sf": 0.68
+   },
+   "E11@N5": {
+    "termination": "Straight",
+    "db": 25.4,
+    "ld": 1010.0,
+    "lanc": 610.0,
+    "sf": 0.6
+   },
+   "E13@N8": {
+    "termination": "Straight",
+    "db": 25.4,
+    "ld": 1010.0,
+    "lanc": 964.0,
+    "sf": 0.95
+   }
+  }
+ }
+}

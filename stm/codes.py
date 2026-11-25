@@ -1,7 +1,8 @@
 """Design-code parameters for strut-and-tie checks.
 
 ACI 318-19 / 318-25 Chapter 23 values are implemented as written in the code.
-Only American codes are supported (ACI 318 now; AASHTO LRFD 5.8.2 is planned).
+Only American codes are supported: ACI 318-19 Chapter 23 and AASHTO LRFD
+(9th/10th ed.) Article 5.8.2.
 Each factor is a plain number in this file so it can be corrected in one place.
 """
 from dataclasses import dataclass, field
@@ -36,11 +37,39 @@ class CodeSet:
     refs: Dict[str, str] = field(default_factory=dict)
     provisional: bool = False
 
-    def fce_strut(self, fc, cls, beta_c=1.0):
-        return self.k_c * beta_c * self.beta_s[cls] * fc
+    family: str = "ACI"      # ACI | AASHTO
 
-    def fce_node(self, fc, kind, beta_c=1.0):
-        return self.k_c * beta_c * self.beta_n[kind] * fc
+    # ---- efficiency factors nu = f_ce / f'c --------------------------------
+    def nu_strut(self, fc, cls, beta_s=0.0):
+        """Strut efficiency (f_ce / f'c).  beta_s > 0 is a user value."""
+        if self.family == "AASHTO":
+            if beta_s > 0:
+                return beta_s
+            return 0.45 if cls in ("interior_no_reinf", "tension_zone") else aashto_nu_interface(fc)
+        return self.k_c * (beta_s if beta_s > 0 else self.beta_s[cls])
+
+    def nu_node(self, fc, kind, face="strut", strut_cls=None):
+        """Node-face efficiency.  face: strut | back (tie) | bearing."""
+        if self.family == "AASHTO":
+            # AASHTO LRFD Table 5.8.2.5.3a-1; nu = 0.45 at strut faces without
+            # crack-control reinforcement (5.8.2.5.3a)
+            if face == "strut":
+                return 0.45 if strut_cls in ("interior_no_reinf", "tension_zone") else aashto_nu_interface(fc)
+            if kind == "CTT":
+                return aashto_nu_interface(fc)
+            return 0.85 if kind == "CCC" else 0.70
+        return self.k_c * self.beta_n[kind]
+
+    def fce_strut(self, fc, cls, beta_c=1.0, beta_s=0.0):
+        return beta_c * self.nu_strut(fc, cls, beta_s) * fc
+
+    def fce_node(self, fc, kind, beta_c=1.0, face="strut", strut_cls=None):
+        return beta_c * self.nu_node(fc, kind, face, strut_cls) * fc
+
+
+def aashto_nu_interface(fc):
+    """AASHTO LRFD 5.8.2.5.3a: 0.85 - f'c/20 ksi, between 0.45 and 0.65."""
+    return min(0.65, max(0.45, 0.85 - fc / 137.9))
 
 
 ACI318_19 = CodeSet(
@@ -63,4 +92,25 @@ ACI318_19 = CodeSet(
     },
 )
 
-CODES = {c.key: c for c in (ACI318_19,)}
+AASHTO_LRFD = CodeSet(
+    key="AASHTO-LRFD",
+    name="AASHTO LRFD Bridge Design Specifications, Article 5.8.2",
+    beta_s={"boundary": 1.0, "interior_reinf": 1.0, "interior_joint": 1.0,
+            "interior_sizeeffect": 1.0, "interior_no_reinf": 1.0, "tension_zone": 1.0},
+    beta_n={"CCC": 1.0, "CCT": 1.0, "CTT": 1.0},
+    k_c=1.0, phi_strut=0.70, phi_node=0.70, phi_tie=0.90, steel_factor=1.0,
+    min_angle_deg=25.0, fc_symbol="f'c", family="AASHTO",
+    refs={
+        "strut": "AASHTO LRFD 5.8.2.5.1, 5.8.2.5.3a; φ = 0.70 (5.5.4.2)",
+        "node": "AASHTO LRFD 5.8.2.5.3a, Table 5.8.2.5.3a-1",
+        "tie": "AASHTO LRFD 5.8.2.4.1; φ = 0.90 (5.5.4.2)",
+        "angle": "STM-Lab practice limit (25°)",
+        "distributed": "AASHTO LRFD 5.8.2.6 (crack-control reinforcement, 0.003 each way)",
+        "sizeeffect": "-",
+        "corbel": "AASHTO LRFD 5.8.4.2",
+        "fce": "f_cu = m ν f'c; ν = 0.85 (CCC), 0.70 (CCT) at bearing/back faces, "
+               "0.85 − f'c/20 ksi (0.45…0.65) at strut faces and CTT nodes; 0.45 without crack control",
+    },
+)
+
+CODES = {c.key: c for c in (ACI318_19, AASHTO_LRFD)}

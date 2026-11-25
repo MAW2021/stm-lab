@@ -1,0 +1,278 @@
+{
+ "code": "ACI318-19",
+ "interior_width_rule": "secant",
+ "element": "Hammerhead bent cap (HH-AST-1)",
+ "custom": {
+  "title": "Hammerhead bent cap (AStrutTie worked example)",
+  "dim": 2,
+  "b": 1371.6,
+  "fc": 34.474,
+  "fy": 413.685,
+  "interior_width_rule": "secant",
+  "stiffness": "section",
+  "nodes": [
+   {
+    "name": "A",
+    "xyz": [
+     762,
+     1739.9
+    ],
+    "load": [
+     0,
+     -3113.8
+    ],
+    "lb": 762,
+    "wt": 330.2
+   },
+   {
+    "name": "B",
+    "xyz": [
+     4419.6,
+     1739.9
+    ],
+    "load": [
+     0,
+     -1779.3
+    ],
+    "lb": 762,
+    "wt": 330.2
+   },
+   {
+    "name": "C",
+    "xyz": [
+     5689.6,
+     1739.9
+    ],
+    "lb": 0,
+    "wt": 330.2,
+    "wt_v": 6299.2
+   },
+   {
+    "name": "D",
+    "xyz": [
+     8077.2,
+     1739.9
+    ],
+    "load": [
+     0,
+     -444.8
+    ],
+    "lb": 762,
+    "wt": 330.2
+   },
+   {
+    "name": "E",
+    "xyz": [
+     3276.6,
+     114.3
+    ],
+    "fix": [
+     true,
+     true
+    ],
+    "lb": 457.2,
+    "wt": 228.6
+   },
+   {
+    "name": "F",
+    "xyz": [
+     5689.6,
+     114.3
+    ],
+    "fix": [
+     false,
+     true
+    ],
+    "lb": 203.2,
+    "wt": 228.6
+   }
+  ],
+  "members": [
+   {
+    "name": "AB",
+    "i": "A",
+    "j": "B",
+    "As": 18116.1,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "BC",
+    "i": "B",
+    "j": "C",
+    "As": 18116.1,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "CD",
+    "i": "C",
+    "j": "D",
+    "As": 18116.1,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "AE",
+    "i": "A",
+    "j": "E",
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "BE",
+    "i": "B",
+    "j": "E",
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "CE",
+    "i": "C",
+    "j": "E",
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "DF",
+    "i": "D",
+    "j": "F",
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "CF",
+    "i": "C",
+    "j": "F",
+    "As": 7045.1,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "EF",
+    "i": "E",
+    "j": "F",
+    "strut_class": "interior_reinf"
+   }
+  ],
+  "outline": [
+   [
+    [
+     0,
+     1905
+    ],
+    [
+     0,
+     685.8
+    ],
+    [
+     3048,
+     0
+    ],
+    [
+     5791.2,
+     0
+    ],
+    [
+     8839.199999999999,
+     685.8
+    ],
+    [
+     8839.199999999999,
+     1905
+    ]
+   ]
+  ],
+  "meta": {
+   "template": "custom",
+   "source": "ACI SP-273 Example 1 — complete file built from the published inputs (pp. 1–16)"
+  }
+ },
+ "reference": {
+  "source": "AStrutTie worked example 'Hammerhead bent cap' (ACI SP-273 Example 1 — complete file built from the published inputs (pp. 1–16)), run 25 Nov 2026",
+  "forces": {
+   "AE": -5735.536950716889,
+   "BE": -2175.1803698623844,
+   "CE": -3511.426143086638,
+   "DF": -790.4489810317907,
+   "EF": -653.4437552817674,
+   "AB": 4816.534365004069,
+   "BC": 3565.6944467928165,
+   "CD": 653.4437552817674,
+   "CF": 1962.1105544914064
+  },
+  "As_req": {
+   "AB": 15524.485079999999,
+   "BC": 11492.235079999999,
+   "CD": 2105.80224,
+   "CF": 6323.21316
+  },
+  "strut_sf": {
+   "AE": 1.74,
+   "BE": 5.25,
+   "CE": 2.56,
+   "DF": 8.68,
+   "EF": 7.91
+  },
+  "strut_wmax": {
+   "AE": 440.18199999999996,
+   "BE": 505.4599999999999,
+   "CE": 398.018,
+   "DF": 303.27599999999995,
+   "EF": 228.6
+  },
+  "strut_nu": {
+   "AE": 0.637,
+   "BE": 0.637,
+   "CE": 0.637,
+   "DF": 0.637,
+   "EF": 0.637
+  },
+  "tie_sf": {
+   "AB": 1.17,
+   "BC": 1.58,
+   "CD": 8.6,
+   "CF": 1.11
+  },
+  "node_sf": {
+   "A/AB": 1.65,
+   "A/AE": 2.91,
+   "A/bearing": 5.9,
+   "B/AB": 1.24,
+   "B/BC": 1.67,
+   "B/BE": 6.76,
+   "B/bearing": 7.75,
+   "C/BC": 1.67,
+   "C/CD": 9.14,
+   "C/CE": 2.05,
+   "C/CF": 11.71,
+   "D/CD": 12.19,
+   "D/DF": 21.41,
+   "D/bearing": 41.31,
+   "E/AE": 2.31,
+   "E/BE": 7.01,
+   "E/CE": 3.82,
+   "E/EF": 10.55,
+   "E/bearing": 2.01,
+   "F/DF": 9.25,
+   "F/CF": 2.5,
+   "F/EF": 8.44
+  },
+  "node_kind": {
+   "A": "CCT",
+   "B": "CTT",
+   "C": "CTT",
+   "D": "CCT",
+   "E": "CCC",
+   "F": "CCT"
+  },
+  "anchorage": {
+   "AB@A": {
+    "termination": "Hook 90°",
+    "db": 35.81399999999999,
+    "ld": 830.58,
+    "lanc": 1361.44,
+    "sf": 1.64
+   },
+   "CD@D": {
+    "termination": "Hook 90°",
+    "db": 35.81399999999999,
+    "ld": 830.58,
+    "lanc": 1346.1999999999998,
+    "sf": 1.62
+   }
+  }
+ }
+}

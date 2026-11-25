@@ -36,19 +36,56 @@ def _bar_suggestion(As_req):
     return " or ".join(f"{n}T{d} ({A:.0f} mm²)" for n, d, A in good)
 
 
-def _strut_end_width_2d(res: Result, m, node_name):
-    """Strut width at a node from the node's rectangular face (lb x wt)."""
+def strut_end_width_2d(mdl, m, node_name):
+    """Strut width at a node from the node's rectangular face (lb x wt).
+    The member's provided width (width_max) is used where the node has no
+    geometry of its own (e.g. a node inside the web)."""
     if m.width > 0:
         return m.width, "given"
-    node = res.model.nodes[node_name]
-    if node.lb <= 0 and node.wt <= 0:
-        return None, "no node geometry"
-    _, u = res.model.geometry(m)
-    if node.lb <= 0 and res.model.interior_width_rule == "secant" and abs(u[0]) > 0.17:
-        ws = node.wt / abs(u[0])
-        return ws, f"wt/cosθ = {node.wt:.0f}/{abs(u[0]):.3f} (interior node, secant rule)"
-    ws = node.lb * abs(u[1]) + node.wt * abs(u[0])
-    return ws, f"lb·sinθ + wt·cosθ = {node.lb:.0f}·{abs(u[1]):.3f} + {node.wt:.0f}·{abs(u[0]):.3f}"
+    node = mdl.nodes[node_name]
+    w, how = None, "no node geometry"
+    if node.lb > 0 or node.wt > 0:
+        _, u = mdl.geometry(m)
+        # components of the member direction along / across the chord band
+        a = math.radians(node.band_dir)
+        ca = abs(u[0] * math.cos(a) + u[1] * math.sin(a))
+        sa = abs(-u[0] * math.sin(a) + u[1] * math.cos(a))
+        if node.lb <= 0 and mdl.interior_width_rule == "secant":
+            # interior node (no plate), secant rule: the member spreads over the chord
+            # band (wt/cosθ), over a vertical tie band (wt,v/sinθ) and at most over the
+            # chord up to the nearest neighbouring chord node (s·sinθ)
+            cands = []
+            if node.wt > 0 and ca > 0.17:
+                cands.append((node.wt / ca, f"wt/cosθ = {node.wt:.0f}/{ca:.3f} (interior node, secant rule)"))
+            if node.wt_v > 0 and sa > 0.17:
+                cands.append((node.wt_v / sa, f"wt,v/sinθ = {node.wt_v:.0f}/{sa:.3f} (vertical tie band)"))
+            spans = []
+            for o in mdl.members:
+                if o is m or node_name not in (o.i, o.j):
+                    continue
+                Lo, uo = mdl.geometry(o)
+                if abs(uo[0] * math.cos(a) + uo[1] * math.sin(a)) > 0.996:
+                    spans.append(Lo)
+            if spans and sa > 0.17:
+                cands.append((min(spans) * sa, f"s·sinθ = {min(spans):.0f}·{sa:.3f} (nearest chord node)"))
+            if cands:
+                w, how = min(cands)
+        elif node.lb > 0 or node.wt > 0:
+            w = node.lb * sa + node.wt * ca
+            how = f"lb·sinθ + wt·cosθ = {node.lb:.0f}·{sa:.3f} + {node.wt:.0f}·{ca:.3f}"
+    if m.width_max > 0 and not w:
+        return m.width_max, f"provided width {m.width_max:.0f} mm"
+    return w, how
+
+
+def _strut_end_width_2d(res: Result, m, node_name):
+    return strut_end_width_2d(res.model, m, node_name)
+
+
+def strut_width_2d(mdl, m):
+    """Governing (smallest) end width of a member treated as a strut; None if unknown."""
+    ws = [w for w, _ in (strut_end_width_2d(mdl, m, n) for n in (m.i, m.j)) if w]
+    return min(ws) if ws else None
 
 
 def _strut_end_area_3d(res: Result, m, node_name):
@@ -67,8 +104,9 @@ def node_kind(res: Result, name):
     node = res.model.nodes[name]
     if node.kind_override:
         return node.kind_override
+    tol = 1e-6 * max([1.0] + [abs(f) for f in res.forces.values()])
     ties = sum(1 for m in res.model.members
-               if name in (m.i, m.j) and res.forces[m.name] > 1e-6)
+               if name in (m.i, m.j) and res.forces[m.name] > tol)
     return "CCC" if ties == 0 else ("CCT" if ties == 1 else "CTT")
 
 
@@ -101,7 +139,8 @@ def run_checks(res: Result, code: CodeSet) -> List[Check]:
                                  "member defined as strut but carries tension"))
         else:       # ---------------- strut
             C = -F
-            fce = code.fce_strut(fc, m.strut_class)
+            nu = code.nu_strut(fc, m.strut_class, m.beta_s)
+            fce = nu * fc
             ends = []
             for nn in (m.i, m.j):
                 if mdl.dim == 2:
@@ -126,14 +165,12 @@ def run_checks(res: Result, code: CodeSet) -> List[Check]:
             wtxt = f"w = {A / b:.0f} mm at {nn}" if mdl.dim == 2 else f"A = {A:.0f} mm² at {nn}"
             out.append(Check(m.name, "strut", C, cap, r, "OK" if r <= 1 else "NG",
                              code.refs["strut"],
-                             f"β_s = {code.beta_s[m.strut_class]} ({m.strut_class}), "
+                             f"ν = {nu:.3f} ({m.strut_class}{', user β_s' if m.beta_s > 0 else ''}), "
                              f"f_ce = {fce:.2f} MPa, {wtxt} ({how})"))
 
     # ---------------- nodes: strut-end faces and bearing faces
     for nn, node in mdl.nodes.items():
         k = kinds[nn]
-        fce = code.fce_node(fc, k, node.confine)
-        cap_stress = code.phi_node * fce
         for m in mdl.members:
             if nn not in (m.i, m.j) or res.forces[m.name] >= -1e-6:
                 continue
@@ -145,11 +182,12 @@ def run_checks(res: Result, code: CodeSet) -> List[Check]:
                 A, how = _strut_end_area_3d(res, m, nn)
             if not A:
                 continue
-            cap = cap_stress * A / 1e3
+            fce = code.fce_node(fc, k, node.confine, "strut", m.strut_class)
+            cap = code.phi_node * fce * A / 1e3
             r = C / cap
             out.append(Check(nn, "node", C, cap, r, "OK" if r <= 1 else "NG",
                              code.refs["node"],
-                             f"{k} node, β_n = {code.beta_n[k]}, β_c = {node.confine}, "
+                             f"{k} node, ν = {fce / fc / node.confine:.3f}, β_c = {node.confine}, "
                              f"face of {m.name}, f_ce = {fce:.2f} MPa"))
         # tie faces (tie force acting as bearing on the back face of the node)
         if mdl.dim == 2:
@@ -160,17 +198,20 @@ def run_checks(res: Result, code: CodeSet) -> List[Check]:
                 if not w or m.width > 0:
                     continue
                 T = res.forces[m.name]
-                cap = cap_stress * w * b / 1e3
+                fce = code.fce_node(fc, k, node.confine, "back")
+                cap = code.phi_node * fce * w * b / 1e3
                 r = T / cap
                 out.append(Check(nn, "node", T, cap, r, "OK" if r <= 1 else "NG",
                                  code.refs["node"],
-                                 f"{k} node, β_n = {code.beta_n[k]}, tie face of {m.name}, "
+                                 f"{k} node, ν = {fce / fc / node.confine:.3f}, tie face of {m.name}, "
                                  f"w = {w:.0f} mm, f_ce = {fce:.2f} MPa"))
-        # bearing face (load or reaction)
+        # bearing face (load or reaction): the force component normal to the
+        # bearing plate (vertical in 2D, bearing_axis in 3D) acts on the plate area
         P = np.array(node.load, dtype=float)
         if nn in res.reactions:
             P = P + np.array(res.reactions[nn])
-        Pn = float(np.linalg.norm(P))
+        ax = node.bearing_axis if node.bearing_axis >= 0 else mdl.dim - 1
+        Pn = abs(float(P[ax]))
         if Pn > 1e-6:
             if mdl.dim == 2 and node.lb > 0:
                 A = node.lb * b
@@ -179,11 +220,12 @@ def run_checks(res: Result, code: CodeSet) -> List[Check]:
             else:
                 A = None
             if A:
-                cap = cap_stress * A / 1e3
+                fce = code.fce_node(fc, k, node.confine, "bearing")
+                cap = code.phi_node * fce * A / 1e3
                 r = Pn / cap
                 out.append(Check(nn, "bearing", Pn, cap, r, "OK" if r <= 1 else "NG",
                                  code.refs["node"],
-                                 f"{k} node bearing face, A = {A:.0f} mm²"))
+                                 f"{k} node bearing face, normal force on A = {A:.0f} mm²"))
 
     # ---------------- strut/tie angle limit
     for nn in mdl.nodes:
@@ -197,6 +239,8 @@ def run_checks(res: Result, code: CodeSet) -> List[Check]:
                 _, us = mdl.geometry(s)
                 _, ut = mdl.geometry(t)
                 ang = math.degrees(math.acos(min(1.0, abs(float(np.dot(us, ut))))))
+                if ang < 1.0:   # collinear: a chord whose force changes sign at the node
+                    continue
                 ok = ang >= code.min_angle_deg - 1e-9
                 out.append(Check(nn, "angle", ang, code.min_angle_deg, None,
                                  "OK" if ok else "NG", code.refs["angle"],

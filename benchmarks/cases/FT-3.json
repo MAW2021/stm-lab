@@ -1,0 +1,25 @@
+{
+ "template": "footing",
+ "element": "Abutment pile footing with heel surcharge (Book 3.1 inputs)",
+ "params": {
+  "kind": "pile",
+  "B": 5900,
+  "H": 1500,
+  "b": 12000,
+  "fc": 24,
+  "fy": 400,
+  "x1": 3950,
+  "cw1": 1300,
+  "V1": 14750,
+  "H1": 7310,
+  "M1": 32560,
+  "piles": "650,1950,3250,5250",
+  "pile_d": 508,
+  "heel_len": 3300,
+  "w_heel1": 1450,
+  "w_heel2": 725,
+  "As_top": 62538.5,
+  "As_bot": 37630.9
+ },
+ "code": "ACI318-19"
+}

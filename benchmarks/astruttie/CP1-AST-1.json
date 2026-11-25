@@ -1,0 +1,582 @@
+{
+ "code": "ACI318-19",
+ "interior_width_rule": "secant",
+ "element": "Pier coping — one column (CP1-AST-1)",
+ "custom": {
+  "title": "Pier coping — one column (AStrutTie worked example)",
+  "dim": 2,
+  "b": 2700,
+  "fc": 24,
+  "fy": 400,
+  "interior_width_rule": "secant",
+  "stiffness": "section",
+  "nodes": [
+   {
+    "name": "n1",
+    "xyz": [
+     800,
+     2550
+    ],
+    "load": [
+     336,
+     -2896
+    ],
+    "lb": 1200,
+    "wt": 300,
+    "wt_v": 1600
+   },
+   {
+    "name": "n2",
+    "xyz": [
+     3100,
+     2550
+    ],
+    "load": [
+     336,
+     -2404
+    ],
+    "lb": 1200,
+    "wt": 300,
+    "wt_v": 6200
+   },
+   {
+    "name": "n3",
+    "xyz": [
+     4350,
+     2550
+    ],
+    "lb": 0,
+    "wt": 300,
+    "wt_v": 8700,
+    "smeared": true
+   },
+   {
+    "name": "n4",
+    "xyz": [
+     5400,
+     2550
+    ],
+    "load": [
+     336,
+     -2372
+    ],
+    "lb": 1200,
+    "wt": 300,
+    "wt_v": 10800
+   },
+   {
+    "name": "n5",
+    "xyz": [
+     6450,
+     2550
+    ],
+    "lb": 0,
+    "wt": 300,
+    "wt_v": 8700,
+    "smeared": true
+   },
+   {
+    "name": "n6",
+    "xyz": [
+     7700,
+     2550
+    ],
+    "load": [
+     336,
+     -2532
+    ],
+    "lb": 1200,
+    "wt": 300,
+    "wt_v": 6200
+   },
+   {
+    "name": "n7",
+    "xyz": [
+     10000,
+     2550
+    ],
+    "load": [
+     336,
+     -2592
+    ],
+    "lb": 1200,
+    "wt": 300,
+    "wt_v": 1600
+   },
+   {
+    "name": "n8",
+    "xyz": [
+     800,
+     1223.5
+    ],
+    "lb": 0,
+    "wt": 189.11,
+    "band_dir": -19.069,
+    "smeared": true
+   },
+   {
+    "name": "n9",
+    "xyz": [
+     3100,
+     428.4
+    ],
+    "lb": 0,
+    "wt": 189.03,
+    "band_dir": -19.069,
+    "smeared": true
+   },
+   {
+    "name": "n10",
+    "xyz": [
+     4350,
+     100
+    ],
+    "fix": [
+     true,
+     true
+    ],
+    "lb": 300,
+    "wt": 200
+   },
+   {
+    "name": "n11",
+    "xyz": [
+     5400,
+     100
+    ],
+    "fix": [
+     false,
+     true
+    ],
+    "lb": 1800,
+    "wt": 200
+   },
+   {
+    "name": "n12",
+    "xyz": [
+     6450,
+     100
+    ],
+    "fix": [
+     false,
+     true
+    ],
+    "lb": 300,
+    "wt": 200
+   },
+   {
+    "name": "n13",
+    "xyz": [
+     7700,
+     428.4
+    ],
+    "lb": 0,
+    "wt": 189.03,
+    "band_dir": 19.069,
+    "smeared": true
+   },
+   {
+    "name": "n14",
+    "xyz": [
+     10000,
+     1223.5
+    ],
+    "lb": 0,
+    "wt": 189.11,
+    "band_dir": 19.069,
+    "smeared": true
+   }
+  ],
+  "members": [
+   {
+    "name": "m1",
+    "i": "n1",
+    "j": "n2",
+    "As": 20431.7,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m2",
+    "i": "n2",
+    "j": "n3",
+    "As": 20431.7,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m3",
+    "i": "n3",
+    "j": "n4",
+    "As": 20431.7,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m4",
+    "i": "n4",
+    "j": "n5",
+    "As": 20431.7,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m5",
+    "i": "n5",
+    "j": "n6",
+    "As": 20431.7,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m6",
+    "i": "n6",
+    "j": "n7",
+    "As": 20431.7,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m7",
+    "i": "n8",
+    "j": "n9",
+    "As": 16118.2,
+    "width_max": 450,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m8",
+    "i": "n9",
+    "j": "n10",
+    "As": 16118.2,
+    "width_max": 450,
+    "strut_class": "boundary",
+    "beta_s": 0.749
+   },
+   {
+    "name": "m9",
+    "i": "n10",
+    "j": "n11",
+    "As": 16118.2,
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m10",
+    "i": "n11",
+    "j": "n12",
+    "As": 16118.2,
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m11",
+    "i": "n12",
+    "j": "n13",
+    "As": 16118.2,
+    "width_max": 450,
+    "strut_class": "boundary",
+    "beta_s": 0.749
+   },
+   {
+    "name": "m12",
+    "i": "n13",
+    "j": "n14",
+    "As": 16118.2,
+    "width_max": 450,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m13",
+    "i": "n1",
+    "j": "n8",
+    "As": 15438.7,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m14",
+    "i": "n2",
+    "j": "n9",
+    "As": 14053.2,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m15",
+    "i": "n3",
+    "j": "n10",
+    "As": 9104.9,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m16",
+    "i": "n4",
+    "j": "n11",
+    "As": 8313.2,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m17",
+    "i": "n5",
+    "j": "n12",
+    "As": 9104.9,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m18",
+    "i": "n6",
+    "j": "n13",
+    "As": 14053.2,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m19",
+    "i": "n7",
+    "j": "n14",
+    "As": 15438.7,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m20",
+    "i": "n1",
+    "j": "n9",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m21",
+    "i": "n2",
+    "j": "n10",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m22",
+    "i": "n3",
+    "j": "n11",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m23",
+    "i": "n5",
+    "j": "n11",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m24",
+    "i": "n6",
+    "j": "n12",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m25",
+    "i": "n7",
+    "j": "n13",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   }
+  ],
+  "outline": [
+   [
+    [
+     0,
+     1400
+    ],
+    [
+     4050,
+     0
+    ],
+    [
+     6750,
+     0
+    ],
+    [
+     10800,
+     1400
+    ],
+    [
+     10800,
+     2700
+    ],
+    [
+     0,
+     2700
+    ]
+   ]
+  ],
+  "meta": {
+   "template": "custom",
+   "source": "AStrutTie Technical Book example 1.1 — complete file built from the book's inputs"
+  }
+ },
+ "reference": {
+  "source": "AStrutTie worked example 'Pier coping — one column' (AStrutTie Technical Book example 1.1 — complete file built from the book's inputs), run 25 Nov 2026",
+  "forces": {
+   "m8": -3246.0,
+   "m9": -3742.8,
+   "m10": -5047.6,
+   "m11": -2905.3,
+   "m16": -2372.0,
+   "m17": -1917.4,
+   "m20": -4271.2,
+   "m21": -5024.0,
+   "m22": -1226.4,
+   "m24": -4923.6,
+   "m25": -3822.9,
+   "m1": 2803.5,
+   "m2": 4750.8,
+   "m3": 5233.9,
+   "m4": 4897.9,
+   "m5": 5719.6,
+   "m6": 3145.9,
+   "m14": 2071.2,
+   "m15": 1127.2,
+   "m18": 1853.8,
+   "m23": 2086.0
+  },
+  "As_req": {
+   "m1": 9345.0,
+   "m2": 15836.0,
+   "m3": 17446.0,
+   "m4": 16326.0,
+   "m5": 19065.0,
+   "m6": 10486.0,
+   "m14": 6904.0,
+   "m15": 3757.0,
+   "m18": 6179.0,
+   "m23": 6953.0
+  },
+  "strut_sf": {
+   "m8": 1.81,
+   "m9": 1.66,
+   "m10": 1.23,
+   "m11": 2.02,
+   "m16": 15.67,
+   "m17": 4.85,
+   "m20": 1.5,
+   "m21": 2.21,
+   "m22": 19.24,
+   "m24": 2.25,
+   "m25": 1.67
+  },
+  "strut_wmax": {
+   "m8": 189.6,
+   "m9": 200.0,
+   "m10": 200.0,
+   "m11": 189.6,
+   "m16": 1200.0,
+   "m17": 300.0,
+   "m20": 206.3,
+   "m21": 358.1,
+   "m22": 761.6,
+   "m24": 358.1,
+   "m25": 206.3
+  },
+  "strut_nu": {
+   "m8": 0.637,
+   "m9": 0.637,
+   "m10": 0.637,
+   "m11": 0.637,
+   "m16": 0.637,
+   "m17": 0.637,
+   "m20": 0.637,
+   "m21": 0.637,
+   "m22": 0.637,
+   "m24": 0.637,
+   "m25": 0.637
+  },
+  "tie_sf": {
+   "m1": 2.19,
+   "m2": 1.29,
+   "m3": 1.17,
+   "m4": 1.25,
+   "m5": 1.07,
+   "m6": 1.95,
+   "m14": 2.04,
+   "m15": 2.42,
+   "m18": 2.27
+  },
+  "node_sf": {
+   "n1/m1": 3.54,
+   "n1/m20": 8.0,
+   "n1/bearing": 13.69,
+   "n2/m1": 2.65,
+   "n2/m2": 1.57,
+   "n2/m21": 5.95,
+   "n2/bearing": 12.37,
+   "n3/m2": 1.57,
+   "n3/m3": 1.42,
+   "n3/m22": 15.39,
+   "n4/m3": 1.42,
+   "n4/m4": 1.52,
+   "n4/bearing": 12.54,
+   "n5/m4": 1.52,
+   "n5/m5": 1.3,
+   "n5/m23": 9.05,
+   "n6/m5": 1.3,
+   "n6/m6": 2.36,
+   "n6/m24": 6.07,
+   "n6/bearing": 11.75,
+   "n7/m6": 3.15,
+   "n7/m25": 8.94,
+   "n7/bearing": 15.3,
+   "n9/m8": 1.93,
+   "n9/m20": 1.6,
+   "n10/m8": 2.75,
+   "n10/m9": 1.77,
+   "n10/m21": 2.36,
+   "n10/bearing": 2.38,
+   "n11/m9": 1.77,
+   "n11/m10": 1.31,
+   "n11/m22": 46.71,
+   "n11/m23": 27.46,
+   "n11/bearing": 37.61,
+   "n12/m10": 1.64,
+   "n12/m11": 3.83,
+   "n12/m24": 3.0,
+   "n12/bearing": 1.76,
+   "n13/m11": 2.16,
+   "n13/m25": 1.78
+  },
+  "node_kind": {
+   "n1": "CCT",
+   "n2": "CTT",
+   "n3": "CTT",
+   "n4": "CTT",
+   "n5": "CTT",
+   "n6": "CTT",
+   "n7": "CCT",
+   "n9": "CCT",
+   "n10": "CCT",
+   "n11": "CCT",
+   "n12": "CCC",
+   "n13": "CCT"
+  },
+  "anchorage": {
+   "m1@n1": {
+    "termination": "Straight",
+    "db": 32.3,
+    "ld": 1549.0,
+    "lanc": 1523.0,
+    "sf": 0.98
+   },
+   "m6@n7": {
+    "termination": "Straight",
+    "db": 32.3,
+    "ld": 1549.0,
+    "lanc": 1523.0,
+    "sf": 0.98
+   },
+   "m23@n5": {
+    "termination": "Straight",
+    "db": 19.1,
+    "ld": 743.0,
+    "lanc": 1456.0,
+    "sf": 1.96
+   },
+   "m23@n11": {
+    "termination": "Straight",
+    "db": 19.1,
+    "ld": 743.0,
+    "lanc": 2354.0,
+    "sf": 3.17
+   }
+  }
+ }
+}
