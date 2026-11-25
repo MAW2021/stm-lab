@@ -220,12 +220,52 @@ def pier_cap(code: CodeSet, xb, cw, h, b, P1, P2, fc, fy, d_tie=100, wc=None, lb
     return m
 
 
+# ---------------------------------------------------------------------------
+def dapped_end(code: CodeSet, H, hn, ln, xb, b, Vu, fc, fy, Nuc=None, e_h=75, a_c=350,
+               lb=150, c_top=75, c_bot=75, c_nib=75, c_end=40, As_nib=0.0, As_hanger=0.0,
+               As_bot=0.0, As_vert=0.0, db=25, strut_class="interior_reinf", title=None):
+    """Dapped end of a beam (x = 0 at the end of the nib, y = 0 at the beam soffit).
+    The bearing reaction Vu (up) and the restraint force Nuc (outward) act on the nib.
+    The truss is cut at node C/G/H, one hanger-to-anchorage distance a_c inside the
+    hanger; the forces at G and H are what the rest of the beam must carry."""
+    Nuc = 0.2 * Vu if Nuc is None else Nuc
+    m = STModel(title or "Dapped end", dim=2, b=b, fc=fc, fy=fy)
+    yA, yT, yB = H - hn + c_nib, H - c_top, c_bot
+    xh = ln + e_h
+    xc = xh + a_c
+    m.add_node("A", (xb, yA), load=(-Nuc, Vu), lb=lb, wt=2 * c_nib, anchor_ext=xb - c_end)
+    m.add_node("C0", (xh, yA), wt=2 * c_nib)
+    m.add_node("B", (xh, yT), wt=2 * c_top)
+    m.add_node("D", (xh, yB), wt=2 * c_bot)
+    m.add_node("C", (xc, yA), wt=2 * c_nib)
+    m.add_node("G", (xc, yT), fix=XY, wt=2 * c_top)
+    m.add_node("H", (xc, yB), fix=XY, wt=2 * c_bot)
+    m.add_member("S1", "A", "B", strut_class=strut_class)
+    m.add_member("TN1", "A", "C0", As=As_nib, db=db)
+    m.add_member("TN2", "C0", "C", As=As_nib, db=db)
+    m.add_member("HG1", "C0", "B", As=As_hanger)
+    m.add_member("HG2", "D", "C0", As=As_hanger)
+    m.add_member("TC1", "B", "G", strut_class="boundary")
+    m.add_member("BC1", "D", "H", As=As_bot, db=db)
+    m.add_member("S2", "D", "C", strut_class=strut_class)
+    m.add_member("S3", "B", "C", strut_class=strut_class)
+    m.add_member("V1", "C", "H", As=As_vert)
+    m.meta = dict(template="dapped_end", H=H, hn=hn, ln=ln, xb=xb, Vu=Vu, Nuc=Nuc, d=H - c_bot,
+                  outline=[[(0, H - hn), (ln, H - hn), (ln, 0), (xc + hn, 0), (xc + hn, H), (0, H)]],
+                  notes=[f"Bearing reaction Vu = {Vu:.1f} kN (up) and restraint Nuc = {Nuc:.1f} kN (outward) act on the nib at A",
+                         f"Hanger at {e_h:.0f} mm from the re-entrant corner; truss cut {a_c:.0f} mm beyond the hanger (nodes C, G, H)",
+                         "G and H carry the section forces into the rest of the beam",
+                         "Nib tie TN1/TN2 and hanger HG1/HG2 need full anchorage at both ends (check hooks at A)"])
+    return m
+
+
 TEMPLATES = {
     "deep_beam": deep_beam,
     "corbel": corbel,
     "pile_cap_2": pile_cap_2,
     "pile_cap_4": pile_cap_4,
     "pier_cap": pier_cap,
+    "dapped_end": dapped_end,
 }
 
 

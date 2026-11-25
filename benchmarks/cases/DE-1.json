@@ -1,0 +1,16 @@
+{
+ "template": "dapped_end",
+ "code": "ACI318-19",
+ "element": "DE-1",
+ "params": {
+  "H": 1200,
+  "hn": 600,
+  "ln": 500,
+  "xb": 250,
+  "b": 500,
+  "Vu": 400,
+  "fc": 30,
+  "fy": 420,
+  "As_nib": 1500
+ }
+}

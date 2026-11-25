@@ -14,7 +14,7 @@ with Python and numpy. Nothing leaves your computer.
 
 | Step | STM-Lab |
 |---|---|
-| Template | Deep beam / transfer girder (1 or 2 loads), corbel, two-pile cap, four-pile cap (3D), hammerhead pier cap, or any custom truss written in JSON |
+| Template | Deep beam / transfer girder (1 or 2 loads), corbel, dapped end, two-pile cap, four-pile cap (3D), hammerhead pier cap, or any custom truss written in JSON |
 | Geometry, load, material | Dimensions, bearing plates, tie depth, f'c, fy, provided steel |
 | STM model | Nodes are placed automatically. The compression chord / node depth is sized so that the CCC node is at capacity |
 | Analysis | Pin-jointed truss solved by direct stiffness (2D and 3D), with equilibrium and stability checks |
