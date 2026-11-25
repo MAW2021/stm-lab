@@ -1,0 +1,436 @@
+{
+ "code": "AASHTO-LRFD",
+ "interior_width_rule": "secant",
+ "element": "Drilled-shaft footing — 4 shafts (FH4-AST-1)",
+ "custom": {
+  "title": "Drilled-shaft footing — 4 shafts (AStrutTie worked example)",
+  "dim": 3,
+  "b": 4876.8,
+  "fc": 34.474,
+  "fy": 517.107,
+  "interior_width_rule": "secant",
+  "stiffness": "section",
+  "nodes": [
+   {
+    "name": "c0",
+    "xyz": [
+     1866.9,
+     1819.1,
+     1371.6
+    ],
+    "load": [
+     0,
+     0,
+     -7845.2
+    ]
+   },
+   {
+    "name": "c1",
+    "xyz": [
+     3009.9,
+     1819.1,
+     1371.6
+    ],
+    "load": [
+     0,
+     0,
+     -7845.2
+    ]
+   },
+   {
+    "name": "c2",
+    "xyz": [
+     3009.9,
+     3490,
+     1371.6
+    ],
+    "load": [
+     0,
+     0,
+     1508.7
+    ]
+   },
+   {
+    "name": "c3",
+    "xyz": [
+     1866.9,
+     3490,
+     1371.6
+    ],
+    "load": [
+     0,
+     0,
+     1508.7
+    ]
+   },
+   {
+    "name": "p0",
+    "xyz": [
+     4038.6,
+     838.2,
+     137.4
+    ],
+    "fix": [
+     true,
+     true,
+     true
+    ],
+    "load": [
+     0,
+     0,
+     5182
+    ]
+   },
+   {
+    "name": "p1",
+    "xyz": [
+     4038.6,
+     4038.6,
+     137.4
+    ],
+    "fix": [
+     false,
+     false,
+     true
+    ],
+    "load": [
+     0,
+     0,
+     1154.5
+    ]
+   },
+   {
+    "name": "p2",
+    "xyz": [
+     838.2,
+     4038.6,
+     137.4
+    ],
+    "fix": [
+     false,
+     true,
+     true
+    ],
+    "load": [
+     0,
+     0,
+     1154.5
+    ]
+   },
+   {
+    "name": "p3",
+    "xyz": [
+     838.2,
+     838.2,
+     137.4
+    ],
+    "load": [
+     0,
+     0,
+     5182
+    ]
+   },
+   {
+    "name": "b2",
+    "xyz": [
+     3009.9,
+     3490,
+     137.4
+    ]
+   },
+   {
+    "name": "b3",
+    "xyz": [
+     1866.9,
+     3490,
+     137.4
+    ]
+   }
+  ],
+  "members": [
+   {
+    "name": "m1",
+    "i": "c0",
+    "j": "c1",
+    "As": 3019.3,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m2",
+    "i": "c1",
+    "j": "c2",
+    "As": 3019.3,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m3",
+    "i": "c2",
+    "j": "c3",
+    "As": 3019.3,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m4",
+    "i": "c3",
+    "j": "c0",
+    "As": 3019.3,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m5",
+    "i": "c0",
+    "j": "c2",
+    "As": 3019.3,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m6",
+    "i": "c1",
+    "j": "c3",
+    "As": 3019.3,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m7",
+    "i": "c0",
+    "j": "p0",
+    "strut_class": "interior_no_reinf",
+    "area": 788062.9
+   },
+   {
+    "name": "m8",
+    "i": "c1",
+    "j": "p0",
+    "strut_class": "interior_no_reinf",
+    "area": 960372.3
+   },
+   {
+    "name": "m9",
+    "i": "c0",
+    "j": "p1",
+    "strut_class": "interior_no_reinf",
+    "area": 701908.3
+   },
+   {
+    "name": "m10",
+    "i": "c1",
+    "j": "p1",
+    "strut_class": "interior_no_reinf",
+    "area": 779224.2
+   },
+   {
+    "name": "m11",
+    "i": "c0",
+    "j": "p2",
+    "strut_class": "interior_no_reinf",
+    "area": 779224.2
+   },
+   {
+    "name": "m12",
+    "i": "c0",
+    "j": "p3",
+    "strut_class": "interior_no_reinf",
+    "area": 960372.3
+   },
+   {
+    "name": "m13",
+    "i": "p0",
+    "j": "p1",
+    "As": 12077.4,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m14",
+    "i": "p0",
+    "j": "p3",
+    "As": 12077.4,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m15",
+    "i": "p1",
+    "j": "p2",
+    "As": 12077.4,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m16",
+    "i": "p2",
+    "j": "p3",
+    "As": 12077.4,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m17",
+    "i": "p0",
+    "j": "p2",
+    "As": 12077.4,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m18",
+    "i": "c2",
+    "j": "b2",
+    "As": 6038.7,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m19",
+    "i": "b2",
+    "j": "p1",
+    "As": 12077.4,
+    "strut_class": "interior_no_reinf",
+    "area": 314128.4
+   },
+   {
+    "name": "m20",
+    "i": "b2",
+    "j": "p2",
+    "As": 12077.4,
+    "strut_class": "interior_no_reinf",
+    "area": 314128.4
+   },
+   {
+    "name": "m21",
+    "i": "b2",
+    "j": "c0",
+    "strut_class": "interior_no_reinf",
+    "area": 843701.5
+   },
+   {
+    "name": "m22",
+    "i": "b2",
+    "j": "c3",
+    "strut_class": "interior_no_reinf",
+    "area": 62412.8
+   },
+   {
+    "name": "m23",
+    "i": "c3",
+    "j": "b3",
+    "As": 6038.7,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m24",
+    "i": "b3",
+    "j": "p2",
+    "As": 12077.4,
+    "strut_class": "interior_no_reinf",
+    "area": 314128.4
+   },
+   {
+    "name": "m25",
+    "i": "b3",
+    "j": "p1",
+    "As": 12077.4,
+    "strut_class": "interior_no_reinf",
+    "area": 314128.4
+   },
+   {
+    "name": "m26",
+    "i": "b3",
+    "j": "c1",
+    "strut_class": "interior_no_reinf",
+    "area": 843701.5
+   }
+  ],
+  "outline": [],
+  "meta": {
+   "template": "custom",
+   "source": "FHWA-NHI-17-071 Design Example 4 — complete file built from the published inputs (pp. 4-4–4-37)"
+  }
+ },
+ "reference": {
+  "source": "AStrutTie worked example 'Drilled-shaft footing — 4 shafts' (FHWA-NHI-17-071 Design Example 4 — complete file built from the published inputs (pp. 4-4–4-37)), run 25 Nov 2026",
+  "forces": {
+   "m7": -879.4134133370007,
+   "m8": -7287.07665011975,
+   "m9": -483.96651174034236,
+   "m10": -2166.2839266318633,
+   "m11": -2563.0652947131002,
+   "m12": -7904.044988156382,
+   "m19": -2315.7441729046163,
+   "m20": -666.3435979660229,
+   "m21": -1777.9541796196218,
+   "m22": -794.8972026470512,
+   "m24": -4789.400213150981,
+   "m25": -2360.6712112187474,
+   "m26": -4018.9682293878614,
+   "m13": 3744.068133564763,
+   "m14": 4319.2231884179455,
+   "m15": 5459.7472105707375,
+   "m16": 4118.608393569696,
+   "m17": 529.7831943775254,
+   "m18": 1508.8367718963614,
+   "m23": 2091.9986256570132
+  },
+  "As_req": {
+   "m13": 8044.500039999999,
+   "m14": 9280.6266,
+   "m15": 11730.94428,
+   "m16": 8849.65972,
+   "m17": 1138.06224,
+   "m18": 3241.929,
+   "m23": 4494.82972
+  },
+  "strut_sf": {
+   "m7": 9.73,
+   "m8": 1.43,
+   "m9": 15.75,
+   "m10": 3.91,
+   "m11": 3.3,
+   "m12": 1.32,
+   "m19": 1.47,
+   "m20": 5.12,
+   "m21": 5.15,
+   "m22": 0.85,
+   "m24": 0.71,
+   "m25": 1.45,
+   "m26": 2.28
+  },
+  "strut_wmax": {},
+  "strut_nu": {
+   "m7": 0.45,
+   "m8": 0.45,
+   "m9": 0.45,
+   "m10": 0.45,
+   "m11": 0.45,
+   "m12": 0.45,
+   "m19": 0.45,
+   "m20": 0.45,
+   "m21": 0.45,
+   "m22": 0.45,
+   "m24": 0.45,
+   "m25": 0.45,
+   "m26": 0.45
+  },
+  "tie_sf": {
+   "m13": 1.5,
+   "m14": 1.3,
+   "m15": 1.03,
+   "m16": 1.36,
+   "m17": 10.61,
+   "m18": 1.86,
+   "m23": 1.34
+  },
+  "node_sf": {},
+  "node_kind": {},
+  "anchorage": {},
+  "crack_control": {
+   "m7": false,
+   "m8": false,
+   "m9": false,
+   "m10": false,
+   "m11": false,
+   "m12": false,
+   "m19": false,
+   "m20": false,
+   "m21": false,
+   "m22": false,
+   "m24": false,
+   "m25": false,
+   "m26": false
+  }
+ }
+}

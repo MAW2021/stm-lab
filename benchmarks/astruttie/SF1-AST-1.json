@@ -1,0 +1,334 @@
+{
+ "code": "ACI318-19",
+ "interior_width_rule": "secant",
+ "element": "Spread footing — one column (SF1-AST-1)",
+ "custom": {
+  "title": "Spread footing — one column (AStrutTie worked example)",
+  "dim": 2,
+  "b": 7000,
+  "fc": 24,
+  "fy": 400,
+  "interior_width_rule": "secant",
+  "stiffness": "section",
+  "nodes": [
+   {
+    "name": "b1",
+    "xyz": [
+     750,
+     100
+    ],
+    "load": [
+     -28.1,
+     174.9
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 1500,
+    "smeared": true
+   },
+   {
+    "name": "b2",
+    "xyz": [
+     2850,
+     100
+    ],
+    "load": [
+     -34.4,
+     1785.9
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 5700,
+    "smeared": true
+   },
+   {
+    "name": "b3",
+    "xyz": [
+     5150,
+     100
+    ],
+    "load": [
+     -34.4,
+     3507.8
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 5700,
+    "smeared": true
+   },
+   {
+    "name": "b4",
+    "xyz": [
+     7250,
+     100
+    ],
+    "load": [
+     -28.1,
+     4156.4
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 1500,
+    "smeared": true
+   },
+   {
+    "name": "t1",
+    "xyz": [
+     750,
+     1900
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 1500,
+    "smeared": true
+   },
+   {
+    "name": "t2",
+    "xyz": [
+     2850,
+     1900
+    ],
+    "fix": [
+     true,
+     true
+    ],
+    "lb": 200,
+    "wt": 200,
+    "wt_v": 5700
+   },
+   {
+    "name": "t3",
+    "xyz": [
+     5150,
+     1900
+    ],
+    "fix": [
+     false,
+     true
+    ],
+    "lb": 200,
+    "wt": 200,
+    "wt_v": 5700
+   },
+   {
+    "name": "t4",
+    "xyz": [
+     7250,
+     1900
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 1500,
+    "smeared": true
+   }
+  ],
+  "members": [
+   {
+    "name": "m1",
+    "i": "b1",
+    "j": "b2",
+    "As": 34962.8,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m2",
+    "i": "b2",
+    "j": "b3",
+    "As": 34962.8,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m3",
+    "i": "b3",
+    "j": "b4",
+    "As": 34962.8,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m4",
+    "i": "t1",
+    "j": "t2",
+    "As": 34962.8,
+    "width_max": 450,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m5",
+    "i": "t2",
+    "j": "t3",
+    "As": 34962.8,
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m6",
+    "i": "t3",
+    "j": "t4",
+    "As": 34962.8,
+    "width_max": 450,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m7",
+    "i": "b1",
+    "j": "t1",
+    "As": 23086.9,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m8",
+    "i": "b2",
+    "j": "t2",
+    "As": 28217.3,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m9",
+    "i": "b3",
+    "j": "t3",
+    "As": 28217.3,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m10",
+    "i": "b4",
+    "j": "t4",
+    "As": 23086.9,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "m11",
+    "i": "t2",
+    "j": "b1",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m12",
+    "i": "t3",
+    "j": "b2",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "m13",
+    "i": "t3",
+    "j": "b4",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   }
+  ],
+  "outline": [
+   [
+    [
+     0,
+     0
+    ],
+    [
+     8000,
+     0
+    ],
+    [
+     8000,
+     2000
+    ],
+    [
+     0,
+     2000
+    ]
+   ]
+  ],
+  "meta": {
+   "template": "custom",
+   "source": "AStrutTie Technical Book example 2.3 — complete file built from the book's inputs"
+  }
+ },
+ "reference": {
+  "source": "AStrutTie worked example 'Spread footing — one column' (AStrutTie Technical Book example 2.3 — complete file built from the book's inputs), run 25 Nov 2026",
+  "forces": {
+   "m5": -329.0,
+   "m9": -3507.8,
+   "m11": -268.7,
+   "m12": -5739.7,
+   "m13": -6386.6,
+   "m1": 232.2,
+   "m2": 4786.6,
+   "m3": 4821.0,
+   "m8": 1751.5
+  },
+  "As_req": {
+   "m1": 774.0,
+   "m2": 15955.0,
+   "m3": 16070.0,
+   "m8": 5838.0
+  },
+  "strut_sf": {
+   "m5": 48.82,
+   "m9": 4.58,
+   "m11": 78.74,
+   "m12": 3.55,
+   "m13": 3.31
+  },
+  "strut_wmax": {
+   "m5": 200.0,
+   "m9": 200.0,
+   "m11": 263.4,
+   "m12": 254.0,
+   "m13": 263.4
+  },
+  "strut_nu": {
+   "m5": 0.637,
+   "m9": 0.637,
+   "m11": 0.637,
+   "m12": 0.637,
+   "m13": 0.637
+  },
+  "tie_sf": {
+   "m1": 45.18,
+   "m2": 2.19,
+   "m3": 2.18,
+   "m8": 4.83
+  },
+  "node_sf": {
+   "b1/m1": 73.81,
+   "b1/m11": 83.99,
+   "b2/m1": 55.36,
+   "b2/m2": 2.68,
+   "b2/m12": 2.84,
+   "b3/m2": 2.68,
+   "b3/m3": 2.67,
+   "b4/m3": 3.55,
+   "b4/m13": 3.53,
+   "t2/m5": 52.08,
+   "t2/m11": 89.92,
+   "t3/m5": 65.1,
+   "t3/m12": 5.24,
+   "t3/m13": 4.73,
+   "t3/bearing": 1.91
+  },
+  "node_kind": {
+   "b1": "CCT",
+   "b2": "CTT",
+   "b3": "CTT",
+   "b4": "CCT",
+   "t2": "CCT",
+   "t3": "CCC"
+  },
+  "anchorage": {
+   "m1@b1": {
+    "termination": "Straight",
+    "db": 25.4,
+    "ld": 1220.0,
+    "lanc": 912.0,
+    "sf": 0.75
+   },
+   "m3@b4": {
+    "termination": "Straight",
+    "db": 25.4,
+    "ld": 1220.0,
+    "lanc": 912.0,
+    "sf": 0.75
+   }
+  }
+ }
+}

@@ -259,6 +259,137 @@ def dapped_end(code: CodeSet, H, hn, ln, xb, b, Vu, fc, fy, Nuc=None, e_h=75, a_
     return m
 
 
+# ---------------------------------------------------------------------------
+def _num_list(v):
+    if isinstance(v, str):
+        return [float(t) for t in v.replace(";", ",").split(",") if t.strip()]
+    return [float(t) for t in (v or [])]
+
+
+def foundation_loads(kind, B, H, columns, piles=(), n_spread=4, heel_len=0.0, w_heel1=0.0,
+                     w_heel2=0.0):
+    """Reactions of a rigid footing, returned as loads on the footing.
+
+    columns: [(x, V, Hx, M)] with V down (kN), Hx along +x (kN), M (kN·m, clockwise
+    = positive, increases the reactions on the +x side).  Moments are taken at the
+    footing soffit, so Hx adds Hx·H.  kind = "pile": equal pile stiffness, rigid cap
+    (R_i = ΣV/n + M·x_i/Σx²).  kind = "spread": n_spread soil springs with stiffness
+    proportional to their tributary length (linear, uplift not excluded), at the
+    stations given in `piles` or at n_spread equal spacings.
+    heel_len/w_heel1/w_heel2: trapezoidal surcharge (kN/m) from x = 0 to heel_len.
+    Returns (stations x, vertical reactions R (up +), horizontal reactions (along x),
+    heel loads on stations [(x, w·tributary)])."""
+    if kind == "pile":
+        xs = sorted(_num_list(piles))
+        k = [1.0] * len(xs)
+    else:
+        xs = sorted(_num_list(piles))
+        if len(xs) < 2:
+            n = max(2, int(n_spread))
+            xs = [(i + 0.5) * B / n for i in range(n)]
+        n = len(xs)
+        mids = [0.0] + [(a + c) / 2 for a, c in zip(xs, xs[1:])] + [B]
+        k = [mids[i + 1] - mids[i] for i in range(n)]
+    V = sum(c[1] for c in columns)
+    Hx = sum(c[2] for c in columns)
+    W = 0.5 * (w_heel1 + w_heel2) * heel_len / 1e3 if heel_len > 0 else 0.0
+    xW = (heel_len * (w_heel1 + 2 * w_heel2) / (3 * (w_heel1 + w_heel2))) if W else 0.0
+    K = sum(k)
+    xbar = sum(ki * x for ki, x in zip(k, xs)) / K
+    M = sum(c[3] * 1e3 + c[1] * (c[0] - xbar) + c[2] * H for c in columns) + W * (xW - xbar)
+    I = sum(ki * (x - xbar) ** 2 for ki, x in zip(k, xs))
+    a = (V + W) / K
+    bb = M / I if I > 0 else 0.0
+    R = [ki * (a + bb * (x - xbar)) for ki, x in zip(k, xs)]
+    Hr = [-Hx * ki / K for ki in k]
+    return xs, R, Hr, W
+
+
+def footing(code: CodeSet, kind="pile", B=7000, H=2000, b=7000, fc=35, fy=400,
+            x1=3500, cw1=2500, V1=9000, H1=5000, M1=50000, x2=None, cw2=1500, V2=0, H2=0, M2=0,
+            piles="650,2550,4450,6350", pile_d=508, n_spread=4, heel_len=0, w_heel1=0, w_heel2=0,
+            c_top=100, c_bot=100, c_col=100, As_top=0.0, As_bot=0.0, As_vert=0.0,
+            strut_class="interior_reinf", title=None):
+    """Pile or spread footing (also an abutment footing with a heel surcharge) under one
+    or two columns/walls, 2D section of width b.  Column loads (V, H, M at the footing
+    top) are carried to the soffit by a rigid-footing reaction calculation; the pile or
+    soil reactions are applied as loads at the bottom chord and the columns are the
+    supports.  The truss is indeterminate: member stiffness follows the section
+    (Es·As for reinforced members, Ec·w·b otherwise)."""
+    cols = [(x1, cw1, V1, H1, M1)]
+    if x2 not in (None, ""):
+        cols.append((x2, cw2, V2, H2, M2))
+    xs_r, R, Hr, W = foundation_loads(kind, B, H, [(c[0], c[2], c[3], c[4]) for c in cols],
+                                      piles, n_spread, heel_len, w_heel1, w_heel2)
+    sup = []
+    for (xc, cw, *_r) in cols:
+        off = max(cw / 2 - c_col, cw / 4)
+        sup += [xc - off, xc + off]
+    st = sorted(set(round(x, 3) for x in xs_r))
+    for xsu in sup:
+        if all(abs(xsu - x) > 0.3 * H for x in st):
+            st.append(round(xsu, 3))
+        else:   # a pile/spring station close by: move it to the column support
+            j = min(range(len(st)), key=lambda q: abs(st[q] - xsu))
+            st[j] = round(xsu, 3)
+    st = sorted(st)
+    m = STModel(title or ("Pile footing" if kind == "pile" else "Spread footing"), dim=2, b=b, fc=fc, fy=fy,
+                interior_width_rule="secant", stiffness="section")
+    yt, yb = H - c_top, c_bot
+    ccx = [c[0] for c in cols]
+    first = True
+    for k, x in enumerate(st, 1):
+        is_sup = any(abs(x - s_) < 1e-6 for s_ in sup)
+        col = min(cols, key=lambda c: abs(c[0] - x))
+        kw = dict(wt=2 * c_top)
+        if is_sup:
+            kw.update(fix=(True, True) if first else (False, True), lb=col[1] / 2 - c_col)
+            first = False
+        m.add_node(f"T{k}", (x, yt), **kw)
+        m.add_node(f"B{k}", (x, yb), wt=2 * c_bot,
+                   lb=pile_d if kind == "pile" and any(abs(x - xr) <= 0.3 * H for xr in xs_r) else 0.0)
+    # loads: reactions at the bottom chord (nearest station), heel surcharge on the top chord
+    for xr, r, h in zip(xs_r, R, Hr):   # each reaction goes to the nearest station
+        k = min(range(len(st)), key=lambda q: abs(st[q] - xr)) + 1
+        n = m.nodes[f"B{k}"]
+        n.load = (n.load[0] + h, n.load[1] + r)
+    if heel_len > 0:
+        mids = [0.0] + [(a + c) / 2 for a, c in zip(st, st[1:])] + [B]
+        for k in range(len(st)):
+            a0, a1 = mids[k], min(mids[k + 1], heel_len)
+            if a1 <= a0:
+                continue
+            wq = lambda x: w_heel1 + (w_heel2 - w_heel1) * x / heel_len
+            P = 0.5 * (wq(a0) + wq(a1)) * (a1 - a0) / 1e3
+            n = m.nodes[f"T{k + 1}"]
+            n.load = (n.load[0], n.load[1] - P)
+    N = len(st)
+    for k in range(1, N):
+        m.add_member(f"TC{k}", f"T{k}", f"T{k + 1}", As=As_top, strut_class="boundary")
+        m.add_member(f"BC{k}", f"B{k}", f"B{k + 1}", As=As_bot, strut_class="boundary")
+        xm = 0.5 * (st[k - 1] + st[k])
+        xc = min(ccx, key=lambda c: abs(c - xm))
+        if xm < xc:   # panel left of the column: strut from the top-right node down-left
+            m.add_member(f"D{k}", f"T{k + 1}", f"B{k}", strut_class=strut_class)
+        else:
+            m.add_member(f"D{k}", f"T{k}", f"B{k + 1}", strut_class=strut_class)
+    for k in range(1, N + 1):
+        m.add_member(f"V{k}", f"B{k}", f"T{k}", As=As_vert, strut_class="interior_reinf")
+    tot = sum(R)
+    m.meta = dict(template="footing", d=H - c_bot, kind=kind,
+                  outline=[[(0, 0), (B, 0), (B, H)] + sum(([(c[0] + c[1] / 2, H), (c[0] + c[1] / 2, H + 0.4 * H),
+                                                            (c[0] - c[1] / 2, H + 0.4 * H), (c[0] - c[1] / 2, H)]
+                                                           for c in sorted(cols, key=lambda c: -c[0])), []) + [(0, H)]],
+                  notes=[("Pile reactions from a rigid cap with equal pile stiffness" if kind == "pile" else
+                          f"Soil reactions from {len(xs_r)} springs, stiffness ∝ tributary length (linear, uplift not excluded)")
+                         + f"; ΣR = {tot:.1f} kN, moments taken at the soffit (M + H·{H:.0f} mm)",
+                         "Reactions are applied as loads at the bottom chord; the columns are the supports",
+                         f"Heel surcharge {w_heel1:g}→{w_heel2:g} kN/m over {heel_len:.0f} mm = {W:.1f} kN" if heel_len else
+                         "No heel surcharge",
+                         "Indeterminate truss: member stiffness Es·As (reinforced) or Ec·w·b (struts)"])
+    return m
+
+
 TEMPLATES = {
     "deep_beam": deep_beam,
     "corbel": corbel,
@@ -266,6 +397,7 @@ TEMPLATES = {
     "pile_cap_4": pile_cap_4,
     "pier_cap": pier_cap,
     "dapped_end": dapped_end,
+    "footing": footing,
 }
 
 

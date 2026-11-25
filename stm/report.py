@@ -149,10 +149,11 @@ def html_report(res, checks, code, project="", engineer="", element=""):
 
     h.append("<h2>2. Code parameters</h2><table><tr><th>Item</th><th>Value</th><th>Reference</th></tr>")
     h.append(f"<tr><td>Effective strength</td><td>{E(code.refs['fce'])}</td><td></td></tr>")
-    h.append("<tr><td>β_s</td><td>" + ", ".join(f"{E(k)} {v}" for k, v in code.beta_s.items())
-             + f"</td><td>{E(code.refs['strut'])}</td></tr>")
-    h.append("<tr><td>β_n</td><td>" + ", ".join(f"{k} {v}" for k, v in code.beta_n.items())
-             + f"</td><td>{E(code.refs['node'])}</td></tr>")
+    if code.family != "AASHTO":
+        h.append("<tr><td>β_s</td><td>" + ", ".join(f"{E(k)} {v}" for k, v in code.beta_s.items())
+                 + f"</td><td>{E(code.refs['strut'])}</td></tr>")
+        h.append("<tr><td>β_n</td><td>" + ", ".join(f"{k} {v}" for k, v in code.beta_n.items())
+                 + f"</td><td>{E(code.refs['node'])}</td></tr>")
     h.append(f"<tr><td>φ strut / node / tie</td><td>{code.phi_strut} / {code.phi_node} / "
              f"{code.phi_tie}</td><td></td></tr>")
     h.append(f"<tr><td>Min. strut–tie angle</td><td>{code.min_angle_deg:.0f}°</td>"

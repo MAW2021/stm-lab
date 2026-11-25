@@ -215,8 +215,9 @@ function generate(){
   if (st.tpl === "custom") { st.spec = clone(CUSTOM_EXAMPLE); }
   else {
     const T = S.TEMPLATES[st.tpl], prm = {};
-    T.params.forEach(([k, , , unit]) => { const v = tplParams(st.tpl)[k]; prm[k] = (v === "" || v === null) ? null : (unit === "class" ? v : Number(v)); });
+    T.params.forEach(([k, , , unit]) => { const v = tplParams(st.tpl)[k]; prm[k] = (v === "" || v === null) ? null : (unit === "class" || unit === "text" ? v : Number(v)); });
     st.spec = S.toSpec(T.build(S.CODES[st.code], prm));
+    if (st.spec.interior_width_rule === "secant") st.rule = "secant";
   }
   st.edited = false; st.sel = null; st.pending = null;
 }
@@ -565,11 +566,13 @@ function renderRail(){
   if (st.step === 1) {
     h += `<div class="grp"><h3>Element</h3><label class="full">Element type<select id="tpl">${Object.entries(S.TEMPLATES).map(([k, t]) => `<option value="${k}" ${k === st.tpl ? "selected" : ""}>${E(t.name)}</option>`).join("")}<option value="custom" ${st.tpl === "custom" ? "selected" : ""}>Custom model (draw your own)</option></select></label>
       <label class="full">Design code<select id="code">${Object.values(S.CODES).map(c => `<option value="${c.key}">${E(c.name)}</option>`).join("")}</select></label>
-      <label class="full">Strut width at nodes without a plate<select id="rule"><option value="projection" ${st.rule === "projection" ? "selected" : ""}>Projection wt·cosθ (conservative)</option><option value="secant" ${st.rule === "secant" ? "selected" : ""}>Secant wt/cosθ</option></select></label></div>`;
+      <label class="full">Strut width at nodes without a plate<select id="rule"><option value="projection" ${st.rule === "projection" ? "selected" : ""}>Projection wt·cosθ (conservative)</option><option value="secant" ${st.rule === "secant" ? "selected" : ""}>Secant wt/cosθ (spread over the chord band)</option></select></label>
+      <label class="full">Member stiffness (indeterminate models)<select id="stiff"><option value="uniform" ${(st.spec && st.spec.stiffness) !== "section" ? "selected" : ""}>Uniform EA</option><option value="section" ${(st.spec && st.spec.stiffness) === "section" ? "selected" : ""}>From the section: Es·As for steel, Ec·w·b for struts</option></select></label></div>`;
     if (st.tpl !== "custom") {
       h += `<div class="grp"><h3>Template inputs</h3>${S.TEMPLATES[st.tpl].params.map(([k, lab, dv, unit]) => {
         const v = tplParams(st.tpl)[k];
         if (unit === "class") return `<label class="full">${E(lab)}<select data-prm="${k}">${Object.entries(S.STRUT_CLASSES).map(([ck, cd]) => `<option value="${ck}" ${ck === v ? "selected" : ""}>${E(cd)}</option>`).join("")}</select></label>`;
+        if (unit === "text") return `<label class="full">${E(lab)}<input data-prm="${k}" value="${E(v == null ? "" : v)}"></label>`;
         return `<label class="f"><span>${E(lab)} <span class="u">${E(unit)}</span></span><input data-prm="${k}" value="${E(v == null ? "" : v)}" inputmode="decimal"></label>`; }).join("")}</div>`;
       h += st.edited ? `<div class="grp"><p class="hint">The model has manual edits. Changing inputs here will not move them until you regenerate.</p><button class="btn ${st.confirmRegen ? "warn" : ""}" id="regen" type="button">${st.confirmRegen ? "Click again to replace my edits" : "Regenerate from template"}</button></div>`
         : `<p class="hint">The model updates as you type. Continue to Geometry or STM model to edit it by hand.</p>`;
@@ -615,6 +618,7 @@ function bindRail(){
   on("tpl", "change", () => { const had = st.edited; st.tpl = $("tpl").value; st.confirmRegen = false; pushUndo(); generate(); analyze(); renderAll(); fit(); if (had) toast("New element generated. Undo brings back your edited model."); });
   on("code", "change", () => { st.code = $("code").value; analyze(); renderAll(); });
   on("rule", "change", () => { st.rule = $("rule").value; analyze(); renderAll(); });
+  on("stiff", "change", () => { if (st.spec) mutate(() => { st.spec.stiffness = $("stiff").value; }); });
   ["project", "element", "engineer"].forEach(k => on(k, "input", () => { st[k] = $(k).value; renderReport(); }));
   document.querySelectorAll("[data-prm]").forEach(inp => inp.addEventListener(inp.tagName === "SELECT" ? "change" : "input", () => {
     (st.params[st.tpl] = st.params[st.tpl] || {})[inp.dataset.prm] = inp.value;
@@ -667,7 +671,8 @@ function renderInspector(){
         ${d === 2 ? `<div class="row2"><label>Plate lb mm<input data-nnum="lb" value="${n.lb}" inputmode="decimal" ${dis}></label><label>Tie zone wt mm<input data-nnum="wt" value="${n.wt}" inputmode="decimal" ${dis}></label></div>`
           : `<div class="row2"><label>Bearing area mm²<input data-nnum="bearing_area" value="${n.bearing_area}" inputmode="decimal" ${dis}></label><label>Bearing axis<select data-nsel="bearing_axis" ${dis}>${[[-1,"auto (z)"],[0,"x"],[1,"y"],[2,"z"]].map(([v, l]) => `<option value="${v}" ${n.bearing_axis === v ? "selected" : ""}>${l}</option>`).join("")}</select></label></div>`}
         <div class="row2"><label>β_c confinement<input data-nnum="confine" value="${n.confine}" inputmode="decimal" ${dis}></label><label>Node type<select data-nsel="kind_override" ${dis}>${[["","auto"],["CCC","CCC"],["CCT","CCT"],["CTT","CTT"]].map(([v, l]) => `<option value="${v}" ${n.kind_override === v ? "selected" : ""}>${l}</option>`).join("")}</select></label></div>
-        ${d === 2 ? `<label class="f"><span>Bar extension past node <span class="u">mm, −1 = no check</span></span><input data-nnum="anchor_ext" value="${n.anchor_ext}" inputmode="decimal" ${dis}></label>` : ""}</div>`;
+        ${d === 2 ? `<div class="row2"><label>Vertical tie band wt,v mm<input data-nnum="wt_v" value="${n.wt_v || 0}" inputmode="decimal" ${dis}></label><label>Chord band angle °<input data-nnum="band_dir" value="${n.band_dir || 0}" inputmode="decimal" ${dis}></label></div>
+        <label class="f"><span>Bar extension past node <span class="u">mm, −1 = no check</span></span><input data-nnum="anchor_ext" value="${n.anchor_ext}" inputmode="decimal" ${dis}></label>` : ""}</div>`;
     if (st.out) h += `<div class="grp"><h3>Results</h3><dl class="kvt"><dt>Node type</dt><dd>${L.kinds[n.name] || "–"}</dd>${R ? `<dt>Reaction</dt><dd>${R.map(v => fmt(v, 1)).join(", ")} kN</dd>` : ""}<dt>Max utilisation</dt><dd style="color:${ucol(L.nutil[n.name])}">${L.nutil[n.name] != null ? L.nutil[n.name].toFixed(2) : "–"}</dd></dl>${ckItems(L.nchecks[n.name] || [])}</div>`;
     if (edit && st.step === 3) h += `<button class="btn warn" id="i_del" type="button">Delete node and its members</button>`;
   } else if (s.t === "m") {
@@ -680,9 +685,10 @@ function renderInspector(){
       <div class="row2"><label>From node<select data-msel="i" ${dis}>${st.spec.nodes.map(n => `<option ${n.name === e.i ? "selected" : ""}>${E(n.name)}</option>`).join("")}</select></label><label>To node<select data-msel="j" ${dis}>${st.spec.nodes.map(n => `<option ${n.name === e.j ? "selected" : ""}>${E(n.name)}</option>`).join("")}</select></label></div>
       <label class="full">Intended role<select data-msel="role" ${dis}>${[["auto","auto (from force sign)"],["strut","strut"],["tie","tie"]].map(([v, l]) => `<option value="${v}" ${e.role === v ? "selected" : ""}>${l}</option>`).join("")}</select></label>
       <div class="grp"><h3>As a strut</h3><label class="full">Strut class (β_s)<select data-msel="strut_class" ${dis}>${Object.entries(S.STRUT_CLASSES).map(([ck, cd]) => `<option value="${ck}" ${ck === e.strut_class ? "selected" : ""}>${E(cd)}</option>`).join("")}</select></label>
-        <div class="row2">${st.spec.dim === 2 ? `<label>Width override mm<input data-mnum="width" value="${e.width}" inputmode="decimal" ${dis}></label>` : `<label>Area override mm²<input data-mnum="area" value="${e.area}" inputmode="decimal" ${dis}></label>`}<label>Stiffness EA kN<input data-mnum="EA" value="${e.EA}" inputmode="decimal" ${dis}></label></div></div>
+        <div class="row2">${st.spec.dim === 2 ? `<label>Width override mm<input data-mnum="width" value="${e.width}" inputmode="decimal" ${dis}></label>` : `<label>Area override mm²<input data-mnum="area" value="${e.area}" inputmode="decimal" ${dis}></label>`}<label>Stiffness EA kN<input data-mnum="EA" value="${e.EA}" inputmode="decimal" ${dis}></label></div>
+        <div class="row2">${st.spec.dim === 2 ? `<label>Provided width mm<input data-mnum="width_max" value="${e.width_max || 0}" inputmode="decimal" ${dis}></label>` : ""}<label>User β_s (0 = class)<input data-mnum="beta_s" value="${e.beta_s || 0}" inputmode="decimal" ${dis}></label></div></div>
       <div class="grp"><h3>As a tie</h3><div class="row3"><label>As mm²<input data-mnum="As" value="${e.As}" inputmode="decimal" ${dis}></label><label>Bar db mm<input data-mnum="db" value="${e.db}" inputmode="decimal" ${dis}></label><label>fy MPa<input data-mnum="fy" value="${e.fy}" inputmode="decimal" ${dis}></label></div>
-        <p class="hint">0 = design As from the force, or use the model fy. Width and EA 0 = from nodes / default.</p></div>`;
+        <p class="hint">0 = design As from the force, or use the model fy. Width and EA 0 = from nodes / default. Provided width is used where a node has no geometry of its own.</p></div>`;
     h += `<div class="grp"><h3>Results</h3><dl class="kvt">${geo}${F != null ? `<dt>Force</dt><dd>${F >= 0 ? "+" : ""}${fmt(F, 1)} kN</dd><dt>Acts as</dt><dd>${Math.abs(F) < 1e-6 ? "zero member" : F > 0 ? "tie" : "strut"}</dd>` : ""}
       ${ws && F < 0 ? `<dt>Width at ${E(e.i)} / ${E(e.j)}</dt><dd>${ws.map(w => w ? fmt(w, 0) : "–").join(" / ")} mm</dd>` : ""}<dt>Utilisation</dt><dd style="color:${ucol(L.util[e.name])}">${L.util[e.name] != null ? L.util[e.name].toFixed(2) : "–"}</dd></dl>
       ${st.out ? ckItems(st.out.checks.filter(c => c.item === e.name || c.item.startsWith(e.name + "@"))) : ""}</div>`;
@@ -768,11 +774,11 @@ function reportHTML(){
   return `<div class="hd"><div><h1>Strut-and-tie calculation: ${E(cs.element || m.title)}</h1>
     <div class="note">Project: ${E(cs.project || "—")} · Engineer: ${E(cs.engineer || "—")} · Date: ${today} · Code: ${E(c.name)} · STM-Lab v${S.version}</div></div>
     <div><span class="pill ${sm.ok ? "OK" : "NG"}">${sm.ok ? "ALL CHECKS PASS" : sm.n_ng + " CHECK(S) FAIL"}</span></div></div>
-    <h2 class="sec">1. Input data</h2>${inputs}<p class="note">b = ${m.b} mm, f'c = ${m.fc} MPa, fy = ${m.fy} MPa. Units: mm, kN, MPa. Loads are factored. Strut width at nodes without a plate: ${E(m.interior_width_rule)}.</p>
+    <h2 class="sec">1. Input data</h2>${inputs}<p class="note">b = ${m.b} mm, f'c = ${m.fc} MPa, fy = ${m.fy} MPa. Units: mm, kN, MPa. Loads are factored. Strut width at nodes without a plate: ${E(m.interior_width_rule)}. Member stiffness: ${m.stiffness === "section" ? "from the section (Es·As, Ec·w·b)" : "uniform"}.</p>
     <h2 class="sec">2. Code parameters</h2><div class="tw"><table>
       <tr><td>Effective strength</td><td>${E(c.refs.fce)}</td></tr>
-      <tr><td>β_s</td><td>${Object.entries(c.beta_s).map(([k, v]) => `${E(k)} ${v}`).join(", ")}</td></tr>
-      <tr><td>β_n</td><td>${Object.entries(c.beta_n).map(([k, v]) => `${k} ${v}`).join(", ")}</td></tr>
+      ${c.family === "AASHTO" ? "" : `<tr><td>β_s</td><td>${Object.entries(c.beta_s).map(([k, v]) => `${E(k)} ${v}`).join(", ")}</td></tr>
+      <tr><td>β_n</td><td>${Object.entries(c.beta_n).map(([k, v]) => `${k} ${v}`).join(", ")}</td></tr>`}
       <tr><td>φ strut / node / tie</td><td>${c.phi_strut} / ${c.phi_node} / ${c.phi_tie}</td></tr></table></div>
     <h2 class="sec">3. Strut-and-tie model and forces</h2>${staticSVG(900, 460, {label: "force"})}
     <h2 class="sec">4. Stress field and utilisation</h2>${(() => { const k = Object.assign({}, st.opt); Object.assign(st.opt, {color: "util", field: true, zones: true}); const sv = staticSVG(900, 460, {label: "ratio"}); Object.assign(st.opt, k); return sv; })()}

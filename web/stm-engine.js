@@ -20,6 +20,7 @@
       beta_n: { CCC: 1.0, CCT: 0.8, CTT: 0.6 },
       k_c: 0.85, phi_strut: 0.75, phi_node: 0.75, phi_tie: 0.75, steel_factor: 1.0,
       min_angle_deg: 25, fc_symbol: "f'c", provisional: false,
+      family: "ACI",
       refs: {
         strut: "ACI 318-19 23.4.1, 23.4.3, 21.2.1", node: "ACI 318-19 23.9.1, 23.9.2",
         tie: "ACI 318-19 23.7.2", angle: "ACI 318-19 23.2.7", distributed: "ACI 318-19 23.5.1",
@@ -27,23 +28,51 @@
         fce: "f_ce = 0.85·β_c·β_s·f'c (23.4.3) ; 0.85·β_c·β_n·f'c (23.9.2)",
       },
     },
+    "AASHTO-LRFD": {
+      key: "AASHTO-LRFD", name: "AASHTO LRFD Bridge Design Specifications, Article 5.8.2",
+      beta_s: { boundary: 1, interior_reinf: 1, interior_joint: 1, interior_sizeeffect: 1, interior_no_reinf: 1, tension_zone: 1 },
+      beta_n: { CCC: 1, CCT: 1, CTT: 1 },
+      k_c: 1.0, phi_strut: 0.70, phi_node: 0.70, phi_tie: 0.90, steel_factor: 1.0,
+      min_angle_deg: 25, fc_symbol: "f'c", provisional: false, family: "AASHTO",
+      refs: {
+        strut: "AASHTO LRFD 5.8.2.5.1, 5.8.2.5.3a; φ = 0.70 (5.5.4.2)", node: "AASHTO LRFD 5.8.2.5.3a, Table 5.8.2.5.3a-1",
+        tie: "AASHTO LRFD 5.8.2.4.1; φ = 0.90 (5.5.4.2)", angle: "STM-Lab practice limit (25°)",
+        distributed: "AASHTO LRFD 5.8.2.6 (crack-control reinforcement, 0.003 each way)", sizeeffect: "-",
+        corbel: "AASHTO LRFD 5.8.4.2", anchorage: "ACI 318-19 25.4.2.4 (straight bar, used as an estimate)",
+        fce: "f_cu = m·ν·f'c; ν = 0.85 (CCC), 0.70 (CCT) at bearing/back faces, 0.85 − f'c/20 ksi (0.45…0.65) at strut faces and CTT nodes; 0.45 without crack control",
+      },
+    },
   };
-  const fceStrut = (c, fc, cls, bc = 1) => c.k_c * bc * c.beta_s[cls] * fc;
-  const fceNode = (c, fc, kind, bc = 1) => c.k_c * bc * c.beta_n[kind] * fc;
+  const NO_CRACK = ["interior_no_reinf", "tension_zone"];
+  const aashtoNu = fc => Math.min(0.65, Math.max(0.45, 0.85 - fc / 137.9));
+  function nuStrut(c, fc, cls, bs = 0) {
+    if (c.family === "AASHTO") return bs > 0 ? bs : NO_CRACK.includes(cls) ? 0.45 : aashtoNu(fc);
+    return c.k_c * (bs > 0 ? bs : c.beta_s[cls]);
+  }
+  function nuNode(c, fc, kind, face = "strut", cls = null) {
+    if (c.family === "AASHTO") {
+      if (face === "strut") return NO_CRACK.includes(cls) ? 0.45 : aashtoNu(fc);
+      if (kind === "CTT") return aashtoNu(fc);
+      return kind === "CCC" ? 0.85 : 0.70;
+    }
+    return c.k_c * c.beta_n[kind];
+  }
+  const fceStrut = (c, fc, cls, bc = 1, bs = 0) => bc * nuStrut(c, fc, cls, bs) * fc;
+  const fceNode = (c, fc, kind, bc = 1, face = "strut", cls = null) => bc * nuNode(c, fc, kind, face, cls) * fc;
 
   // ------------------------------------------------------------------ model
   function Model(title, dim = 2, b = 300, fc = 30, fy = 420) {
-    return { title, dim, b, fc, fy, nodes: {}, order: [], members: [], meta: {}, interior_width_rule: "projection" };
+    return { title, dim, b, fc, fy, nodes: {}, order: [], members: [], meta: {}, interior_width_rule: "projection", stiffness: "uniform", Es: 200000 };
   }
   function addNode(m, name, xyz, o = {}) {
     const d = m.dim;
     m.nodes[name] = Object.assign({ name, xyz: xyz.map(Number), fix: Array(d).fill(false), load: Array(d).fill(0),
-      spring: null, lb: 0, wt: 0, bearing_area: 0, bearing_axis: -1, confine: 1, kind_override: "", anchor_ext: -1 }, o);
+      spring: null, lb: 0, wt: 0, wt_v: 0, band_dir: 0, bearing_area: 0, bearing_axis: -1, confine: 1, kind_override: "", anchor_ext: -1, smeared: false }, o);
     if (!m.order.includes(name)) m.order.push(name);
     return m.nodes[name];
   }
   function addMember(m, name, i, j, o = {}) {
-    const e = Object.assign({ name, i, j, role: "auto", strut_class: "interior_no_reinf", width: 0, area: 0, As: 0, fy: 0, db: 0, EA: 0 }, o);
+    const e = Object.assign({ name, i, j, role: "auto", strut_class: "interior_no_reinf", beta_s: 0, width: 0, width_max: 0, area: 0, As: 0, fy: 0, db: 0, EA: 0 }, o);
     m.members.push(e);
     return e;
   }
@@ -76,6 +105,15 @@
     return x;
   }
 
+  // axial stiffness for the "section" option: Es·As where steel is given, else Ec·w·b (2D) / Ec·A (3D)
+  function sectionEA(m, e) {
+    if (e.As > 0) return m.Es * e.As / 1e3;
+    const Ec = 4700 * Math.sqrt(m.fc);
+    if (m.dim === 2) { const w = strutWidthModel(m, e) || 0.25 * m.b; return Ec * w * m.b / 1e3; }
+    let A = e.area || Math.max(0, ...[e.i, e.j].map(n => m.nodes[n].bearing_area || 0)) || 1e5;
+    return Ec * A / 1e3;
+  }
+
   function solve(m) {
     const d = m.dim, names = m.order, idx = {}, nd = d * names.length;
     names.forEach((n, k) => (idx[n] = k));
@@ -83,7 +121,7 @@
     const F = Array(nd).fill(0), Ks = Array(nd).fill(0);
     names.forEach(n => { const N = m.nodes[n]; for (let a = 0; a < d; a++) { F[idx[n] * d + a] = +N.load[a] || 0; if (N.spring) Ks[idx[n] * d + a] = +N.spring[a] || 0; } });
     const units = m.members.map(e => {
-      const { L, u } = geometry(m, e), EA = e.EA > 0 ? e.EA : 1e6, i0 = idx[e.i] * d, j0 = idx[e.j] * d;
+      const { L, u } = geometry(m, e), EA = e.EA > 0 ? e.EA : m.stiffness === "section" ? sectionEA(m, e) : 1e6, i0 = idx[e.i] * d, j0 = idx[e.j] * d;
       for (let a = 0; a < d; a++) for (let b = 0; b < d; b++) {
         const k = EA / L * u[a] * u[b];
         K[i0 + a][i0 + b] += k; K[j0 + a][j0 + b] += k; K[i0 + a][j0 + b] -= k; K[j0 + a][i0 + b] -= k;
@@ -107,7 +145,7 @@
       forces[e.name] = EA / L * s;
     });
     let resid = 0; free.forEach(q => (resid = Math.max(resid, Math.abs(R[q]))));
-    const fscale = Math.max(1, ...F.map(Math.abs));
+    let fscale = Math.max(1, ...F.map(Math.abs));
     const reactions = {};
     names.forEach(n => {
       const N = m.nodes[n], o = idx[n] * d;
@@ -118,6 +156,7 @@
     names.forEach(n => m.nodes[n].load.forEach((v, a) => (sum[a] += +v || 0)));
     Object.values(reactions).forEach(r => r.forEach((v, a) => (sum[a] += v)));
     const eq = Math.max(...sum.map(Math.abs));
+    Object.values(reactions).forEach(r => r.forEach(v => (fscale = Math.max(fscale, Math.abs(v)))));
     return { model: m, forces, reactions, stable: resid < 1e-6 * fscale && eq < 1e-6 * fscale, residual: resid, equilibrium_error: eq };
   }
 
@@ -128,15 +167,34 @@
     const good = opts.filter(o => o[0] <= 12).slice(0, 2);
     return (good.length ? good : opts.slice(-1)).map(([n, dd, A]) => `${n}T${dd} (${A.toFixed(0)} mm²)`).join(" or ");
   }
-  function strutWidth2d(res, e, nn) {
+  // strut width at a node from the node's face; width_max is used where the node has no geometry
+  function strutEndWidth(m, e, nn) {
     if (e.width > 0) return [e.width, "given"];
-    const N = res.model.nodes[nn];
-    if (N.lb <= 0 && N.wt <= 0) return [null, "no node geometry"];
-    const { u } = geometry(res.model, e);
-    if (N.lb <= 0 && res.model.interior_width_rule === "secant" && Math.abs(u[0]) > 0.17)
-      return [N.wt / Math.abs(u[0]), `wt/cosθ = ${N.wt.toFixed(0)}/${Math.abs(u[0]).toFixed(3)} (secant rule)`];
-    return [N.lb * Math.abs(u[1]) + N.wt * Math.abs(u[0]),
-      `lb·sinθ + wt·cosθ = ${N.lb.toFixed(0)}·${Math.abs(u[1]).toFixed(3)} + ${N.wt.toFixed(0)}·${Math.abs(u[0]).toFixed(3)}`];
+    const N = m.nodes[nn]; let w = null, how = "no node geometry";
+    if (N.lb > 0 || N.wt > 0) {
+      const { u } = geometry(m, e), a = (N.band_dir || 0) * Math.PI / 180;
+      const ca = Math.abs(u[0] * Math.cos(a) + u[1] * Math.sin(a)), sa = Math.abs(-u[0] * Math.sin(a) + u[1] * Math.cos(a));
+      if (N.lb <= 0 && m.interior_width_rule === "secant") {
+        const cands = [];
+        if (N.wt > 0 && ca > 0.17) cands.push([N.wt / ca, `wt/cosθ = ${N.wt.toFixed(0)}/${ca.toFixed(3)} (interior node, secant rule)`]);
+        if (N.wt_v > 0 && sa > 0.17) cands.push([N.wt_v / sa, `wt,v/sinθ = ${N.wt_v.toFixed(0)}/${sa.toFixed(3)} (vertical tie band)`]);
+        const spans = [];
+        m.members.forEach(o => { if (o === e || (o.i !== nn && o.j !== nn)) return;
+          const g = geometry(m, o); if (Math.abs(g.u[0] * Math.cos(a) + g.u[1] * Math.sin(a)) > 0.996) spans.push(g.L); });
+        if (spans.length && sa > 0.17) { const s0 = Math.min(...spans); cands.push([s0 * sa, `s·sinθ = ${s0.toFixed(0)}·${sa.toFixed(3)} (nearest chord node)`]); }
+        if (cands.length) [w, how] = cands.reduce((p, c) => (c[0] < p[0] ? c : p));
+      } else {
+        w = N.lb * sa + N.wt * ca;
+        how = `lb·sinθ + wt·cosθ = ${N.lb.toFixed(0)}·${sa.toFixed(3)} + ${N.wt.toFixed(0)}·${ca.toFixed(3)}`;
+      }
+    }
+    if (e.width_max > 0 && !w) return [e.width_max, `provided width ${e.width_max.toFixed(0)} mm`];
+    return [w, how];
+  }
+  const strutWidth2d = (res, e, nn) => strutEndWidth(res.model, e, nn);
+  function strutWidthModel(m, e) {
+    const ws = [e.i, e.j].map(n => strutEndWidth(m, e, n)[0]).filter(Boolean);
+    return ws.length ? Math.min(...ws) : null;
   }
   function strutArea3d(res, e, nn) {
     if (e.area > 0) return [e.area, "given"];
@@ -152,7 +210,8 @@
   function nodeKind(res, nn) {
     const N = res.model.nodes[nn];
     if (N.kind_override) return N.kind_override;
-    const t = res.model.members.filter(e => (e.i === nn || e.j === nn) && res.forces[e.name] > 1e-6).length;
+    const tol = 1e-6 * Math.max(1, ...Object.values(res.forces).map(Math.abs));
+    const t = res.model.members.filter(e => (e.i === nn || e.j === nn) && res.forces[e.name] > tol).length;
     return t === 0 ? "CCC" : t === 1 ? "CCT" : "CTT";
   }
   const C = (item, kind, demand, capacity, ratio, status, clause, detail = "") => ({ item, kind, demand, capacity, ratio, status, clause, detail });
@@ -171,7 +230,7 @@
         } else out.push(C(e.name, "tie", F, null, null, "INFO", code.refs.tie, `As,req = ${Asr.toFixed(0)} mm² → ${barSuggestion(Asr)}`));
         if (e.role === "strut") out.push(C(e.name, "detail", F, null, null, "NG", "", "member defined as strut but carries tension"));
       } else {
-        const Cf = -F, fce = fceStrut(code, fc, e.strut_class);
+        const Cf = -F, nu = nuStrut(code, fc, e.strut_class, e.beta_s), fce = nu * fc;
         if (e.role === "tie") out.push(C(e.name, "detail", F, null, null, "NG", "", "member defined as tie but carries compression"));
         const ends = [e.i, e.j].map(nn => [nn, ...endArea(res, e, nn)]).filter(x => x[1]);
         if (!ends.length) {
@@ -183,31 +242,31 @@
         const [nn, A, how] = ends.reduce((a, x) => (x[1] < a[1] ? x : a));
         const cap = code.phi_strut * fce * A / 1e3, r = Cf / cap;
         out.push(C(e.name, "strut", Cf, cap, r, r <= 1 ? "OK" : "NG", code.refs.strut,
-          `β_s = ${code.beta_s[e.strut_class]} (${e.strut_class}), f_ce = ${fce.toFixed(2)} MPa, ${m.dim === 2 ? `w = ${(A / b).toFixed(0)} mm` : `A = ${A.toFixed(0)} mm²`} at ${nn} (${how})`));
+          `ν = ${nu.toFixed(3)} (${e.strut_class}${e.beta_s > 0 ? ", user β_s" : ""}), f_ce = ${fce.toFixed(2)} MPa, ${m.dim === 2 ? `w = ${(A / b).toFixed(0)} mm` : `A = ${A.toFixed(0)} mm²`} at ${nn} (${how})`));
       }
     }
     for (const nn of m.order) {
-      const N = m.nodes[nn], k = kinds[nn], fce = fceNode(code, fc, k, N.confine), cs = code.phi_node * fce;
+      const N = m.nodes[nn], k = kinds[nn];
       for (const e of m.members) {
         if ((e.i !== nn && e.j !== nn) || res.forces[e.name] >= -1e-6) continue;
         const Cf = -res.forces[e.name], [A] = endArea(res, e, nn);
         if (!A) continue;
-        const cap = cs * A / 1e3, r = Cf / cap;
-        out.push(C(nn, "node", Cf, cap, r, r <= 1 ? "OK" : "NG", code.refs.node, `${k} node, β_n = ${code.beta_n[k]}, β_c = ${N.confine}, face of ${e.name}, f_ce = ${fce.toFixed(2)} MPa`));
+        const fce = fceNode(code, fc, k, N.confine, "strut", e.strut_class), cap = code.phi_node * fce * A / 1e3, r = Cf / cap;
+        out.push(C(nn, "node", Cf, cap, r, r <= 1 ? "OK" : "NG", code.refs.node, `${k} node, ν = ${(fce / fc / N.confine).toFixed(3)}, β_c = ${N.confine}, face of ${e.name}, f_ce = ${fce.toFixed(2)} MPa`));
       }
       if (m.dim === 2) for (const e of m.members) {
         if ((e.i !== nn && e.j !== nn) || res.forces[e.name] <= 1e-6 || e.width > 0) continue;
         const [w] = strutWidth2d(res, e, nn);
         if (!w) continue;
-        const T = res.forces[e.name], cap = cs * w * b / 1e3, r = T / cap;
-        out.push(C(nn, "node", T, cap, r, r <= 1 ? "OK" : "NG", code.refs.node, `${k} node, β_n = ${code.beta_n[k]}, tie face of ${e.name}, w = ${w.toFixed(0)} mm, f_ce = ${fce.toFixed(2)} MPa`));
+        const fce = fceNode(code, fc, k, N.confine, "back"), T = res.forces[e.name], cap = code.phi_node * fce * w * b / 1e3, r = T / cap;
+        out.push(C(nn, "node", T, cap, r, r <= 1 ? "OK" : "NG", code.refs.node, `${k} node, ν = ${(fce / fc / N.confine).toFixed(3)}, tie face of ${e.name}, w = ${w.toFixed(0)} mm, f_ce = ${fce.toFixed(2)} MPa`));
       }
       const P = N.load.map(Number); const R = res.reactions[nn];
       if (R) R.forEach((v, a) => (P[a] += v));
-      const Pn = Math.hypot(...P);
+      const Pn = Math.abs(P[N.bearing_axis >= 0 ? N.bearing_axis : m.dim - 1]);   // force normal to the bearing plate
       if (Pn > 1e-6) {
         const A = m.dim === 2 && N.lb > 0 ? N.lb * b : m.dim === 3 && N.bearing_area > 0 ? N.bearing_area : null;
-        if (A) { const cap = cs * A / 1e3, r = Pn / cap; out.push(C(nn, "bearing", Pn, cap, r, r <= 1 ? "OK" : "NG", code.refs.node, `${k} node bearing face, A = ${A.toFixed(0)} mm²`)); }
+        if (A) { const fce = fceNode(code, fc, k, N.confine, "bearing"), cap = code.phi_node * fce * A / 1e3, r = Pn / cap; out.push(C(nn, "bearing", Pn, cap, r, r <= 1 ? "OK" : "NG", code.refs.node, `${k} node bearing face, normal force on A = ${A.toFixed(0)} mm²`)); }
       }
     }
     for (const nn of m.order) {
@@ -216,6 +275,7 @@
         for (const t of here) { if (res.forces[t.name] <= 0) continue;
           const us = geometry(m, s).u, ut = geometry(m, t).u;
           const ang = Math.acos(Math.min(1, Math.abs(us.reduce((a, v, q) => a + v * ut[q], 0)))) * 180 / Math.PI;
+          if (ang < 1) continue;   // collinear chord whose force changes sign at the node
           out.push(C(nn, "angle", ang, code.min_angle_deg, null, ang >= code.min_angle_deg - 1e-9 ? "OK" : "NG", code.refs.angle, `angle ${s.name}–${t.name} = ${ang.toFixed(1)}° (min ${code.min_angle_deg}°)`));
         } }
     }
@@ -412,7 +472,97 @@
         return m;
       },
     },
+    footing: {
+      name: "Pile / spread / abutment footing",
+      params: [["kind", "Foundation: pile or spread", "pile", "text"], ["B", "Footing length B", 7000, "mm"], ["H", "Footing depth H", 2000, "mm"],
+        ["b", "Footing width b (out of plane)", 7000, "mm"], ["fc", "Concrete strength", 35, "MPa"], ["fy", "Steel yield fy", 400, "MPa"],
+        ["x1", "Column 1 centre from left edge", 3500, "mm"], ["cw1", "Column 1 width", 2500, "mm"], ["V1", "Column 1 axial load V (down)", 9000, "kN"],
+        ["H1", "Column 1 horizontal load H (+x)", 5000, "kN"], ["M1", "Column 1 moment M (+ loads the right side)", 50000, "kN·m"],
+        ["x2", "Column 2 centre (blank = one column)", "", "mm"], ["cw2", "Column 2 width", 1500, "mm"], ["V2", "Column 2 axial load V", 0, "kN"],
+        ["H2", "Column 2 horizontal load H", 0, "kN"], ["M2", "Column 2 moment M", 0, "kN·m"],
+        ["piles", "Pile rows / soil spring stations x (comma list)", "650,2550,4450,6350", "text"], ["pile_d", "Pile diameter", 508, "mm"],
+        ["n_spread", "Soil springs if no stations given (spread)", 4, ""], ["heel_len", "Heel surcharge length from left edge (abutment)", 0, "mm"],
+        ["w_heel1", "Heel surcharge at left edge", 0, "kN/m"], ["w_heel2", "Heel surcharge at the wall face", 0, "kN/m"],
+        ["c_top", "Top chord centroid from top", 100, "mm"], ["c_bot", "Bottom chord centroid from soffit", 100, "mm"], ["c_col", "Column bar centroid from column face", 100, "mm"],
+        ["As_top", "Top chord As (0 = design)", 0, "mm²"], ["As_bot", "Bottom chord As (0 = design)", 0, "mm²"], ["As_vert", "Vertical ties As (0 = design)", 0, "mm²"],
+        ["strut_class", "Diagonal strut class", "interior_reinf", "class"]],
+      build(code, p) {
+        const { B, H, b, fc, fy, pile_d, n_spread, c_top, c_bot, c_col, As_top, As_bot, As_vert, strut_class } = p;
+        const kind = String(p.kind || "pile").trim().toLowerCase() === "spread" ? "spread" : "pile";
+        const heel_len = p.heel_len || 0, w1 = p.w_heel1 || 0, w2 = p.w_heel2 || 0;
+        const cols = [[p.x1, p.cw1, p.V1 || 0, p.H1 || 0, p.M1 || 0]];
+        if (p.x2 != null && !Number.isNaN(p.x2)) cols.push([p.x2, p.cw2, p.V2 || 0, p.H2 || 0, p.M2 || 0]);
+        const fl = foundationLoads(kind, B, H, cols.map(c => [c[0], c[2], c[3], c[4]]), p.piles, n_spread, heel_len, w1, w2);
+        const xsr = fl.xs, sup = [];
+        cols.forEach(([xc, cw]) => { const off = Math.max(cw / 2 - c_col, cw / 4); sup.push(xc - off, xc + off); });
+        let st = Array.from(new Set(xsr.map(x => +x.toFixed(3))));
+        sup.forEach(xs => {
+          if (st.every(x => Math.abs(xs - x) > 0.3 * H)) st.push(+xs.toFixed(3));
+          else { let j = 0; st.forEach((x, q) => { if (Math.abs(x - xs) < Math.abs(st[j] - xs)) j = q; }); st[j] = +xs.toFixed(3); }
+        });
+        st.sort((a, c) => a - c);
+        const m = Model(kind === "pile" ? "Pile footing" : "Spread footing", 2, b, fc, fy);
+        m.interior_width_rule = "secant"; m.stiffness = "section";
+        const yt = H - c_top, yb = c_bot, ccx = cols.map(c => c[0]);
+        let first = true;
+        st.forEach((x, q) => {
+          const k = q + 1, isSup = sup.some(s0 => Math.abs(x - s0) < 1e-6);
+          const col = cols.reduce((a, c) => (Math.abs(c[0] - x) < Math.abs(a[0] - x) ? c : a));
+          const o = { wt: 2 * c_top };
+          if (isSup) { o.fix = first ? [true, true] : [false, true]; o.lb = col[1] / 2 - c_col; first = false; }
+          addNode(m, `T${k}`, [x, yt], o);
+          addNode(m, `B${k}`, [x, yb], { wt: 2 * c_bot, lb: kind === "pile" && xsr.some(xr => Math.abs(x - xr) <= 0.3 * H) ? pile_d : 0 });
+        });
+        xsr.forEach((xr, i) => {
+          let j = 0; st.forEach((x, q) => { if (Math.abs(x - xr) < Math.abs(st[j] - xr)) j = q; });
+          const N = m.nodes[`B${j + 1}`]; N.load = [N.load[0] + fl.Hr[i], N.load[1] + fl.R[i]];
+        });
+        if (heel_len > 0) {
+          const mids = [0].concat(st.slice(1).map((x, q) => (st[q] + x) / 2), [B]);
+          const wq = x => w1 + (w2 - w1) * x / heel_len;
+          st.forEach((x, q) => { const a0 = mids[q], a1 = Math.min(mids[q + 1], heel_len); if (a1 <= a0) return;
+            const P = 0.5 * (wq(a0) + wq(a1)) * (a1 - a0) / 1e3, N = m.nodes[`T${q + 1}`]; N.load = [N.load[0], N.load[1] - P]; });
+        }
+        const n = st.length;
+        for (let k = 1; k < n; k++) {
+          addMember(m, `TC${k}`, `T${k}`, `T${k + 1}`, { As: As_top, strut_class: "boundary" });
+          addMember(m, `BC${k}`, `B${k}`, `B${k + 1}`, { As: As_bot, strut_class: "boundary" });
+          const xm = 0.5 * (st[k - 1] + st[k]), xc = ccx.reduce((a, c) => (Math.abs(c - xm) < Math.abs(a - xm) ? c : a));
+          if (xm < xc) addMember(m, `D${k}`, `T${k + 1}`, `B${k}`, { strut_class });
+          else addMember(m, `D${k}`, `T${k}`, `B${k + 1}`, { strut_class });
+        }
+        for (let k = 1; k <= n; k++) addMember(m, `V${k}`, `B${k}`, `T${k}`, { As: As_vert, strut_class: "interior_reinf" });
+        const tot = fl.R.reduce((a, c) => a + c, 0), ring = [];
+        cols.slice().sort((a, c) => c[0] - a[0]).forEach(c => ring.push([c[0] + c[1] / 2, H], [c[0] + c[1] / 2, 1.4 * H], [c[0] - c[1] / 2, 1.4 * H], [c[0] - c[1] / 2, H]));
+        m.meta = { template: "footing", d: H - c_bot, kind,
+          outline: [[[0, 0], [B, 0], [B, H]].concat(ring, [[0, H]])],
+          notes: [(kind === "pile" ? "Pile reactions from a rigid cap with equal pile stiffness" : `Soil reactions from ${xsr.length} springs, stiffness ∝ tributary length (linear, uplift not excluded)`)
+            + `; ΣR = ${tot.toFixed(1)} kN, moments taken at the soffit (M + H·${H.toFixed(0)} mm)`,
+            "Reactions are applied as loads at the bottom chord; the columns are the supports",
+            heel_len ? `Heel surcharge ${w1}→${w2} kN/m over ${heel_len.toFixed(0)} mm = ${fl.W.toFixed(1)} kN` : "No heel surcharge",
+            "Indeterminate truss: member stiffness Es·As (reinforced) or Ec·w·b (struts)"] };
+        return m;
+      },
+    },
   };
+
+  // rigid-footing reactions (pile: equal stiffness; spread: springs ∝ tributary length); returned as loads (up +)
+  function numList(v) { return (typeof v === "string" ? v.replace(/;/g, ",").split(",") : (v || [])).map(t => String(t).trim()).filter(t => t !== "").map(Number); }
+  function foundationLoads(kind, B, H, columns, piles, nSpread = 4, heelLen = 0, w1 = 0, w2 = 0) {
+    let xs = numList(piles).sort((a, c) => a - c), k;
+    if (kind === "pile") k = xs.map(() => 1);
+    else {
+      if (xs.length < 2) { const n = Math.max(2, Math.trunc(nSpread)); xs = Array.from({ length: n }, (_, i) => (i + 0.5) * B / n); }
+      const mids = [0].concat(xs.slice(1).map((x, q) => (xs[q] + x) / 2), [B]);
+      k = xs.map((_, i) => mids[i + 1] - mids[i]);
+    }
+    const V = columns.reduce((a, c) => a + c[1], 0), Hx = columns.reduce((a, c) => a + c[2], 0);
+    const W = heelLen > 0 ? 0.5 * (w1 + w2) * heelLen / 1e3 : 0, xW = W ? heelLen * (w1 + 2 * w2) / (3 * (w1 + w2)) : 0;
+    const K = k.reduce((a, c) => a + c, 0), xbar = k.reduce((a, c, i) => a + c * xs[i], 0) / K;
+    const M = columns.reduce((a, c) => a + c[3] * 1e3 + c[1] * (c[0] - xbar) + c[2] * H, 0) + W * (xW - xbar);
+    const I = k.reduce((a, c, i) => a + c * (xs[i] - xbar) ** 2, 0), aa = (V + W) / K, bb = I > 0 ? M / I : 0;
+    return { xs, R: k.map((c, i) => c * (aa + bb * (xs[i] - xbar))), Hr: k.map(c => -Hx * c / K), W };
+  }
 
   function extraChecks(m, res, code) {
     const t = m.meta.template, out = [], fc = m.fc, fy = m.fy;
@@ -445,7 +595,10 @@
   function buildCustom(d) {
     const m = Model(d.title || "Custom STM", d.dim || 2, d.b || 300, d.fc, d.fy);
     m.interior_width_rule = d.interior_width_rule || "projection";
+    m.stiffness = d.stiffness || "uniform";
     d.nodes.forEach(n => { const o = Object.assign({}, n); delete o.name; delete o.xyz; addNode(m, n.name, n.xyz, o); });
+    (d.load_cases || []).forEach(lc => { const f = lc.factor == null ? 1 : +lc.factor;
+      Object.entries(lc.loads || {}).forEach(([n, ld]) => { const N = m.nodes[n]; N.load = N.load.map((a, q) => a + f * (+ld[q] || 0)); }); });
     d.members.forEach(e => { const o = Object.assign({}, e); delete o.name; delete o.i; delete o.j; addMember(m, e.name, e.i, e.j, o); });
     m.meta = Object.assign({}, d.meta || {}, { template: (d.meta && d.meta.template) || "custom", notes: d.notes || [], outline: d.outline || [] });
     return m;
@@ -456,7 +609,7 @@
     const meta = JSON.parse(JSON.stringify(m.meta || {}));
     const outline = meta.outline || [], notes = meta.notes || [];
     delete meta.outline; delete meta.notes;
-    return { title: m.title, dim: m.dim, b: m.b, fc: m.fc, fy: m.fy, interior_width_rule: m.interior_width_rule,
+    return { title: m.title, dim: m.dim, b: m.b, fc: m.fc, fy: m.fy, interior_width_rule: m.interior_width_rule, stiffness: m.stiffness,
       nodes: m.order.map(n => JSON.parse(JSON.stringify(m.nodes[n]))),
       members: m.members.map(e => Object.assign({}, e)), outline, notes, meta };
   }
@@ -474,13 +627,13 @@
     if (cs.custom) m = buildCustom(Object.assign({ interior_width_rule: cs.interior_width_rule }, cs.custom));
     else {
       const T = TEMPLATES[cs.template], prm = {};
-      T.params.forEach(([k, , dv, unit]) => { const v = cs.params[k] !== undefined ? cs.params[k] : dv; prm[k] = (v === "" || v === null) ? null : (unit === "class" ? v : Number(v)); });
-      m = T.build(code, prm); m.interior_width_rule = cs.interior_width_rule || "projection"; }
+      T.params.forEach(([k, , dv, unit]) => { const v = cs.params[k] !== undefined ? cs.params[k] : dv; prm[k] = (v === "" || v === null) ? null : (unit === "class" || unit === "text" ? v : Number(v)); });
+      m = T.build(code, prm); if (cs.interior_width_rule) m.interior_width_rule = cs.interior_width_rule; }
     const res = solve(m);
     const checks = runChecks(res, code).concat(extraChecks(m, res, code));
     return { model: m, res, checks, code, summary: summary(checks) };
   }
 
-  const API = { CODES, STRUT_CLASSES, TEMPLATES, Model, addNode, addMember, geometry, solve, runChecks, extraChecks, buildCustom, toSpec, strutWidth: strutWidth2d, nodeKind, runCase, summary, version: "0.5.0" };
+  const API = { CODES, STRUT_CLASSES, TEMPLATES, Model, addNode, addMember, geometry, solve, runChecks, extraChecks, buildCustom, toSpec, strutWidth: strutWidth2d, strutWidthModel, foundationLoads, nodeKind, runCase, summary, version: "0.6.0" };
   if (typeof module !== "undefined" && module.exports) module.exports = API; else root.STM = API;
 })(typeof window !== "undefined" ? window : globalThis);

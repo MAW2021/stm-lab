@@ -1,0 +1,488 @@
+{
+ "code": "ACI318-19",
+ "interior_width_rule": "secant",
+ "element": "Abutment footing — piles (AB1-AST-1)",
+ "custom": {
+  "title": "Abutment footing — piles (AStrutTie worked example)",
+  "dim": 2,
+  "b": 12000,
+  "fc": 24,
+  "fy": 400,
+  "interior_width_rule": "secant",
+  "stiffness": "section",
+  "nodes": [
+   {
+    "name": "N1",
+    "xyz": [
+     650,
+     1400
+    ],
+    "load": [
+     0,
+     -1249.8
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 1300
+   },
+   {
+    "name": "N2",
+    "xyz": [
+     1950,
+     1400
+    ],
+    "load": [
+     0,
+     -1026.9
+    ],
+    "lb": 0,
+    "wt": 200,
+    "wt_v": 3900,
+    "smeared": true
+   },
+   {
+    "name": "N3",
+    "xyz": [
+     3250,
+     1400
+    ],
+    "load": [
+     0,
+     -598.2
+    ],
+    "lb": 0,
+    "wt": 200,
+    "smeared": true
+   },
+   {
+    "name": "N4",
+    "xyz": [
+     3500,
+     1400
+    ],
+    "fix": [
+     false,
+     true
+    ],
+    "load": [
+     0,
+     -713.7
+    ],
+    "lb": 1300,
+    "wt": 200
+   },
+   {
+    "name": "N5",
+    "xyz": [
+     4400,
+     1400
+    ],
+    "fix": [
+     true,
+     true
+    ],
+    "lb": 1300,
+    "wt": 200
+   },
+   {
+    "name": "N6",
+    "xyz": [
+     5250,
+     1400
+    ],
+    "lb": 0,
+    "wt": 200,
+    "smeared": true
+   },
+   {
+    "name": "N7",
+    "xyz": [
+     650,
+     100
+    ],
+    "load": [
+     -1827.5,
+     -4929.8
+    ],
+    "lb": 508,
+    "wt": 200,
+    "wt_v": 1300
+   },
+   {
+    "name": "N8",
+    "xyz": [
+     1950,
+     100
+    ],
+    "load": [
+     -1827.4,
+     447.9
+    ],
+    "lb": 508,
+    "wt": 200,
+    "wt_v": 3900
+   },
+   {
+    "name": "N9",
+    "xyz": [
+     3250,
+     100
+    ],
+    "load": [
+     -1827.5,
+     6159.8
+    ],
+    "lb": 508,
+    "wt": 200
+   },
+   {
+    "name": "N10",
+    "xyz": [
+     4400,
+     100
+    ],
+    "lb": 0,
+    "wt": 200,
+    "smeared": true
+   },
+   {
+    "name": "N11",
+    "xyz": [
+     5250,
+     100
+    ],
+    "load": [
+     -1827.5,
+     16660.7
+    ],
+    "lb": 508,
+    "wt": 200
+   }
+  ],
+  "members": [
+   {
+    "name": "E1",
+    "i": "N1",
+    "j": "N2",
+    "As": 62538.5,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E2",
+    "i": "N2",
+    "j": "N3",
+    "As": 62538.5,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E3",
+    "i": "N3",
+    "j": "N4",
+    "As": 62538.5,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E4",
+    "i": "N4",
+    "j": "N5",
+    "As": 62538.5,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E5",
+    "i": "N5",
+    "j": "N6",
+    "As": 62538.5,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E6",
+    "i": "N1",
+    "j": "N7",
+    "As": 24512,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E7",
+    "i": "N1",
+    "j": "N8",
+    "width_max": 283,
+    "strut_class": "interior_no_reinf"
+   },
+   {
+    "name": "E8",
+    "i": "N2",
+    "j": "N8",
+    "As": 24512,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E9",
+    "i": "N2",
+    "j": "N9",
+    "width_max": 283,
+    "strut_class": "interior_no_reinf"
+   },
+   {
+    "name": "E10",
+    "i": "N3",
+    "j": "N9",
+    "width_max": 250,
+    "strut_class": "interior_no_reinf"
+   },
+   {
+    "name": "E11",
+    "i": "N9",
+    "j": "N4",
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E12",
+    "i": "N9",
+    "j": "N5",
+    "width_max": 513,
+    "strut_class": "interior_no_reinf"
+   },
+   {
+    "name": "E13",
+    "i": "N10",
+    "j": "N5",
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E14",
+    "i": "N5",
+    "j": "N11",
+    "width_max": 535,
+    "strut_class": "interior_no_reinf"
+   },
+   {
+    "name": "E15",
+    "i": "N6",
+    "j": "N11",
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E16",
+    "i": "N7",
+    "j": "N8",
+    "As": 37630.9,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E17",
+    "i": "N8",
+    "j": "N9",
+    "width_max": 200,
+    "strut_class": "interior_no_reinf"
+   },
+   {
+    "name": "E18",
+    "i": "N9",
+    "j": "N10",
+    "As": 37630.9,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "E19",
+    "i": "N10",
+    "j": "N11",
+    "As": 37630.9,
+    "strut_class": "interior_reinf"
+   }
+  ],
+  "outline": [
+   [
+    [
+     0,
+     0
+    ],
+    [
+     5900,
+     0
+    ],
+    [
+     5900,
+     1500
+    ],
+    [
+     0,
+     1500
+    ]
+   ]
+  ],
+  "meta": {
+   "template": "custom",
+   "source": "AStrutTie Technical Book example 3.1 — complete file built from the book's inputs"
+  }
+ },
+ "reference": {
+  "source": "AStrutTie worked example 'Abutment footing — piles' (AStrutTie Technical Book example 3.1 — complete file built from the book's inputs), run 25 Nov 2026",
+  "forces": {
+   "E7": -8739.3,
+   "E9": -9558.1,
+   "E10": -598.2,
+   "E12": -32306.4,
+   "E14": -19906.0,
+   "E17": -2524.7,
+   "E1": 6179.6,
+   "E2": 12938.2,
+   "E3": 12938.2,
+   "E4": 17821.8,
+   "E6": 4929.8,
+   "E8": 5731.7,
+   "E11": 25859.7,
+   "E16": 1827.5,
+   "E18": 9066.0,
+   "E19": 9066.0
+  },
+  "As_req": {
+   "E1": 20599.0,
+   "E2": 43127.0,
+   "E3": 43127.0,
+   "E4": 59406.0,
+   "E6": 16433.0,
+   "E8": 19106.0,
+   "E11": 86199.0,
+   "E16": 6092.0,
+   "E18": 30220.0,
+   "E19": 30220.0
+  },
+  "strut_sf": {
+   "E7": 2.38,
+   "E9": 2.17,
+   "E10": 30.69,
+   "E12": 1.17,
+   "E14": 1.97,
+   "E17": 5.82
+  },
+  "strut_wmax": {
+   "E7": 282.8,
+   "E9": 282.8,
+   "E10": 250.0,
+   "E12": 513.0,
+   "E14": 534.6,
+   "E17": 200.0
+  },
+  "strut_nu": {
+   "E7": 0.34,
+   "E9": 0.34,
+   "E10": 0.34,
+   "E12": 0.34,
+   "E14": 0.34,
+   "E17": 0.34
+  },
+  "tie_sf": {
+   "E1": 3.04,
+   "E2": 1.45,
+   "E3": 1.45,
+   "E4": 1.05,
+   "E6": 1.49,
+   "E8": 1.28,
+   "E16": 6.18,
+   "E18": 1.25,
+   "E19": 1.25
+  },
+  "node_sf": {
+   "N1/E1": 3.57,
+   "N1/E7": 3.57,
+   "N2/E1": 3.57,
+   "N2/E2": 1.7,
+   "N2/E9": 3.26,
+   "N3/E2": 1.7,
+   "N3/E3": 1.7,
+   "N3/E10": 46.04,
+   "N4/E3": 1.7,
+   "N4/E4": 1.24,
+   "N4/E11": 5.6,
+   "N5/E4": 1.65,
+   "N5/E12": 5.03,
+   "N5/E14": 8.84,
+   "N5/bearing": 4.67,
+   "N7/E16": 12.06,
+   "N8/E7": 6.31,
+   "N8/E16": 12.06,
+   "N8/E17": 8.73,
+   "N8/bearing": 124.94,
+   "N9/E9": 5.77,
+   "N9/E10": 93.55,
+   "N9/E11": 2.29,
+   "N9/E12": 1.75,
+   "N9/E17": 8.73,
+   "N9/E18": 2.43,
+   "N9/bearing": 9.08,
+   "N11/E14": 3.94,
+   "N11/E19": 3.24,
+   "N11/bearing": 4.48
+  },
+  "node_kind": {
+   "N1": "CTT",
+   "N2": "CTT",
+   "N3": "CTT",
+   "N4": "CTT",
+   "N5": "CCT",
+   "N7": "CTT",
+   "N8": "CTT",
+   "N9": "CTT",
+   "N11": "CCT"
+  },
+  "anchorage": {
+   "E1@N1": {
+    "termination": "Straight",
+    "db": 28.7,
+    "ld": 1376.0,
+    "lanc": 810.0,
+    "sf": 0.59
+   },
+   "E4@N5": {
+    "termination": "Straight",
+    "db": 28.7,
+    "ld": 1376.0,
+    "lanc": 2198.0,
+    "sf": 1.6
+   },
+   "E11@N9": {
+    "termination": "Straight",
+    "db": 19.1,
+    "ld": 743.0,
+    "lanc": 1407.0,
+    "sf": 1.89
+   },
+   "E11@N4": {
+    "termination": "Straight",
+    "db": 19.1,
+    "ld": 743.0,
+    "lanc": 62.0,
+    "sf": 0.08
+   },
+   "E16@N7": {
+    "termination": "Straight",
+    "db": 22.2,
+    "ld": 1067.0,
+    "lanc": 610.0,
+    "sf": 0.57
+   },
+   "E16@N8": {
+    "termination": "Straight",
+    "db": 22.2,
+    "ld": 1067.0,
+    "lanc": 4264.0,
+    "sf": 3.99
+   },
+   "E18@N9": {
+    "termination": "Straight",
+    "db": 22.2,
+    "ld": 1067.0,
+    "lanc": 3564.0,
+    "sf": 3.34
+   },
+   "E19@N11": {
+    "termination": "Straight",
+    "db": 22.2,
+    "ld": 1067.0,
+    "lanc": 929.0,
+    "sf": 0.87
+   }
+  }
+ }
+}

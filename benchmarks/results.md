@@ -7,6 +7,8 @@
 | DB-1 | – | – | – | – | no reference yet |
 | DB-2 | – | – | – | – | no reference yet |
 | DB-3 | – | – | – | – | no reference yet |
+| DE-1 | – | – | – | – | no reference yet |
+| DE-2 | – | – | – | – | no reference yet |
 | PC2-1 | – | – | – | – | no reference yet |
 | PC4-1 | – | – | – | – | no reference yet |
 | PC4-2 | – | – | – | – | no reference yet |

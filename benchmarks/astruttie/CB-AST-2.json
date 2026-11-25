@@ -1,0 +1,297 @@
+{
+ "code": "ACI318-19",
+ "interior_width_rule": "secant",
+ "element": "Column corbel (CB-AST-2)",
+ "custom": {
+  "title": "Column corbel (AStrutTie worked example)",
+  "dim": 2,
+  "b": 355.59999999999997,
+  "fc": 34.474,
+  "fy": 413.685,
+  "interior_width_rule": "secant",
+  "stiffness": "section",
+  "nodes": [
+   {
+    "name": "n0",
+    "xyz": [
+     50.8,
+     772.2
+    ],
+    "lb": 0,
+    "wt": 792.4,
+    "wt_v": 101.6,
+    "smeared": true
+   },
+   {
+    "name": "n1",
+    "xyz": [
+     490.7,
+     772.2
+    ],
+    "load": [
+     49.8,
+     -250
+    ],
+    "lb": 187,
+    "wt": 81.2
+   },
+   {
+    "name": "n3",
+    "xyz": [
+     316.2,
+     355.6
+    ],
+    "lb": 0,
+    "wt": 711.2,
+    "wt_v": 78.8,
+    "smeared": true
+   },
+   {
+    "name": "n4",
+    "xyz": [
+     316.2,
+     40.6
+    ],
+    "fix": [
+     false,
+     true
+    ],
+    "lb": 0,
+    "wt": 81.2,
+    "wt_v": 78.8
+   },
+   {
+    "name": "n5",
+    "xyz": [
+     50.8,
+     40.6
+    ],
+    "fix": [
+     true,
+     true
+    ],
+    "lb": 0,
+    "wt": 81.2,
+    "wt_v": 101.6
+   },
+   {
+    "name": "n6",
+    "xyz": [
+     50.8,
+     355.6
+    ],
+    "lb": 0,
+    "wt": 711.2,
+    "wt_v": 101.6,
+    "smeared": true
+   }
+  ],
+  "members": [
+   {
+    "name": "T1",
+    "i": "n0",
+    "j": "n1",
+    "As": 516.1,
+    "width_max": 81.28,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "DS1",
+    "i": "n1",
+    "j": "n3",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "DS2",
+    "i": "n0",
+    "j": "n3",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "BC1",
+    "i": "n3",
+    "j": "n4",
+    "As": 1719,
+    "width_max": 78.74,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "FC1",
+    "i": "n6",
+    "j": "n0",
+    "As": 1019.4,
+    "width_max": 101.6,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "FC2",
+    "i": "n5",
+    "j": "n6",
+    "As": 1019.4,
+    "width_max": 101.6,
+    "strut_class": "boundary"
+   },
+   {
+    "name": "HS1",
+    "i": "n3",
+    "j": "n6",
+    "As": 283.9,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "DS3",
+    "i": "n6",
+    "j": "n4",
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "BB1",
+    "i": "n4",
+    "j": "n5",
+    "As": 283.9,
+    "width_max": 450,
+    "strut_class": "interior_reinf"
+   }
+  ],
+  "outline": [
+   [
+    [
+     0,
+     0
+    ],
+    [
+     355.59999999999997,
+     0
+    ],
+    [
+     355.59999999999997,
+     355.59999999999997
+    ],
+    [
+     584.1999999999999,
+     584.1999999999999
+    ],
+    [
+     584.1999999999999,
+     812.8
+    ],
+    [
+     355.59999999999997,
+     812.8
+    ],
+    [
+     355.59999999999997,
+     1168.3999999999999
+    ],
+    [
+     0,
+     1168.3999999999999
+    ]
+   ]
+  ],
+  "meta": {
+   "template": "custom",
+   "source": "ACI SP-208 Example 3.1 — complete file built from the published inputs (pp. 105–115)"
+  }
+ },
+ "reference": {
+  "source": "AStrutTie worked example 'Column corbel' (ACI SP-208 Example 3.1 — complete file built from the published inputs (pp. 105–115)), run 25 Nov 2026",
+  "forces": {
+   "DS1": -270.8966963693644,
+   "DS2": -287.35511634582826,
+   "BC1": -492.41813280933735,
+   "DS3": -77.3990561055327,
+   "T1": 154.35329004953934,
+   "FC1": 242.42807803169723,
+   "FC2": 301.58942551466185,
+   "HS1": 49.820082090917595,
+   "BB1": 49.820082090917595
+  },
+  "As_req": {
+   "T1": 498.06352,
+   "FC1": 781.93392,
+   "FC2": 972.2561199999999,
+   "HS1": 160.64484,
+   "BB1": 160.64484
+  },
+  "strut_sf": {
+   "DS1": 1.52,
+   "DS2": 2.46,
+   "BC1": 1.25,
+   "DS3": 7.81
+  },
+  "strut_wmax": {
+   "DS1": 70.35799999999999,
+   "DS2": 120.396,
+   "BC1": 78.74,
+   "DS3": 102.86999999999999
+  },
+  "strut_nu": {
+   "DS1": 0.637,
+   "DS2": 0.637,
+   "BC1": 0.85,
+   "DS3": 0.637
+  },
+  "tie_sf": {
+   "T1": 1.04,
+   "FC1": 1.3,
+   "FC2": 1.05,
+   "HS1": 1.77,
+   "BB1": 1.77
+  },
+  "node_sf": {
+   "n0/T1": 2.47,
+   "n0/DS2": 1.96,
+   "n0/FC1": 1.96,
+   "n1/T1": 3.29,
+   "n1/DS1": 4.7,
+   "n1/bearing": 4.68,
+   "n3/DS1": 1.62,
+   "n3/DS2": 4.45,
+   "n3/BC1": 1.0,
+   "n4/BC1": 1.0,
+   "n4/DS3": 8.33,
+   "n4/BB1": 10.2,
+   "n5/FC2": 1.58,
+   "n5/BB1": 7.65,
+   "n6/FC1": 1.96,
+   "n6/FC2": 1.58,
+   "n6/DS3": 8.06
+  },
+  "node_kind": {
+   "n0": "CTT",
+   "n1": "CCT",
+   "n3": "CCT",
+   "n4": "CCT",
+   "n5": "CTT",
+   "n6": "CTT"
+  },
+  "anchorage": {
+   "T1@n0": {
+    "termination": "Headed",
+    "db": 12.7,
+    "ld": 157.48,
+    "lanc": 83.82,
+    "sf": 0.53
+   },
+   "T1@n1": {
+    "termination": "Headed",
+    "db": 12.7,
+    "ld": 157.48,
+    "lanc": 165.1,
+    "sf": 1.05
+   }
+  },
+  "known_gaps": "corbel nodal zones: the reference sizes the node at the re-entrant corner from its own node geometry (strut widths DS1/DS2 at n0/n3, faces at n3, n4, n6)",
+  "skip": [
+   "DS1",
+   "DS2",
+   "n0/T1",
+   "n3/DS1",
+   "n3/DS2"
+  ]
+ }
+}

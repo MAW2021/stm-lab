@@ -5,8 +5,8 @@ It covers parametric templates, 2D/3D truss analysis, strut/tie/node checks with
 clause references, and a printable calculation report. It runs on Windows, macOS or Linux
 with Python and numpy. Nothing leaves your computer.
 
-> **Status: v0.2 (pre-release).** The ACI 318-19 checks are implemented from Chapter 23.
-> Scope is **American codes only** (ACI 318 now; AASHTO LRFD 5.8.2 is planned). Calibration against an independent commercial tool is
+> **Status: v0.6 (pre-release).** ACI 318-19 Chapter 23 and AASHTO LRFD 5.8.2 checks are implemented.
+> Scope is **American codes only**. Calibration against an independent commercial tool is
 > in progress (see [docs/benchmark-plan.md](docs/benchmark-plan.md)). Always review the results
 > as an engineer before you use them.
 
@@ -14,10 +14,10 @@ with Python and numpy. Nothing leaves your computer.
 
 | Step | STM-Lab |
 |---|---|
-| Template | Deep beam / transfer girder (1 or 2 loads), corbel, dapped end, two-pile cap, four-pile cap (3D), hammerhead pier cap, or any custom truss written in JSON |
+| Template | Deep beam / transfer girder (1 or 2 loads), corbel, dapped end, pile / spread / abutment footing (1 or 2 columns), two-pile cap, four-pile cap (3D), hammerhead pier cap, or any custom truss written in JSON |
 | Geometry, load, material | Dimensions, bearing plates, tie depth, f'c, fy, provided steel |
 | STM model | Nodes are placed automatically. The compression chord / node depth is sized so that the CCC node is at capacity |
-| Analysis | Pin-jointed truss solved by direct stiffness (2D and 3D), with equilibrium and stability checks |
+| Analysis | Pin-jointed truss solved by direct stiffness (2D and 3D), with equilibrium and stability checks. Indeterminate trusses can use uniform or section stiffness (Es·As for ties, Ec·w·b for struts) |
 | Checks | Struts (β_s), ties (As,req and bar options), nodal faces and bearing (β_n, β_c), 25° strut–tie angle limit, distributed reinforcement (23.5), size-effect limit (23.4.4), corbel limits (16.5) |
 | Deliverable | A self-contained HTML calculation report with the drawn model, force tables, check tables and clause references. Print it to PDF from the browser |
 
@@ -53,7 +53,7 @@ On Windows, install Python 3.10+ from python.org, then run the same commands in 
 opened in this folder.
 
 ## Units and sign convention
-mm, kN, MPa. Loads are factored. Member force + = tension (tie), − = compression (strut).
+SI throughout: mm, kN, MPa. Loads are factored. Member force + = tension (tie), − = compression (strut).
 
 ## Custom models
 See the docstring in `stm/__main__.py`, or pick **Custom model (JSON)** in the UI. Nodes carry
@@ -68,12 +68,15 @@ See the docstring in `stm/__main__.py`, or pick **Custom model (JSON)** in the U
 - `stm/report.py`: HTML report
 - `stm/ui.py`: local web UI
 - `benchmarks/`: calibration cases and comparison results
+- `tools/ast_convert.py`: converts a reference model and its result tables into an SI benchmark case
 
 ## Calibration status
+Round 2 (Nov 2026) checked 12 solved examples (FHWA, ACI SP-208, ACI SP-273 and a technical book): all member forces and required steel match, and strut, tie and node checks match in 10 of 12. See the round 2 table in the calibration notes.
+
 Round 1 (Nov 2026) compared STM-Lab with a commercial STM program on a deep beam, a corbel and a pier
 coping. Forces, required steel, node and bearing checks, and development length match exactly or
 within display rounding. See [docs/calibration-2026-11.md](docs/calibration-2026-11.md). Regression tests in
-`tests/test_calibration.py` keep it that way.
+`tests/test_calibration.py` and `tests/test_worked_examples.py` keep it that way.
 
 ## Contributing
 Feedback and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md).

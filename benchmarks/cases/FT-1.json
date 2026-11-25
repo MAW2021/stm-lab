@@ -1,0 +1,20 @@
+{
+ "template": "footing",
+ "element": "Pile footing, one column (Book 2.1 inputs)",
+ "params": {
+  "kind": "pile",
+  "B": 7000,
+  "H": 2000,
+  "b": 7000,
+  "fc": 35,
+  "fy": 400,
+  "x1": 3500,
+  "cw1": 2500,
+  "V1": 9000,
+  "H1": 5000,
+  "M1": 50000,
+  "piles": "650,2550,4450,6350",
+  "pile_d": 508
+ },
+ "code": "ACI318-19"
+}
