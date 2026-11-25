@@ -1,5 +1,8 @@
 """Single entry point used by the CLI, the local UI and the tests."""
-from .checks import run_checks
+import math
+
+from .validate import PARAMS, InputError, validate_model, validate_params
+from .checks import Check, run_checks
 from .codes import CODES
 from .model import STModel
 from .report import html_report
@@ -32,16 +35,45 @@ def build_custom(d):
     return m
 
 
+def template_params(template, given, code):
+    """Template inputs with the browser app's defaults filled in, validated and converted
+    (blank -> None = auto, numbers as float)."""
+    import inspect
+    validate_params(template, given, code)
+    sig = inspect.signature(TEMPLATES[template]).parameters
+    out = {}
+    for k, _lab, dv, unit in PARAMS[template]["params"]:
+        v = given.get(k, dv)
+        if k not in sig:
+            continue
+        if v in ("", None):
+            out[k] = None
+        elif unit in ("class", "text"):
+            out[k] = v
+        else:
+            out[k] = float(v)
+    for k, v in given.items():   # inputs only the Python template knows
+        if k in sig and k not in out:
+            out[k] = None if v == "" else v
+    return out
+
+
 def run_case(case):
     code = CODES[case.get("code", "ACI318-19")]
     if "custom" in case:
         model = build_custom(case["custom"])
     else:
-        model = TEMPLATES[case["template"]](code, **case["params"])
+        params = template_params(case["template"], case.get("params", {}), code)
+        model = TEMPLATES[case["template"]](code, **params)
         if case.get("interior_width_rule"):
             model.interior_width_rule = case["interior_width_rule"]
+    warn = validate_model(model, strict="custom" not in case)
     res = model.solve()
-    checks = run_checks(res, code) + extra_checks(model, res, code)
+    bad = [k for k, v in res.forces.items() if not math.isfinite(v)]
+    if bad:
+        raise InputError("Analysis failed: non-finite force in " + ", ".join(bad))
+    checks = run_checks(res, code) + extra_checks(model, res, code) + \
+        [Check("geometry", "detail", None, None, None, "NG", "", w) for w in warn]
     html = html_report(res, checks, code, project=case.get("project", ""),
                        engineer=case.get("engineer", ""), element=case.get("element", ""))
     return res, checks, html

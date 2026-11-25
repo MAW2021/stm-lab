@@ -9,3 +9,10 @@ full = ("<!doctype html>\n<html lang=\"en\"><head><meta charset=\"utf-8\">"
         + app.replace("<header", "</head><body>\n<header", 1) + "\n</body></html>\n")
 (here / "stm-lab.html").write_text(full, encoding="utf-8")
 print("built", here / "stm-lab.html", len(full), "bytes")
+
+# template input table (labels, defaults, units) shared with the Python engine for input validation
+import json, subprocess
+js = "const S=require(process.argv[1]);const o={};for(const[k,T]of Object.entries(S.TEMPLATES))o[k]={name:T.name,params:T.params};console.log(JSON.stringify(o,null,1))"
+out = subprocess.run(["node", "-e", js, str(here / "stm-engine.js")], capture_output=True, text=True, encoding="utf-8", check=True).stdout
+(here.parent / "stm" / "params.json").write_text(out, encoding="utf-8")
+print("wrote stm/params.json")

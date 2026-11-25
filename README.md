@@ -5,7 +5,7 @@ It covers parametric templates, 2D/3D truss analysis, strut/tie/node checks with
 clause references, and a printable calculation report. It runs on Windows, macOS or Linux
 with Python and numpy. Nothing leaves your computer.
 
-> **Status: v0.7 (pre-release).** ACI 318-19 Chapter 23 and AASHTO LRFD 5.8.2 checks are implemented.
+> **Status: v0.8 (pre-release).** ACI 318-19 Chapter 23 and AASHTO LRFD 5.8.2 checks are implemented.
 > Scope is **American codes only**. Calibration against an independent commercial tool is
 > in progress (see [docs/benchmark-plan.md](docs/benchmark-plan.md)). Always review the results
 > as an engineer before you use them.
@@ -23,7 +23,8 @@ with Python and numpy. Nothing leaves your computer.
 
 ## Browser app (no installation)
 Open **`web/stm-lab.html`** in Chrome, Edge or Firefox. It is a single file that runs fully offline, so you can copy it
-anywhere and share it. The work follows six steps:
+anywhere and share it. It opens on a **model gallery**: each card draws the strut-and-tie model its template builds
+(struts dashed blue, ties red, loads and supports), and each model you open gets its own tab. The work then follows six steps:
 
 | Step | What you do |
 |---|---|
@@ -37,6 +38,22 @@ anywhere and share it. The work follows six steps:
 The canvas zooms (wheel), pans (drag empty space) and fits (F); 3D models orbit by dragging. Every edit re-runs the
 analysis and checks instantly, and Ctrl+Z / Ctrl+Y undo and redo. Cases save and open as JSON; an edited template model
 keeps its template-specific checks (corbel 16.5, size effect 23.4.4, distributed reinforcement 23.5).
+### Safety dashboard and design assistant (v0.8)
+- **Dashboard** above the canvas: overall verdict, governing ratio, and the worst ratio for struts, ties, nodes and
+  detailing, plus tie steel weight. Click a tile to select the governing item.
+- **Failing items glow red** on the canvas; hover for force and ratio; **Next issue** steps through them.
+- **Why it fails**: selecting a failing item explains the result in plain words and lists fixes.
+- **Assistant tab**: every failing item with candidate fixes. Each fix is re-analysed before it is shown (ratio after the
+  change, failures left) and cites its basis (e.g. ACI 318-19 23.4.3, 23.5.1, 23.7.2, 23.9.1, 25.4.2.4). Fixes only use
+  code quantities: steel area As = Ft/(φfy), plate and nodal-zone size, section width, f'c, strut class with 23.5
+  distributed reinforcement, smaller bars for development length, 23.10 bend radius. Angle failures (23.2.7) are
+  advice only because they need a geometry change.
+- **Auto-design**: steel to the required bar arrangement, then the cheapest passing fix for the worst failure, repeated.
+  One undo step reverts it. When everything passes, **Optimise** offers trimming over-provided ties.
+- **Input validation**: out-of-range inputs (f'c 17–120 MPa, fy, β_c, dimensions, loads) and nodes outside the concrete
+  give a clear message instead of a result. `tests/test_fuzz.py` runs 2,540 positive, negative, zero and extreme inputs
+  through both engines and requires that they agree.
+
 The browser engine (`web/stm-engine.js`) is tested against the Python engine on every benchmark case.
 After you edit `web/app.html` or `web/stm-engine.js`, rebuild with `python web/build.py`.
 
