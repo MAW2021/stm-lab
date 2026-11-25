@@ -3,3 +3,4 @@ __pycache__/
 examples/*.html
 *.png
 /out.html
+web/stm-lab.embed.html

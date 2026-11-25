@@ -1,0 +1,307 @@
+<title>STM-Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: drafting-table tool — input rail on the left, model sheet + check tables on the right. */
+:root{
+  --bg:#eef0f2; --sheet:#ffffff; --ink:#1b2129; --mut:#5d6773; --line:#d3d8de; --rail:#f7f8f9;
+  --accent:#2a5b84; --strut:#1f63b6; --tie:#c23a2b; --ok:#1d7a43; --ng:#b3261e; --info:#8a6500;
+  --grid:#e4e8ec; --concrete:#e7eaee; --concrete-edge:#a8b1bb;
+  --f-ui:"IBM Plex Sans",system-ui,"Segoe UI",Arial,sans-serif; --f-num:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12161b; --sheet:#1a2027; --ink:#e3e8ee; --mut:#9aa5b1; --line:#2e3742; --rail:#161b21;
+  --accent:#7fb0dc; --strut:#6fa8f0; --tie:#f07a6a; --ok:#5cc489; --ng:#ff7b72; --info:#e0b44c;
+  --grid:#222a33; --concrete:#252d36; --concrete-edge:#4a5562; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161b; --sheet:#1a2027; --ink:#e3e8ee; --mut:#9aa5b1; --line:#2e3742; --rail:#161b21;
+  --accent:#7fb0dc; --strut:#6fa8f0; --tie:#f07a6a; --ok:#5cc489; --ng:#ff7b72; --info:#e0b44c;
+  --grid:#222a33; --concrete:#252d36; --concrete-edge:#4a5562; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink)}
+body{font:14px/1.45 var(--f-ui);margin:0}
+header.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--line);background:var(--sheet)}
+.brand{font-weight:600;letter-spacing:.02em;font-size:16px}
+.brand small{font:12px var(--f-num);color:var(--mut);margin-left:6px}
+.top .sp{flex:1}
+.btn{font:500 13px var(--f-ui);padding:7px 12px;border:1px solid var(--line);background:var(--sheet);color:var(--ink);border-radius:4px;cursor:pointer}
+.btn:hover{border-color:var(--accent)} .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--sheet)}
+.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+main{display:grid;grid-template-columns:330px minmax(0,1fr);gap:0;min-height:calc(100vh - 54px)}
+aside.rail{background:var(--rail);border-right:1px solid var(--line);padding:14px 16px;display:flex;flex-direction:column;gap:14px}
+.grp{display:flex;flex-direction:column;gap:8px}
+.grp h3{margin:0;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);font-weight:600}
+label.f{display:grid;grid-template-columns:1fr 112px;align-items:center;gap:8px;font-size:13px}
+label.f span.u{font:11px var(--f-num);color:var(--mut)}
+label.full{display:flex;flex-direction:column;gap:4px;font-size:13px}
+input,select,textarea{font:13px var(--f-num);color:var(--ink);background:var(--sheet);border:1px solid var(--line);border-radius:3px;padding:5px 6px;width:100%}
+textarea{min-height:280px;resize:vertical}
+section.work{padding:16px max(16px,env(safe-area-inset-right,0px)) 32px 16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.verdict{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.pill{font:600 13px var(--f-ui);padding:5px 10px;border-radius:999px;border:1.5px solid}
+.pill.OK{color:var(--ok);border-color:var(--ok)} .pill.NG{color:var(--ng);border-color:var(--ng)}
+.kv{font:12px var(--f-num);color:var(--mut)}
+.banner{border:1.5px solid var(--ng);color:var(--ng);padding:8px 10px;border-radius:4px;font-weight:500}
+.sheet{background:var(--sheet);border:1px solid var(--line);border-radius:4px}
+.drawing{overflow-x:auto}
+svg.stm{display:block;width:100%;min-width:520px;height:auto}
+svg .lbl{font:11px var(--f-num);fill:var(--ink)} svg .nd{font:600 12px var(--f-ui);fill:var(--ink)} svg .ld{font:11px var(--f-num);fill:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:16px;padding:8px 12px;border-top:1px solid var(--line);font-size:12px;color:var(--mut)}
+.sw{display:inline-block;width:26px;height:0;border-top:3px solid;vertical-align:middle;margin-right:6px}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tab{font:500 13px var(--f-ui);padding:8px 14px;background:none;border:0;border-bottom:2px solid transparent;color:var(--mut);cursor:pointer}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th,td{border-bottom:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{font-weight:600;color:var(--mut);font-size:11px;letter-spacing:.04em;text-transform:uppercase;background:var(--rail)}
+td.n{text-align:right;font-family:var(--f-num);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.s{font-weight:600} td.s.OK{color:var(--ok)} td.s.NG{color:var(--ng)} td.s.INFO{color:var(--info)}
+tr.ng td{background:color-mix(in srgb,var(--ng) 7%,transparent)}
+.bar{height:6px;background:var(--grid);border-radius:3px;min-width:60px;position:relative}
+.bar i{position:absolute;inset:0 auto 0 0;border-radius:3px;background:var(--ok)}
+.bar i.ng{background:var(--ng)}
+h2.sec{font-size:14px;margin:16px 0 6px;padding-bottom:3px;border-bottom:1.5px solid var(--ink)}
+.report{padding:16px}
+.report .hd{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px}
+.report h1{font-size:18px;margin:0}
+.note{font-size:12px;color:var(--mut)}
+.err{color:var(--ng);font:12px var(--f-num);white-space:pre-wrap}
+@media (max-width:860px){main{grid-template-columns:1fr} aside.rail{border-right:0;border-bottom:1px solid var(--line);padding-left:max(16px,env(safe-area-inset-left,0px))} section.work{padding-left:max(16px,env(safe-area-inset-left,0px))}}
+@media print{header.top,aside.rail,.tabs,.noprint{display:none!important} main{display:block} .sheet{border:0} section.work{padding:0} [data-panel]{display:block!important} body{font-size:11px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="top">
+  <div class="brand">STM-Lab <small id="ver"></small></div>
+  <div class="sp"></div>
+  <button class="btn" id="btnLoad" type="button">Open case…</button>
+  <button class="btn" id="btnSave" type="button">Save case</button>
+  <button class="btn" id="btnCopy" type="button">Copy case JSON</button>
+  <button class="btn primary" id="btnPrint" type="button">Print / PDF report</button>
+  <input type="file" id="fileIn" accept=".json,application/json" hidden>
+</header>
+
+<main>
+  <aside class="rail">
+    <div class="grp">
+      <h3>Element</h3>
+      <label class="full">Element type<select id="tpl"></select></label>
+      <label class="full">Design code<select id="code"></select></label>
+      <label class="full">Strut width at nodes without a plate
+        <select id="rule"><option value="projection">Projection wt·cosθ (conservative)</option><option value="secant">Secant wt/cosθ (matches AStrutTie)</option></select></label>
+    </div>
+    <div class="grp">
+      <h3>Project</h3>
+      <label class="full">Project<input id="project" value=""></label>
+      <label class="full">Element mark<input id="element" value=""></label>
+      <label class="full">Engineer<input id="engineer" value=""></label>
+    </div>
+    <div class="grp" id="paramGrp"><h3>Geometry · loads · materials</h3><div id="params" class="grp"></div></div>
+    <div class="note">Units: mm, kN, MPa. Loads are factored. Results update as you type.</div>
+  </aside>
+
+  <section class="work">
+    <div class="verdict" id="verdict"></div>
+    <div id="banners"></div>
+    <div class="sheet"><div class="drawing" id="drawing"></div>
+      <div class="legend"><span><i class="sw" style="border-color:var(--strut);border-top-style:dashed"></i>Strut (compression)</span><span><i class="sw" style="border-color:var(--tie)"></i>Tie (tension)</span><span>Line weight ∝ force · labels in kN</span></div></div>
+    <div class="sheet">
+      <div class="tabs noprint" role="tablist">
+        <button class="tab" role="tab" data-tab="checks" aria-selected="true" type="button">Checks</button>
+        <button class="tab" role="tab" data-tab="forces" aria-selected="false" type="button">Forces &amp; nodes</button>
+        <button class="tab" role="tab" data-tab="report" aria-selected="false" type="button">Calculation report</button>
+      </div>
+      <div data-panel="checks" class="tw"></div>
+      <div data-panel="forces" class="tw" hidden></div>
+      <div data-panel="report" class="report" hidden></div>
+    </div>
+  </section>
+</main>
+
+<script>
+/*ENGINE*/
+</script>
+<script>
+(function(){
+"use strict";
+const S = window.STM, $ = id => document.getElementById(id), E = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+const framed = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
+if (framed) { $("btnPrint").hidden = true; $("btnSave").hidden = true; }
+$("ver").textContent = "v" + S.version;
+
+const CUSTOM_EXAMPLE = {title:"Custom deep beam", dim:2, b:400, fc:35, fy:420,
+  nodes:[{name:"A",xyz:[0,100],fix:[true,true],lb:300,wt:200},{name:"B",xyz:[3000,100],fix:[false,true],lb:300,wt:200},{name:"C",xyz:[1500,1400],load:[0,-1000],lb:400,wt:200}],
+  members:[{name:"AC",i:"A",j:"C",strut_class:"interior_reinf"},{name:"CB",i:"C",j:"B",strut_class:"interior_reinf"},{name:"AB",i:"A",j:"B",As:2000}]};
+
+Object.entries(S.TEMPLATES).forEach(([k,t]) => $("tpl").add(new Option(t.name, k)));
+$("tpl").add(new Option("Custom model (JSON)", "custom"));
+Object.values(S.CODES).forEach(c => $("code").add(new Option(c.name, c.key)));
+
+let state = {}; // per-template parameter values
+function renderParams(){
+  const t = $("tpl").value, box = $("params");
+  box.innerHTML = "";
+  if (t === "custom") {
+    const ta = document.createElement("textarea"); ta.id = "customJson";
+    ta.value = state.custom || JSON.stringify(CUSTOM_EXAMPLE, null, 1);
+    ta.addEventListener("input", () => { state.custom = ta.value; schedule(); });
+    const l = document.createElement("label"); l.className = "full"; l.textContent = "Nodes, members, loads (JSON)"; l.appendChild(ta); box.appendChild(l);
+    return;
+  }
+  const vals = state[t] || (state[t] = {});
+  S.TEMPLATES[t].params.forEach(([k, lab, dv, unit]) => {
+    const l = document.createElement("label"); l.className = "f";
+    const v = vals[k] !== undefined ? vals[k] : dv;
+    let ctl;
+    if (unit === "class") { ctl = document.createElement("select"); Object.entries(S.STRUT_CLASSES).forEach(([ck, cd]) => ctl.add(new Option(cd, ck))); ctl.value = v; }
+    else { ctl = document.createElement("input"); ctl.inputMode = "decimal"; ctl.value = v; }
+    ctl.id = "p_" + t + "_" + k;
+    ctl.addEventListener("input", () => { vals[k] = ctl.value; schedule(); });
+    l.innerHTML = `<span>${E(lab)} ${unit && unit !== "class" ? `<span class="u">${E(unit)}</span>` : ""}</span>`;
+    l.appendChild(ctl); box.appendChild(l);
+  });
+}
+
+function currentCase(){
+  const t = $("tpl").value, c = {code:$("code").value, interior_width_rule:$("rule").value, project:$("project").value, element:$("element").value, engineer:$("engineer").value};
+  if (t === "custom") c.custom = JSON.parse(state.custom || JSON.stringify(CUSTOM_EXAMPLE));
+  else { c.template = t; c.params = {}; S.TEMPLATES[t].params.forEach(([k, , dv]) => { const v = (state[t]||{})[k]; c.params[k] = v !== undefined ? v : dv; }); }
+  return c;
+}
+
+let timer = null; function schedule(){ clearTimeout(timer); timer = setTimeout(run, 180); }
+let last = null;
+function run(){
+  let out;
+  try { out = S.runCase(currentCase()); }
+  catch (e) { $("verdict").innerHTML = `<div class="err">Input problem: ${E(e.message)}</div>`; return; }
+  last = out; render(out);
+}
+
+// ------------------------------------------------------------- drawing
+function project(m, p){ if (m.dim === 2) return [p[0], p[1]]; const ca = Math.cos(Math.PI/6), sa = Math.sin(Math.PI/6); return [(p[0]-p[1])*ca, (p[0]+p[1])*sa*0.55 + p[2]]; }
+function drawSVG(o, W = 900, H = 440, pad = 64){
+  const m = o.model, r = o.res, pts = {}; m.order.forEach(n => pts[n] = project(m, m.nodes[n].xyz));
+  const outline = (m.meta.outline||[]).map(poly => poly.map(p => project(m, p)));
+  const all = Object.values(pts).concat(...outline);
+  const xs = all.map(p=>p[0]), ys = all.map(p=>p[1]);
+  const x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
+  const s = Math.min((W-2*pad)/Math.max(1e-9,x1-x0), (H-2*pad)/Math.max(1e-9,y1-y0));
+  const ox = (W - s*(x1-x0))/2 - s*x0, oy = (H + s*(y1-y0))/2 + s*y0;
+  const T = p => [ox + s*p[0], oy - s*p[1]];
+  const g = [`<svg class="stm" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Strut-and-tie model">`,
+    `<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--ink)"/></marker></defs>`,
+    `<rect x="0" y="0" width="${W}" height="${H}" fill="var(--sheet)"/>`];
+  outline.forEach(poly => g.push(`<polygon points="${poly.map(p=>T(p).map(v=>v.toFixed(1)).join(",")).join(" ")}" fill="var(--concrete)" stroke="var(--concrete-edge)" stroke-width="1"/>`));
+  const fmax = Math.max(1e-9, ...Object.values(r.forces).map(Math.abs));
+  m.members.forEach(e => {
+    const f = r.forces[e.name], [a1,b1] = T(pts[e.i]), [a2,b2] = T(pts[e.j]), w = 1.5 + 5*Math.abs(f)/fmax;
+    const sty = Math.abs(f) < 1e-6 ? `stroke="var(--mut)" stroke-width="1" stroke-dasharray="2,3"` : f > 0 ? `stroke="var(--tie)" stroke-width="${w.toFixed(1)}"` : `stroke="var(--strut)" stroke-width="${w.toFixed(1)}" stroke-dasharray="9,5"`;
+    g.push(`<line x1="${a1.toFixed(1)}" y1="${b1.toFixed(1)}" x2="${a2.toFixed(1)}" y2="${b2.toFixed(1)}" ${sty}/>`);
+    if (Math.hypot(a2-a1, b2-b1) > 45) g.push(`<text class="lbl" x="${((a1+a2)/2).toFixed(1)}" y="${((b1+b2)/2-6).toFixed(1)}" text-anchor="middle">${E(e.name)} ${f>=0?"+":""}${f.toFixed(0)}</text>`);
+  });
+  m.order.forEach(n => {
+    const N = m.nodes[n], [x,y] = T(pts[n]);
+    g.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="var(--ink)"/><text class="nd" x="${(x+7).toFixed(1)}" y="${(y+15).toFixed(1)}">${E(n)}</text>`);
+    if (N.fix.some(Boolean) || N.spring) g.push(`<path d="M${x.toFixed(1)},${(y+5).toFixed(1)} l-9,14 h18 z" fill="none" stroke="var(--ok)" stroke-width="1.5"/>`);
+    const L = N.load.map(Number), Ln = Math.hypot(...L);
+    if (Ln > 0) {
+      const p0 = project(m, L.map(()=>0)), p1 = project(m, L.map(v=>v/Ln)); let dx = p1[0]-p0[0], dy = p1[1]-p0[1]; const k = Math.hypot(dx,dy)||1; dx/=k; dy/=k;
+      g.push(`<line x1="${(x-46*dx).toFixed(1)}" y1="${(y+46*dy).toFixed(1)}" x2="${(x-6*dx).toFixed(1)}" y2="${(y+6*dy).toFixed(1)}" stroke="var(--ink)" stroke-width="1.6" marker-end="url(#arr)"/>`);
+      g.push(`<text class="ld" x="${(x-46*dx+4).toFixed(1)}" y="${(y+46*dy-5).toFixed(1)}">${Ln.toFixed(0)} kN</text>`);
+    }
+  });
+  g.push("</svg>"); return g.join("");
+}
+
+// ------------------------------------------------------------- tables
+const fmt = (v, nd = 1) => v == null ? "–" : Number(v).toLocaleString("en-US", {minimumFractionDigits:nd, maximumFractionDigits:nd});
+function checkRows(list){
+  return list.map(c => {
+    const nd = c.kind === "detail" && c.capacity != null && c.capacity < 1 ? 4 : 1;
+    const bar = c.ratio != null && c.kind !== "detail" ? `<div class="bar"><i class="${c.ratio>1?"ng":""}" style="width:${Math.min(100,c.ratio*100).toFixed(0)}%"></i></div>` : "";
+    return `<tr class="${c.status==="NG"?"ng":""}"><td>${E(c.item)}</td><td>${E(c.kind)}</td><td class="n">${fmt(c.demand,nd)}</td><td class="n">${fmt(c.capacity,nd)}</td><td class="n">${c.ratio==null?"":c.ratio.toFixed(2)}</td><td>${bar}</td><td class="s ${c.status}">${c.status}</td><td>${E(c.detail)}</td><td class="note">${E(c.clause)}</td></tr>`;
+  }).join("");
+}
+const HEAD = `<tr><th>Item</th><th>Check</th><th>Demand</th><th>Capacity</th><th>Ratio</th><th></th><th>Status</th><th>Details</th><th>Clause</th></tr>`;
+const GROUPS = [["Struts",["strut"]],["Ties",["tie"]],["Nodal zones",["node","bearing"]],["Geometry, anchorage and detailing",["angle","anchorage","detail"]]];
+function checksHTML(checks){
+  return GROUPS.map(([t, ks]) => { const rows = checks.filter(c => ks.includes(c.kind)); return rows.length ? `<h2 class="sec" style="margin-inline:12px">${t}</h2><div class="tw"><table>${HEAD}${checkRows(rows)}</table></div>` : ""; }).join("");
+}
+function forcesHTML(o){
+  const m = o.model, r = o.res;
+  const mem = m.members.map(e => { const g = S.geometry(m, e), f = r.forces[e.name], ang = Math.asin(Math.min(1, Math.abs(g.u[g.u.length-1])))*180/Math.PI;
+    return `<tr><td>${E(e.name)}</td><td>${E(e.i)}–${E(e.j)}</td><td class="n">${fmt(g.L,0)}</td><td class="n">${ang.toFixed(1)}°</td><td class="n">${f>=0?"+":""}${fmt(f)}</td><td>${Math.abs(f)<1e-6?"zero":f>0?"tie":"strut"}</td></tr>`; }).join("");
+  const nod = m.order.map(n => { const N = m.nodes[n], R = r.reactions[n];
+    return `<tr><td>${E(n)}</td><td class="n">${N.xyz.map(v=>fmt(v,0)).join(", ")}</td><td class="n">${N.load.some(v=>+v)?N.load.map(v=>fmt(+v)).join(", "):""}</td><td>${N.fix.map((f,a)=>f?"XYZ"[a]:"").join("")}${N.spring?" spring":""}</td><td class="n">${R?R.map(v=>fmt(v)).join(", "):""}</td></tr>`; }).join("");
+  return `<h2 class="sec" style="margin-inline:12px">Member forces</h2><div class="tw"><table><tr><th>Member</th><th>Nodes</th><th>Length mm</th><th>Angle</th><th>Force kN</th><th>Type</th></tr>${mem}</table></div>
+  <h2 class="sec" style="margin-inline:12px">Nodes and reactions</h2><div class="tw"><table><tr><th>Node</th><th>Coordinates mm</th><th>Load kN</th><th>Support</th><th>Reaction kN</th></tr>${nod}</table></div>`;
+}
+function reportHTML(o, cs){
+  const m = o.model, c = o.code, sm = o.summary, today = new Date().toISOString().slice(0,10);
+  const inputs = cs.custom ? `<p class="note">Custom model: ${m.order.length} nodes, ${m.members.length} members.</p>`
+    : `<div class="tw"><table><tr><th>Parameter</th><th>Value</th></tr>${S.TEMPLATES[cs.template].params.map(([k,lab,,u])=>`<tr><td>${E(lab)}</td><td class="n">${E(cs.params[k]===""||cs.params[k]==null?"auto":cs.params[k])} ${u!=="class"?E(u):""}</td></tr>`).join("")}</table></div>`;
+  return `<div class="hd"><div><h1>Strut-and-tie calculation: ${E(cs.element || m.title)}</h1>
+    <div class="note">Project: ${E(cs.project||"—")} · Engineer: ${E(cs.engineer||"—")} · Date: ${today} · Code: ${E(c.name)} · STM-Lab v${S.version}</div></div>
+    <div><span class="pill ${sm.ok?"OK":"NG"}">${sm.ok?"ALL CHECKS PASS":sm.n_ng+" CHECK(S) FAIL"}</span></div></div>
+    ${c.provisional?`<p class="banner">Provisional code factors: the ECP 203 factors have not been confirmed against the code text. Do not use for design until verified.</p>`:""}
+    <h2 class="sec">1. Input data</h2>${inputs}<p class="note">Units: mm, kN, MPa. Loads are factored. Strut width at nodes without a plate: ${m.interior_width_rule}.</p>
+    <h2 class="sec">2. Code parameters</h2><div class="tw"><table>
+      <tr><td>Effective strength</td><td>${E(c.refs.fce)}</td></tr>
+      <tr><td>β_s</td><td>${Object.entries(c.beta_s).map(([k,v])=>`${E(k)} ${v}`).join(", ")}</td></tr>
+      <tr><td>β_n</td><td>${Object.entries(c.beta_n).map(([k,v])=>`${k} ${v}`).join(", ")}</td></tr>
+      <tr><td>φ strut / node / tie</td><td>${c.phi_strut} / ${c.phi_node} / ${c.phi_tie}</td></tr></table></div>
+    <h2 class="sec">3. Strut-and-tie model</h2>${drawSVG(o)}
+    ${forcesHTML(o).replace(/class="sec" style="margin-inline:12px">/g,'class="sec">')}
+    ${checksHTML(o.checks).replace(/style="margin-inline:12px"/g,"")}
+    <h2 class="sec">Assumptions and notes</h2><ul>${(m.meta.notes||[]).map(n=>`<li>${E(n)}</li>`).join("")}
+      <li>Pin-jointed truss solved by direct stiffness; equilibrium error ${o.res.equilibrium_error.toExponential(2)} kN.</li>
+      <li>Strut capacity taken at the weaker end; node faces checked for every strut, tie and bearing.</li>
+      <li>Not checked: hooked/headed anchorage, crack-control detailing, serviceability.</li></ul>`;
+}
+
+function render(o){
+  const cs = currentCase(), sm = o.summary, w = sm.worst;
+  $("verdict").innerHTML = `<span class="pill ${sm.ok?"OK":"NG"}">${sm.ok?"All checks pass":sm.n_ng+" check(s) fail"}</span>` +
+    (w ? `<span class="kv">Governing: ${E(w.kind)} ${E(w.item)} at ${w.ratio.toFixed(2)}</span>` : "") +
+    `<span class="kv">${o.model.order.length} nodes · ${o.model.members.length} members · ${E(o.code.name)}</span>`;
+  $("banners").innerHTML = (o.code.provisional ? `<div class="banner">ECP 203 factors are provisional until checked against §6-11.</div>` : "") +
+    (o.res.stable ? "" : `<div class="banner">The truss is unstable or out of equilibrium under these loads. Results are not valid.</div>`);
+  $("drawing").innerHTML = drawSVG(o);
+  document.querySelector('[data-panel="checks"]').innerHTML = checksHTML(o.checks);
+  document.querySelector('[data-panel="forces"]').innerHTML = forcesHTML(o);
+  document.querySelector('[data-panel="report"]').innerHTML = reportHTML(o, cs);
+}
+
+document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach(x => x.setAttribute("aria-selected", x === b));
+  document.querySelectorAll("[data-panel]").forEach(p => p.hidden = p.dataset.panel !== b.dataset.tab);
+}));
+["code","rule","project","element","engineer"].forEach(id => $(id).addEventListener("input", schedule));
+$("tpl").addEventListener("change", () => { renderParams(); run(); });
+
+$("btnPrint").addEventListener("click", () => { document.querySelector('[data-tab="report"]').click(); setTimeout(() => window.print(), 50); });
+$("btnCopy").addEventListener("click", () => { const txt = JSON.stringify(currentCase(), null, 1);
+  (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => flash("Case JSON copied")).catch(() => { $("tpl").value = "custom"; flash("Copy blocked: select the text manually"); }); });
+$("btnSave").addEventListener("click", () => { const blob = new Blob([JSON.stringify(currentCase(), null, 1)], {type:"application/json"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = (($("element").value||"stm-case").replace(/[^\w-]+/g,"_")) + ".json"; a.click(); });
+$("btnLoad").addEventListener("click", () => $("fileIn").click());
+$("fileIn").addEventListener("change", ev => { const f = ev.target.files[0]; if (!f) return; const rd = new FileReader();
+  rd.onload = () => { try { loadCase(JSON.parse(rd.result)); } catch (e) { flash("Could not read that file: " + e.message); } }; rd.readAsText(f); });
+function loadCase(c){
+  $("code").value = c.code || "ACI318-19"; $("rule").value = c.interior_width_rule || (c.custom && c.custom.interior_width_rule) || "projection";
+  $("project").value = c.project || ""; $("element").value = c.element || ""; $("engineer").value = c.engineer || "";
+  if (c.custom) { $("tpl").value = "custom"; state.custom = JSON.stringify(c.custom, null, 1); }
+  else { $("tpl").value = c.template; state[c.template] = Object.assign({}, c.params); }
+  renderParams(); run();
+}
+function flash(msg){ const v = $("verdict"); const s = document.createElement("span"); s.className = "kv"; s.textContent = msg; v.appendChild(s); setTimeout(() => s.remove(), 3000); }
+
+// open in a realistic working state: example transfer girder
+$("project").value = "Example project"; $("element").value = "TG-1 transfer girder (example)";
+state.deep_beam = {rho_h:0.003, rho_v:0.003, As_tie:2400, db:25};
+renderParams(); run();
+})();
+</script>

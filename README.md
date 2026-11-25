@@ -22,7 +22,14 @@ with Python and numpy. Nothing leaves your computer.
 | Checks | Struts (β_s), ties (As,req and bar options), nodal faces and bearing (β_n, β_c), 25° strut–tie angle limit, distributed reinforcement (23.5), size-effect limit (23.4.4), corbel limits (16.5) |
 | Deliverable | A self-contained HTML calculation report with the drawn model, force tables, check tables and clause references. Print it to PDF from the browser |
 
-## Install and run
+## Browser app (no installation)
+Open **`web/stm-lab.html`** in Chrome, Edge or Firefox. It is a single file that runs fully offline, so you can copy it
+anywhere and share it. It has every template and check of the Python engine, a live model drawing, check tables,
+and a calculation report that prints to PDF. You can also save and open case files (.json).
+The browser engine (`web/stm-engine.js`) is tested against the Python engine on every benchmark case.
+After you edit `web/app.html` or `web/stm-engine.js`, rebuild with `python web/build.py`.
+
+## Install and run (Python)
 
 ```bash
 pip install numpy
