@@ -135,7 +135,11 @@
     let dmax = 1; free.forEach(q => (dmax = Math.max(dmax, Math.abs(K[q][q]))));
     const eps = 1e-9 * dmax;
     const Kff = free.map(r => free.map(c => K[r][c] + (r === c ? eps : 0)));
-    const Uf = gaussSolve(Kff, free.map(q => F[q]));
+    const Ff = free.map(q => F[q]), Kraw = free.map(r => free.map(c => K[r][c]));
+    let Uf = gaussSolve(Kff.map(r => r.slice()), Ff.slice());
+    for (let it = 0; it < 3; it++) {   // iterative refinement removes the error of the stabilising spring
+      const rr = Ff.map((f, r) => f - Kraw[r].reduce((s, v, c) => s + v * Uf[c], 0));
+      const du = gaussSolve(Kff.map(r => r.slice()), rr); Uf = Uf.map((v, k) => v + du[k]); }
     const U = Array(nd).fill(0); free.forEach((q, k) => (U[q] = Uf[k]));
     const R = K.map((row, r) => row.reduce((s, v, c) => s + v * U[c], 0) - F[r]);
     const forces = {};
@@ -711,19 +715,255 @@
     return { worst, n_ng: ng, ok: ng === 0 };
   }
 
+  // ===================================================================== input validation
+  // Ranges follow the code: f'c ≥ 17 MPa (ACI 318-19 19.2.1.1); fy of ties ≤ 550 MPa
+  // (ACI 318-19 Table 20.2.2.4(a)), ≤ 690 MPa for AASHTO LRFD (5.4.3.1). Dimensions > 0.
+  const ZERO_OK = new Set(["rb", "heel_len", "w_heel1", "w_heel2", "db", "c_end", "e_h", "anchor_ext", "n_spread"]);
+  class InputError extends Error {}
+  function validateParams(T, prm, code) {
+    const errs = [];
+    T.params.forEach(([k, lab, dv, unit]) => {
+      const raw = prm[k];
+      if (unit === "class") { if (!STRUT_CLASSES[raw]) errs.push(`${lab}: unknown strut class "${raw}"`); return; }
+      if (unit === "text") return;
+      if (raw == null) { if (dv === "" || dv == null) return; errs.push(`${lab}: a value is required`); return; }
+      const v = Number(raw);
+      if (!isFinite(v)) { errs.push(`${lab}: "${raw}" is not a number`); return; }
+      if (unit === "mm") {
+        if (v < 0 || (v === 0 && !ZERO_OK.has(k))) errs.push(`${lab}: must be ${ZERO_OK.has(k) ? "zero or more" : "greater than zero"} (got ${v} mm)`);
+        else if (v > 0 && v < 1) errs.push(`${lab}: ${v} mm is below 1 mm`);
+        else if (v > 1e5) errs.push(`${lab}: ${v} mm is above 100 000 mm (outside the range of a D-region)`); }
+      else if (unit === "mm²") { if (v < 0) errs.push(`${lab}: cannot be negative (got ${v})`); else if (v > 0 && v < 1) errs.push(`${lab}: ${v} mm² is below 1 mm²`); }
+      else if (unit === "") { if (v < 0) errs.push(`${lab}: cannot be negative (got ${v})`); }
+      else if (unit === "kN" || unit === "kN·m" || unit === "kN/m") { if (Math.abs(v) > 1e7) errs.push(`${lab}: ${v} ${unit} is above the supported magnitude (10⁷)`); }
+      else if (unit === "MPa") {
+        if (k === "fc" && !(v >= 17 && v <= 120)) errs.push(`${lab}: f'c must be 17–120 MPa (ACI 318-19 19.2.1.1 sets 17 MPa minimum; got ${v})`);
+        const fymax = code && code.family === "AASHTO" ? 690 : 550;
+        if (k === "fy" && !(v >= 280 && v <= fymax)) errs.push(`${lab}: fy must be 280–${fymax} MPa (${fymax === 550 ? "ACI 318-19 Table 20.2.2.4(a), ties" : "AASHTO LRFD 5.4.3.1"}; got ${v})`);
+      }
+      // kN, kN·m, kN/m: loads may have either sign
+    });
+    if (errs.length) throw new InputError("Input problem: " + errs.join("; "));
+  }
+  function inPoly(p, poly) { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i], [xj, yj] = poly[j]; if (((yi > p[1]) !== (yj > p[1])) && p[0] < (xj - xi) * (p[1] - yi) / (yj - yi) + xi) c = !c; } return c; }
+  function onEdge(p, poly, tol) { for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [ax, ay] = poly[j], [bx, by] = poly[i], dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy || 1;
+    const t = Math.max(0, Math.min(1, ((p[0] - ax) * dx + (p[1] - ay) * dy) / L2)); if (Math.hypot(p[0] - ax - t * dx, p[1] - ay - t * dy) <= tol) return true; } return false; }
+  // model-level checks for templates and hand-drawn models
+  function validateModel(m) {
+    const errs = [];
+    if (!(m.fc >= 17 && m.fc <= 120)) errs.push(`f'c = ${m.fc} MPa is outside 17–120 MPa (ACI 318-19 19.2.1.1)`);
+    if (!(m.fy >= 280 && m.fy <= 690)) errs.push(`fy = ${m.fy} MPa is outside 280–690 MPa`);
+    if (m.dim === 2 && !(m.b > 0)) errs.push(`thickness b must be greater than zero (got ${m.b})`);
+    m.order.forEach(n => { const N = m.nodes[n];
+      if (!N.xyz.every(isFinite)) errs.push(`node ${n} has an invalid coordinate`);
+      if (!N.load.every(v => isFinite(+v))) errs.push(`node ${n} has an invalid load`);
+      ["lb", "wt", "wt_v", "bearing_area"].forEach(k => { if (+N[k] < 0) errs.push(`node ${n}: ${k} cannot be negative`); });
+      if (N.confine < 1 || N.confine > 2) errs.push(`node ${n}: β_c must be 1.0–2.0 (ACI 318-19 23.4.3)`); });
+    m.members.forEach(e => {
+      if (!m.nodes[e.i] || !m.nodes[e.j]) { errs.push(`member ${e.name} refers to a missing node`); return; }
+      if (e.i === e.j) { errs.push(`member ${e.name} joins node ${e.i} to itself`); return; }
+      const a = m.nodes[e.i].xyz, b = m.nodes[e.j].xyz, L = Math.hypot(...b.map((v, k) => v - a[k]));
+      if (!(L >= 1)) errs.push(`member ${e.name} is ${L < 1e-9 ? "of zero length" : "shorter than 1 mm"}: nodes ${e.i} and ${e.j} coincide (check the dimensions)`);
+      ["As", "width", "area", "EA", "db", "width_max", "beta_s"].forEach(k => { if (+e[k] < 0) errs.push(`member ${e.name}: ${k} cannot be negative`); }); });
+    m.members.forEach(e => { if (+e.As > 0 && +e.As < 1) errs.push(`member ${e.name}: As = ${e.As} mm² is below 1 mm²`); });
+    if (m.dim === 3) { const pts = ((m.meta && m.meta.outline) || []).flat().filter(q => Array.isArray(q) && q.length === 3);
+      if (pts.length) { const lo = [0, 1, 2].map(a => Math.min(...pts.map(q => q[a])) - 1), hi = [0, 1, 2].map(a => Math.max(...pts.map(q => q[a])) + 1);
+        const out = m.order.filter(n => m.nodes[n].xyz.some((v, a) => v < lo[a] || v > hi[a]));
+        if (out.length) errs.push(`node${out.length > 1 ? "s" : ""} ${out.join(", ")} outside the concrete (check the dimensions and tie positions)`); } }
+    // every node must lie in the concrete (2D outline), with a 1 mm tolerance
+    const ol = (m.meta && m.meta.outline) || [];
+    if (m.dim === 2 && ol.length && ol.every(p => p.length >= 3 && p.every(q => q.length === 2 && q.every(isFinite)))) {
+      const tol = 1.0, out = m.order.filter(n => { const p = m.nodes[n].xyz; return !ol.some(poly => inPoly(p, poly) || onEdge(p, poly, tol)); });
+      if (out.length) errs.push(`node${out.length > 1 ? "s" : ""} ${out.join(", ")} ${out.length > 1 ? "lie" : "lies"} outside the concrete outline (check the dimensions, covers and tie positions)`);
+    }
+    if (errs.length) throw new InputError("Model problem: " + errs.join("; "));
+  }
+
   function runCase(cs) {
     const code = CODES[cs.code || "ACI318-19"];
     let m;
     if (cs.custom) m = buildCustom(Object.assign({ interior_width_rule: cs.interior_width_rule }, cs.custom));
     else {
       const T = TEMPLATES[cs.template], prm = {};
-      T.params.forEach(([k, , dv, unit]) => { const v = cs.params[k] !== undefined ? cs.params[k] : dv; prm[k] = (v === "" || v === null) ? null : (unit === "class" || unit === "text" ? v : Number(v)); });
+      if (T) T.params.forEach(([k, , dv, unit]) => { const v = cs.params[k] !== undefined ? cs.params[k] : dv; prm[k] = (v === "" || v === null) ? null : (unit === "class" || unit === "text" ? v : Number(v)); });
+      if (!T) throw new InputError(`unknown template "${cs.template}"`);
+      validateParams(T, prm, code);
       m = T.build(code, prm); if (cs.interior_width_rule) m.interior_width_rule = cs.interior_width_rule; }
+    validateModel(m);
     const res = solve(m);
+    const bad = Object.entries(res.forces).filter(([, v]) => !isFinite(v)).map(([k]) => k);
+    if (bad.length) throw new InputError(`Analysis failed: non-finite force in ${bad.join(", ")}`);
     const checks = runChecks(res, code).concat(extraChecks(m, res, code));
     return { model: m, res, checks, code, summary: summary(checks) };
   }
 
-  const API = { CODES, STRUT_CLASSES, TEMPLATES, Model, addNode, addMember, geometry, solve, runChecks, extraChecks, buildCustom, toSpec, strutWidth: strutWidth2d, strutWidthModel, foundationLoads, nodeKind, runCase, summary, version: "0.7.0" };
+  // ===================================================================== design assistant
+  // Diagnoses failing checks, proposes concrete model changes, and measures each one by
+  // re-running the analysis ("what-if"). Works on a custom case {code, interior_width_rule, custom: spec}.
+  const FC_GRADES = [20, 25, 28, 30, 32, 35, 40, 45, 50, 55, 60, 70, 80];
+  const ASSIST_BARS = [10, 12, 16, 20, 25, 28, 32, 36, 40];
+  const cl = o => JSON.parse(JSON.stringify(o));
+  const up10 = v => Math.ceil(v / 10 - 1e-9) * 10;
+  function checkKey(c) {
+    if (c.kind === "node") { const f = /(tie )?face of ([^,\s]+)/.exec(c.detail || ""); return `node|${c.item}|${f ? (f[1] ? "t:" : "s:") + f[2] : c.detail}`; }
+    if (c.kind === "detail") return `detail|${c.item}|${c.clause}`;
+    return `${c.kind}|${c.item}`;
+  }
+  function whatIf(cs, fn) {
+    const c = cl(cs); fn(c.custom, c);
+    try { const o = runCase(c); return { cs: c, out: o }; } catch (e) { return { cs: c, out: null, err: e.message }; }
+  }
+  function ratioOf(out, key) {
+    if (!out) return Infinity;
+    const c = out.checks.find(x => checkKey(x) === key);
+    return c ? (c.ratio == null ? (c.status === "NG" ? Infinity : 0) : c.ratio) : 0;
+  }
+  // grow a numeric value until the target check passes (capacity is about linear in it)
+  function solveUp(cs, key, get, set, { step = 10, cap = 8 } = {}) {
+    const v0 = get(cs.custom); if (!(v0 > 0)) return null;
+    let v = v0, r = ratioOf(runCase(cs), key);
+    for (let k = 0; k < 10 && r > 1; k++) {
+      v = Math.ceil(Math.max(v * Math.min(r, 3) * 1.01, v + step) / step) * step;
+      if (v > v0 * cap) return null;
+      const t = whatIf(cs, sp => set(sp, v)); r = ratioOf(t.out, key);
+      if (!t.out || !t.out.res.stable) return null;
+    }
+    return r <= 1 ? v : null;
+  }
+  function barsFor(As) {   // smallest bar that needs no more than 8 bars (then 12), at least 2 bars
+    for (const lim of [8, 12]) for (const d of ASSIST_BARS) { if (d < 12) continue; const a = Math.PI * d * d / 4, n = Math.max(2, Math.ceil(As / a - 1e-9)); if (n <= lim) return { n, d, A: n * a }; }
+    const d = 40, a = Math.PI * d * d / 4, n = Math.ceil(As / a); return { n, d, A: n * a };
+  }
+  const nodeOf = (sp, n) => sp.nodes.find(x => x.name === n);
+  const memOf = (sp, e) => sp.members.find(x => x.name === e);
+
+  // plain-language reason for a check result
+  function explain(c, out) {
+    const r = c.ratio != null ? c.ratio.toFixed(2) : "–", D = c.demand, Cp = c.capacity, f0 = v => (v == null ? "–" : Number(v).toFixed(0));
+    if (c.kind === "strut") { const w = /w = ([\d.]+) mm at (\S+)/.exec(c.detail || "");
+      return `The strut carries ${f0(D)} kN but its weakest section resists only ${f0(Cp)} kN (ratio ${r}).` + (w ? ` It is ${w[1]} mm wide where it meets node ${w[2]}, which is too narrow for this force.` : ""); }
+    if (c.kind === "tie") return c.status === "INFO" ? `Tension ${f0(D)} kN. No steel is entered yet: ${c.detail}.` : `The tie carries ${f0(D)} kN but the steel provided resists ${f0(Cp)} kN (ratio ${r}). ${c.detail}.`;
+    if (c.kind === "node") { const f = /(tie )?face of ([^,\s]+)/.exec(c.detail || ""), k = /(C{1,3}T{0,2})/.exec(c.detail || "");
+      return `Node ${c.item}${k ? ` (${k[1]})` : ""}: the face against ${f ? f[2] : "a member"} takes ${f0(D)} kN but the nodal zone resists ${f0(Cp)} kN (ratio ${r}). The nodal zone is too small or the concrete too weak.`; }
+    if (c.kind === "bearing") return `The bearing plate at node ${c.item} is too small: ${f0(D)} kN on a plate that resists ${f0(Cp)} kN (ratio ${r}).`;
+    if (c.kind === "anchorage") return `The bars of ${c.item.split("@")[0]} need ld = ${f0(D)} mm past the nodal zone at ${c.item.split("@")[1]}, but only ${f0(Cp)} mm is available.`;
+    if (c.kind === "angle") return `${c.detail}: a strut flatter than 25° to a tie is not reliable (strain compatibility).`;
+    return c.detail || "";
+  }
+
+  // candidate fixes for one failing (or undesigned) check
+  function fixesFor(cs, out, c, { measure = true } = {}) {
+    const sp = cs.custom, code = CODES[cs.code || "ACI318-19"], key = checkKey(c), fx = [];
+    const add = (o) => fx.push(o);
+    const globals = () => {
+      const b0 = sp.b;
+      if (sp.dim === 2 && b0 > 0) { const v = solveUp(cs, key, s => s.b, (s, v) => (s.b = v), { step: 50, cap: 3 });
+        if (v) add({ cost: 4, kind: "section", title: `Widen the section b ${f(b0)} → ${f(v)} mm`, set: { path: "b", value: v }, apply: s => (s.b = v) }); }
+      const g = FC_GRADES.filter(x => x > sp.fc);
+      for (const x of g) { const t = whatIf(cs, s => (s.fc = x)); if (ratioOf(t.out, key) <= 1) {
+        add({ cost: 3, kind: "material", title: `Use stronger concrete f'c ${f(sp.fc)} → ${x} MPa`, apply: s => (s.fc = x) }); break; } }
+    };
+    const f = v => Number(v).toFixed(0);
+    if (c.kind === "tie") {
+      const e = memOf(sp, c.item); if (!e) return [];
+      const m = out.model.members.find(x => x.name === c.item), fy = (m.fy || out.model.fy) * code.steel_factor;
+      const Asr = c.demand * 1e3 / (code.phi_tie * fy), bb = barsFor(Asr);
+      add({ cost: 1, kind: "steel", title: `Provide ${bb.n}T${bb.d} (${f(bb.A)} mm² ≥ ${f(Asr)} mm² required)`,
+        apply: s => { const x = memOf(s, c.item); x.As = Math.round(bb.A); if (x.db > 0) x.db = bb.d; } });
+    } else if (c.kind === "strut") {
+      const e = memOf(sp, c.item); if (!e) return [];
+      const w = /at (\S+) \(/.exec(c.detail || ""), nn = w && nodeOf(sp, w[1]);
+      if (e.width > 0) { const v = solveUp(cs, key, s => memOf(s, c.item).width, (s, v) => (memOf(s, c.item).width = v));
+        if (v) add({ cost: 2, kind: "geometry", title: `Widen strut ${c.item} to ${f(v)} mm`, apply: s => (memOf(s, c.item).width = v) }); }
+      if (nn) for (const p of ["lb", "wt"]) if (nn[p] > 0 && !(nn.curved || nn.cut)) {
+        const v = solveUp(cs, key, s => nodeOf(s, nn.name)[p], (s, v) => (nodeOf(s, nn.name)[p] = v));
+        if (v) add({ cost: 2, kind: "geometry", title: p === "lb" ? `Lengthen the plate at node ${nn.name}: lb ${f(nn.lb)} → ${f(v)} mm` : `Deepen the nodal zone at ${nn.name}: wt ${f(nn.wt)} → ${f(v)} mm (deeper chord or more bar layers)`, apply: s => (nodeOf(s, nn.name)[p] = v) }); }
+      if (e.strut_class === "interior_no_reinf") { const t = whatIf(cs, s => (memOf(s, c.item).strut_class = "interior_reinf"));
+        if (ratioOf(t.out, key) < c.ratio - 1e-6) add({ cost: 2, kind: "detailing", title: `Add distributed web reinforcement (ρ ≥ 0.0025 each way, 23.5) so strut ${c.item} counts as reinforced (β_s 0.75)`, apply: s => (memOf(s, c.item).strut_class = "interior_reinf") }); }
+      globals();
+    } else if (c.kind === "node" || c.kind === "bearing") {
+      const n = nodeOf(sp, c.item); if (!n) return [];
+      for (const p of ["lb", "wt"]) if (n[p] > 0) {
+        const v = solveUp(cs, key, s => nodeOf(s, n.name)[p], (s, v) => (nodeOf(s, n.name)[p] = v));
+        if (v) add({ cost: 2, kind: "geometry", title: p === "lb" ? `Lengthen the plate / nodal zone at ${n.name}: lb ${f(n.lb)} → ${f(v)} mm` : `Deepen the nodal zone at ${n.name}: wt ${f(n.wt)} → ${f(v)} mm`, apply: s => (nodeOf(s, n.name)[p] = v) }); }
+      globals();
+    } else if (c.kind === "anchorage") {
+      const [tn, nn] = c.item.split("@"), e = memOf(sp, tn), n = nodeOf(sp, nn); if (!e || !n) return [];
+      const smaller = ASSIST_BARS.filter(d => d < e.db).reverse();
+      for (const d of smaller) { const t = whatIf(cs, s => (memOf(s, tn).db = d)); if (ratioOf(t.out, key) <= 1) {
+        add({ cost: 1, kind: "steel", title: `Use smaller bars for ${tn}: T${f(e.db)} → T${d} (same As, shorter ld)`, apply: s => (memOf(s, tn).db = d) }); break; } }
+      const ext = n.anchor_ext + (c.demand - c.capacity); const v = up10(ext);
+      add({ cost: 2, kind: "detailing", title: `Extend the bars ${f(v - n.anchor_ext)} mm further past node ${nn} (if the concrete allows), or use hooks / heads (25.4.3, 25.4.4)`, apply: s => (nodeOf(s, nn).anchor_ext = v) });
+    } else if (c.kind === "detail" && /23\.10/.test(c.clause)) {
+      const v = Math.ceil(c.demand / 5) * 5;
+      add({ cost: 1, kind: "detailing", title: `Bend the outer bars with an inside radius rb ≥ ${v} mm`, apply: s => { s.meta = s.meta || {}; s.meta.rb = v; } });
+    } else if (c.kind === "angle") {
+      add({ cost: 9, kind: "advice", title: `Move node ${c.item} or add an intermediate node so the strut makes at least 25° with the tie`, apply: null });
+    } else if (c.kind === "detail") {
+      add({ cost: 9, kind: "advice", title: c.detail, apply: null });
+    }
+    const ref = code.refs, aci = !code.family || code.family !== "AASHTO";
+    const basis = { steel: c.kind === "anchorage" ? (aci ? "ACI 318-19 25.4.2.4 (ld ∝ db)" : c.clause) : (c.clause || ref.tie), geometry: c.clause, material: c.clause, section: c.clause,
+      detailing: c.kind === "strut" ? (aci ? "ACI 318-19 23.5.1, Table 23.4.3" : c.clause) : c.kind === "anchorage" ? "ACI 318-19 23.8.2, 25.4.3, 25.4.4" : c.clause, advice: c.clause };
+    fx.forEach(x => { x.clause = basis[x.kind] || c.clause; });
+    if (measure) fx.forEach(x => { if (!x.apply) return; const t = whatIf(cs, x.apply);
+      x.after = t.out ? { ratio: ratioOf(t.out, key), n_ng: t.out.summary.n_ng, worst: t.out.summary.worst && t.out.summary.worst.ratio, stable: t.out.res.stable } : null; });
+    fx.sort((a, b) => ((a.after && a.after.ratio <= 1 ? 0 : 1) - (b.after && b.after.ratio <= 1 ? 0 : 1)) || a.cost - b.cost || ((a.after ? a.after.n_ng : 99) - (b.after ? b.after.n_ng : 99)));
+    return fx;
+  }
+
+  // issues = failing checks grouped by item, worst first, each with its fixes
+  function advise(cs, { maxItems = 30 } = {}) {
+    const out = runCase(cs), issues = [];
+    if (!out.res.stable) issues.push({ item: "model", kind: "stability", ratio: Infinity, why: "The truss is unstable or not in equilibrium. Add members or supports before the checks mean anything.", checks: [], fixes: [] });
+    const ng = out.checks.filter(c => c.status === "NG").sort((a, b) => (b.ratio || 9) - (a.ratio || 9)), seen = {};
+    for (const c of ng) { const it = c.kind === "anchorage" ? c.item : c.item; (seen[it] = seen[it] || []).push(c); }
+    Object.entries(seen).slice(0, maxItems).forEach(([item, cs_]) => {
+      const c = cs_[0];
+      issues.push({ item, kind: c.kind, ratio: c.ratio, why: explain(c, out), checks: cs_, fixes: fixesFor(cs, out, c) });
+    });
+    const undesigned = out.checks.filter(c => c.kind === "tie" && c.status === "INFO");
+    return { out, issues, undesigned };
+  }
+
+  // one-click design: steel to the required bars, then the cheapest fix for the worst failure, repeated
+  function autoDesign(cs0, { rounds = 40 } = {}) {
+    let cs = cl(cs0); const log = [], skip = new Set();
+    // with section stiffness, new steel changes the force split, so repeat until the ties settle
+    const steel = () => { for (let it = 0; it < 8; it++) { const o = runCase(cs);
+      const ties = o.checks.filter(c => c.kind === "tie" && (c.status === "INFO" || c.status === "NG")); if (!ties.length) return;
+      ties.forEach(c => { const fx = fixesFor(cs, o, c, { measure: false })[0]; if (fx) { const t = whatIf(cs, fx.apply); cs = t.cs; log.push(`${c.item}: ${fx.title}`); } }); } };
+    // steel at the required area (also trims over-provided ties)
+    { const o = runCase(cs), code = CODES[cs.code || "ACI318-19"];
+      o.checks.filter(c => c.kind === "tie" && c.status === "OK").forEach(c => {
+        const e = memOf(cs.custom, c.item), m = o.model.members.find(x => x.name === c.item), fy = (m.fy || o.model.fy) * code.steel_factor;
+        const bb = barsFor(c.demand * 1e3 / (code.phi_tie * fy));
+        if (bb.A < e.As - 1) { log.push(`${c.item}: trim steel ${e.As.toFixed(0)} → ${bb.A.toFixed(0)} mm² (${bb.n}T${bb.d})`); e.As = Math.round(bb.A); if (e.db > 0) e.db = bb.d; } }); }
+    steel();
+    for (let k = 0; k < rounds; k++) {
+      const o = runCase(cs); if (!o.res.stable) { log.push("Stopped: the truss is unstable."); break; }
+      const ng = o.checks.filter(c => c.status === "NG" && !skip.has(checkKey(c))).sort((a, b) => (b.ratio || 9) - (a.ratio || 9));
+      if (!ng.length) break;
+      const c = ng[0], fx = fixesFor(cs, o, c).filter(x => x.apply && x.after && x.after.stable);
+      const best = fx.find(x => x.after.ratio <= 1) || null;
+      if (!best) { skip.add(checkKey(c)); log.push(`${c.kind} ${c.item}: no automatic fix (${fx.length ? "changes tried do not reach 1.0" : "needs a model change"})`); continue; }
+      cs = whatIf(cs, best.apply).cs; log.push(`${c.kind} ${c.item} ${c.ratio != null ? c.ratio.toFixed(2) : ""}: ${best.title}`);
+      steel();
+    }
+    steel();
+    const out = runCase(cs);
+    return { cs, out, log, unresolved: out.checks.filter(c => c.status === "NG").map(c => `${c.kind} ${c.item}`) };
+  }
+
+  // tie steel quantity (kg) and concrete stress summary for the dashboard
+  function quantities(out) {
+    let kg = 0, n = 0; out.model.members.forEach(e => { const F = out.res.forces[e.name]; if (F > 1e-6) { const g = geometry(out.model, e);
+      const As = e.As > 0 ? e.As : F * 1e3 / (out.code.phi_tie * (e.fy || out.model.fy) * out.code.steel_factor); kg += As * g.L * 7.85e-6; n++; } });
+    return { steel_kg: kg, ties: n };
+  }
+
+  const API = { CODES, STRUT_CLASSES, TEMPLATES, Model, addNode, addMember, geometry, solve, runChecks, extraChecks, buildCustom, toSpec, strutWidth: strutWidth2d, strutWidthModel, foundationLoads, nodeKind, runCase, summary, advise, autoDesign, fixesFor, explain, checkKey, quantities, validateModel, InputError, version: "0.8.0" };
   if (typeof module !== "undefined" && module.exports) module.exports = API; else root.STM = API;
 })(typeof window !== "undefined" ? window : globalThis);

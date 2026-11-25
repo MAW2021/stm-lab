@@ -157,7 +157,11 @@ class STModel:
         # caught by the equilibrium/displacement check below.
         eps = 1e-9 * (np.max(np.abs(np.diag(Kff))) if Kff.size else 1.0)
         U = np.zeros(ndof)
-        U[free] = np.linalg.solve(Kff + eps * np.eye(Kff.shape[0]), F[free])
+        Kr = Kff + eps * np.eye(Kff.shape[0])
+        Uf = np.linalg.solve(Kr, F[free])
+        for _ in range(3):   # iterative refinement removes the error of the stabilising spring
+            Uf = Uf + np.linalg.solve(Kr, F[free] - Kff @ Uf)
+        U[free] = Uf
         R = K @ U - F  # reactions at fixed DOFs (residual elsewhere)
         forces = {}
         for m, (L, u, EA) in zip(self.members, units):

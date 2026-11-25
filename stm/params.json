@@ -1,0 +1,852 @@
+{
+ "deep_beam": {
+  "name": "Deep beam / transfer girder",
+  "params": [
+   [
+    "L",
+    "Span between supports L",
+    3000,
+    "mm"
+   ],
+   [
+    "h",
+    "Overall depth h",
+    1500,
+    "mm"
+   ],
+   [
+    "b",
+    "Thickness b",
+    400,
+    "mm"
+   ],
+   [
+    "P",
+    "Factored load P (each point)",
+    1200,
+    "kN"
+   ],
+   [
+    "a",
+    "Shear span a (blank = one central load)",
+    "",
+    "mm"
+   ],
+   [
+    "fc",
+    "Concrete strength",
+    35,
+    "MPa"
+   ],
+   [
+    "fy",
+    "Steel yield fy",
+    420,
+    "MPa"
+   ],
+   [
+    "lb_load",
+    "Load plate length",
+    300,
+    "mm"
+   ],
+   [
+    "lb_sup",
+    "Support plate length",
+    300,
+    "mm"
+   ],
+   [
+    "d_tie",
+    "Tie centroid from bottom",
+    100,
+    "mm"
+   ],
+   [
+    "wc",
+    "Top chord depth (blank = auto)",
+    "",
+    "mm"
+   ],
+   [
+    "rho_h",
+    "Horizontal web steel ratio ρh",
+    0,
+    ""
+   ],
+   [
+    "rho_v",
+    "Vertical web steel ratio ρv",
+    0,
+    ""
+   ],
+   [
+    "As_tie",
+    "Provided tie As (0 = design)",
+    0,
+    "mm²"
+   ],
+   [
+    "db",
+    "Tie bar diameter (0 = skip anchorage)",
+    0,
+    "mm"
+   ],
+   [
+    "end_cover",
+    "Bar end cover beyond support plate edge",
+    40,
+    "mm"
+   ]
+  ]
+ },
+ "corbel": {
+  "name": "Corbel",
+  "params": [
+   [
+    "hc",
+    "Column depth hc",
+    400,
+    "mm"
+   ],
+   [
+    "b",
+    "Width b",
+    400,
+    "mm"
+   ],
+   [
+    "h",
+    "Corbel depth at column face h",
+    500,
+    "mm"
+   ],
+   [
+    "d",
+    "Effective depth d",
+    450,
+    "mm"
+   ],
+   [
+    "av",
+    "Load distance from face a_v",
+    200,
+    "mm"
+   ],
+   [
+    "Vu",
+    "Factored vertical load Vu",
+    400,
+    "kN"
+   ],
+   [
+    "Nuc",
+    "Horizontal force Nuc (blank = 0.2Vu)",
+    "",
+    "kN"
+   ],
+   [
+    "fc",
+    "Concrete strength",
+    35,
+    "MPa"
+   ],
+   [
+    "fy",
+    "Steel yield fy",
+    420,
+    "MPa"
+   ],
+   [
+    "lb",
+    "Bearing plate length",
+    150,
+    "mm"
+   ],
+   [
+    "c_col",
+    "Column cover to bar centroid",
+    60,
+    "mm"
+   ],
+   [
+    "As_tie",
+    "Provided tie As (0 = design)",
+    0,
+    "mm²"
+   ]
+  ]
+ },
+ "dapped_end": {
+  "name": "Dapped end",
+  "params": [
+   [
+    "H",
+    "Overall beam depth H",
+    1200,
+    "mm"
+   ],
+   [
+    "hn",
+    "Nib depth hn",
+    600,
+    "mm"
+   ],
+   [
+    "ln",
+    "Nib length (end to re-entrant corner)",
+    500,
+    "mm"
+   ],
+   [
+    "xb",
+    "Bearing centre from beam end",
+    250,
+    "mm"
+   ],
+   [
+    "b",
+    "Width b",
+    500,
+    "mm"
+   ],
+   [
+    "Vu",
+    "Factored bearing reaction Vu",
+    400,
+    "kN"
+   ],
+   [
+    "Nuc",
+    "Restraint force Nuc (blank = 0.2Vu)",
+    "",
+    "kN"
+   ],
+   [
+    "fc",
+    "Concrete strength",
+    30,
+    "MPa"
+   ],
+   [
+    "fy",
+    "Steel yield fy",
+    420,
+    "MPa"
+   ],
+   [
+    "e_h",
+    "Re-entrant corner to hanger centreline",
+    75,
+    "mm"
+   ],
+   [
+    "a_c",
+    "Hanger to nib-tie anchorage node",
+    350,
+    "mm"
+   ],
+   [
+    "lb",
+    "Bearing pad width (along beam)",
+    150,
+    "mm"
+   ],
+   [
+    "c_top",
+    "Top chord centroid from top",
+    75,
+    "mm"
+   ],
+   [
+    "c_bot",
+    "Bottom chord centroid from soffit",
+    75,
+    "mm"
+   ],
+   [
+    "c_nib",
+    "Nib tie centroid above nib soffit",
+    75,
+    "mm"
+   ],
+   [
+    "c_end",
+    "Bar end cover at beam end",
+    40,
+    "mm"
+   ],
+   [
+    "As_nib",
+    "Nib tie As (0 = design)",
+    0,
+    "mm²"
+   ],
+   [
+    "As_hanger",
+    "Hanger As (0 = design)",
+    0,
+    "mm²"
+   ],
+   [
+    "As_bot",
+    "Bottom chord As (0 = design)",
+    0,
+    "mm²"
+   ],
+   [
+    "As_vert",
+    "Vertical tie V1 As (0 = design)",
+    0,
+    "mm²"
+   ],
+   [
+    "db",
+    "Nib tie / chord bar diameter (0 = skip anchorage)",
+    25,
+    "mm"
+   ],
+   [
+    "strut_class",
+    "Diagonal strut class",
+    "interior_reinf",
+    "class"
+   ]
+  ]
+ },
+ "pile_cap_2": {
+  "name": "Two-pile cap",
+  "params": [
+   [
+    "s",
+    "Pile spacing s",
+    1800,
+    "mm"
+   ],
+   [
+    "c",
+    "Column width c",
+    500,
+    "mm"
+   ],
+   [
+    "h",
+    "Cap depth h",
+    1000,
+    "mm"
+   ],
+   [
+    "b",
+    "Cap width b",
+    800,
+    "mm"
+   ],
+   [
+    "D",
+    "Pile diameter D",
+    600,
+    "mm"
+   ],
+   [
+    "P",
+    "Factored column load P",
+    2500,
+    "kN"
+   ],
+   [
+    "fc",
+    "Concrete strength",
+    30,
+    "MPa"
+   ],
+   [
+    "fy",
+    "Steel yield fy",
+    420,
+    "MPa"
+   ],
+   [
+    "d_tie",
+    "Tie centroid from bottom",
+    150,
+    "mm"
+   ],
+   [
+    "wc",
+    "Top node depth (blank = auto)",
+    "",
+    "mm"
+   ],
+   [
+    "As_tie",
+    "Provided tie As (0 = design)",
+    0,
+    "mm²"
+   ],
+   [
+    "strut_class",
+    "Diagonal strut class",
+    "interior_no_reinf",
+    "class"
+   ]
+  ]
+ },
+ "pile_cap_4": {
+  "name": "Four-pile cap (3D)",
+  "params": [
+   [
+    "s",
+    "Pile spacing s (square)",
+    1800,
+    "mm"
+   ],
+   [
+    "a",
+    "Square column size a",
+    800,
+    "mm"
+   ],
+   [
+    "h",
+    "Cap depth h",
+    1200,
+    "mm"
+   ],
+   [
+    "D",
+    "Pile diameter D",
+    600,
+    "mm"
+   ],
+   [
+    "P",
+    "Factored column load P",
+    4000,
+    "kN"
+   ],
+   [
+    "fc",
+    "Concrete strength",
+    30,
+    "MPa"
+   ],
+   [
+    "fy",
+    "Steel yield fy",
+    420,
+    "MPa"
+   ],
+   [
+    "d_tie",
+    "Tie centroid from bottom",
+    150,
+    "mm"
+   ],
+   [
+    "d_top",
+    "Top node depth (blank = d_tie)",
+    "",
+    "mm"
+   ],
+   [
+    "As_tie",
+    "Provided tie As per edge (0 = design)",
+    0,
+    "mm²"
+   ],
+   [
+    "strut_class",
+    "Diagonal strut class",
+    "interior_no_reinf",
+    "class"
+   ]
+  ]
+ },
+ "pier_cap": {
+  "name": "Hammerhead pier cap",
+  "params": [
+   [
+    "xb",
+    "Bearing distance from column axis",
+    2500,
+    "mm"
+   ],
+   [
+    "cw",
+    "Column width",
+    1500,
+    "mm"
+   ],
+   [
+    "h",
+    "Cap depth h",
+    1800,
+    "mm"
+   ],
+   [
+    "b",
+    "Cap width b",
+    1500,
+    "mm"
+   ],
+   [
+    "P1",
+    "Left bearing load P1",
+    3000,
+    "kN"
+   ],
+   [
+    "P2",
+    "Right bearing load P2",
+    3000,
+    "kN"
+   ],
+   [
+    "fc",
+    "Concrete strength",
+    35,
+    "MPa"
+   ],
+   [
+    "fy",
+    "Steel yield fy",
+    420,
+    "MPa"
+   ],
+   [
+    "d_tie",
+    "Tie centroid from top",
+    100,
+    "mm"
+   ],
+   [
+    "wc",
+    "Column-top node depth (blank = auto)",
+    "",
+    "mm"
+   ],
+   [
+    "lb",
+    "Bearing pad length",
+    400,
+    "mm"
+   ],
+   [
+    "As_tie",
+    "Provided tie As (0 = design)",
+    0,
+    "mm²"
+   ]
+  ]
+ },
+ "frame_corner": {
+  "name": "Frame corner (knee joint)",
+  "params": [
+   [
+    "moment",
+    "Moment: closing or opening",
+    "closing",
+    "text"
+   ],
+   [
+    "hc",
+    "Column depth hc",
+    600,
+    "mm"
+   ],
+   [
+    "hb",
+    "Beam depth hb",
+    700,
+    "mm"
+   ],
+   [
+    "b",
+    "Width b",
+    400,
+    "mm"
+   ],
+   [
+    "lc",
+    "Column length below beam soffit",
+    600,
+    "mm"
+   ],
+   [
+    "lb",
+    "Beam length beyond column face",
+    700,
+    "mm"
+   ],
+   [
+    "M",
+    "Beam moment at the cut M",
+    300,
+    "kN·m"
+   ],
+   [
+    "V",
+    "Beam shear at the cut V (+ down)",
+    150,
+    "kN"
+   ],
+   [
+    "N",
+    "Beam axial force N (+ tension)",
+    0,
+    "kN"
+   ],
+   [
+    "fc",
+    "Concrete strength",
+    30,
+    "MPa"
+   ],
+   [
+    "fy",
+    "Steel yield fy",
+    420,
+    "MPa"
+   ],
+   [
+    "c",
+    "Bar centroid from face",
+    60,
+    "mm"
+   ],
+   [
+    "wc",
+    "Compression zone depth (blank = auto)",
+    "",
+    "mm"
+   ],
+   [
+    "As_out",
+    "Outer bars As, closing (0 = design)",
+    0,
+    "mm²"
+   ],
+   [
+    "As_in",
+    "Inner bars As, opening (0 = design)",
+    0,
+    "mm²"
+   ],
+   [
+    "As_diag",
+    "Diagonal corner bars As, opening (0 = design)",
+    0,
+    "mm²"
+   ],
+   [
+    "As_v",
+    "Beam stirrups at the cut As (0 = design)",
+    0,
+    "mm²"
+   ],
+   [
+    "db",
+    "Outer bar diameter",
+    25,
+    "mm"
+   ],
+   [
+    "rb",
+    "Inside bend radius of outer bars (0 = report required)",
+    0,
+    "mm"
+   ],
+   [
+    "cc",
+    "Side cover to outer bars",
+    50,
+    "mm"
+   ],
+   [
+    "strut_class",
+    "Diagonal strut class",
+    "interior_reinf",
+    "class"
+   ]
+  ]
+ },
+ "footing": {
+  "name": "Pile / spread / abutment footing",
+  "params": [
+   [
+    "kind",
+    "Foundation: pile or spread",
+    "pile",
+    "text"
+   ],
+   [
+    "B",
+    "Footing length B",
+    7000,
+    "mm"
+   ],
+   [
+    "H",
+    "Footing depth H",
+    2000,
+    "mm"
+   ],
+   [
+    "b",
+    "Footing width b (out of plane)",
+    7000,
+    "mm"
+   ],
+   [
+    "fc",
+    "Concrete strength",
+    35,
+    "MPa"
+   ],
+   [
+    "fy",
+    "Steel yield fy",
+    400,
+    "MPa"
+   ],
+   [
+    "x1",
+    "Column 1 centre from left edge",
+    3500,
+    "mm"
+   ],
+   [
+    "cw1",
+    "Column 1 width",
+    2500,
+    "mm"
+   ],
+   [
+    "V1",
+    "Column 1 axial load V (down)",
+    9000,
+    "kN"
+   ],
+   [
+    "H1",
+    "Column 1 horizontal load H (+x)",
+    5000,
+    "kN"
+   ],
+   [
+    "M1",
+    "Column 1 moment M (+ loads the right side)",
+    50000,
+    "kN·m"
+   ],
+   [
+    "x2",
+    "Column 2 centre (blank = one column)",
+    "",
+    "mm"
+   ],
+   [
+    "cw2",
+    "Column 2 width",
+    1500,
+    "mm"
+   ],
+   [
+    "V2",
+    "Column 2 axial load V",
+    0,
+    "kN"
+   ],
+   [
+    "H2",
+    "Column 2 horizontal load H",
+    0,
+    "kN"
+   ],
+   [
+    "M2",
+    "Column 2 moment M",
+    0,
+    "kN·m"
+   ],
+   [
+    "piles",
+    "Pile rows / soil spring stations x (comma list)",
+    "650,2550,4450,6350",
+    "text"
+   ],
+   [
+    "pile_d",
+    "Pile diameter",
+    508,
+    "mm"
+   ],
+   [
+    "n_spread",
+    "Soil springs if no stations given (spread)",
+    4,
+    ""
+   ],
+   [
+    "heel_len",
+    "Heel surcharge length from left edge (abutment)",
+    0,
+    "mm"
+   ],
+   [
+    "w_heel1",
+    "Heel surcharge at left edge",
+    0,
+    "kN/m"
+   ],
+   [
+    "w_heel2",
+    "Heel surcharge at the wall face",
+    0,
+    "kN/m"
+   ],
+   [
+    "c_top",
+    "Top chord centroid from top",
+    100,
+    "mm"
+   ],
+   [
+    "c_bot",
+    "Bottom chord centroid from soffit",
+    100,
+    "mm"
+   ],
+   [
+    "c_col",
+    "Column bar centroid from column face",
+    100,
+    "mm"
+   ],
+   [
+    "As_top",
+    "Top chord As (0 = design)",
+    0,
+    "mm²"
+   ],
+   [
+    "As_bot",
+    "Bottom chord As (0 = design)",
+    0,
+    "mm²"
+   ],
+   [
+    "As_vert",
+    "Vertical ties As (0 = design)",
+    0,
+    "mm²"
+   ],
+   [
+    "strut_class",
+    "Diagonal strut class",
+    "interior_reinf",
+    "class"
+   ]
+  ]
+ }
+}
