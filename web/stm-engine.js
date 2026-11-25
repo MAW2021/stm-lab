@@ -67,7 +67,7 @@
   function addNode(m, name, xyz, o = {}) {
     const d = m.dim;
     m.nodes[name] = Object.assign({ name, xyz: xyz.map(Number), fix: Array(d).fill(false), load: Array(d).fill(0),
-      spring: null, lb: 0, wt: 0, wt_v: 0, band_dir: 0, bearing_area: 0, bearing_axis: -1, confine: 1, kind_override: "", anchor_ext: -1, smeared: false }, o);
+      spring: null, lb: 0, wt: 0, wt_v: 0, band_dir: 0, bearing_area: 0, bearing_axis: -1, confine: 1, kind_override: "", anchor_ext: -1, smeared: false, curved: false, cut: false }, o);
     if (!m.order.includes(name)) m.order.push(name);
     return m.nodes[name];
   }
@@ -171,6 +171,8 @@
   function strutEndWidth(m, e, nn) {
     if (e.width > 0) return [e.width, "given"];
     const N = m.nodes[nn]; let w = null, how = "no node geometry";
+    if (N.curved) return [null, "curved-bar node (checked by 23.10)"];
+    if (N.cut) return [null, "section cut (member continues)"];
     if (N.lb > 0 || N.wt > 0) {
       const { u } = geometry(m, e), a = (N.band_dir || 0) * Math.PI / 180;
       const ca = Math.abs(u[0] * Math.cos(a) + u[1] * Math.sin(a)), sa = Math.abs(-u[0] * Math.sin(a) + u[1] * Math.cos(a));
@@ -264,13 +266,14 @@
       const P = N.load.map(Number); const R = res.reactions[nn];
       if (R) R.forEach((v, a) => (P[a] += v));
       const Pn = Math.abs(P[N.bearing_axis >= 0 ? N.bearing_axis : m.dim - 1]);   // force normal to the bearing plate
-      if (Pn > 1e-6) {
+      if (Pn > 1e-6 && !N.cut) {   // at a section cut the member continues: no bearing
         const A = m.dim === 2 && N.lb > 0 ? N.lb * b : m.dim === 3 && N.bearing_area > 0 ? N.bearing_area : null;
         if (A) { const fce = fceNode(code, fc, k, N.confine, "bearing"), cap = code.phi_node * fce * A / 1e3, r = Pn / cap; out.push(C(nn, "bearing", Pn, cap, r, r <= 1 ? "OK" : "NG", code.refs.node, `${k} node bearing face, normal force on A = ${A.toFixed(0)} mm²`)); }
       }
     }
+    const ftol = 1e-6 * Math.max(1, ...Object.values(res.forces).map(Math.abs));
     for (const nn of m.order) {
-      const here = m.members.filter(e => (e.i === nn || e.j === nn) && Math.abs(res.forces[e.name]) > 1e-6);
+      const here = m.members.filter(e => (e.i === nn || e.j === nn) && Math.abs(res.forces[e.name]) > ftol);
       for (const s of here) { if (res.forces[s.name] >= 0) continue;
         for (const t of here) { if (res.forces[t.name] <= 0) continue;
           const us = geometry(m, s).u, ut = geometry(m, t).u;
@@ -472,6 +475,68 @@
         return m;
       },
     },
+    frame_corner: {
+      name: "Frame corner (knee joint)",
+      params: [["moment", "Moment: closing or opening", "closing", "text"], ["hc", "Column depth hc", 600, "mm"], ["hb", "Beam depth hb", 700, "mm"],
+        ["b", "Width b", 400, "mm"], ["lc", "Column length below beam soffit", 600, "mm"], ["lb", "Beam length beyond column face", 700, "mm"],
+        ["M", "Beam moment at the cut M", 300, "kN·m"], ["V", "Beam shear at the cut V (+ down)", 150, "kN"], ["N", "Beam axial force N (+ tension)", 0, "kN"],
+        ["fc", "Concrete strength", 30, "MPa"], ["fy", "Steel yield fy", 420, "MPa"], ["c", "Bar centroid from face", 60, "mm"],
+        ["wc", "Compression zone depth (blank = auto)", "", "mm"], ["As_out", "Outer bars As, closing (0 = design)", 0, "mm²"],
+        ["As_in", "Inner bars As, opening (0 = design)", 0, "mm²"], ["As_diag", "Diagonal corner bars As, opening (0 = design)", 0, "mm²"],
+        ["As_v", "Beam stirrups at the cut As (0 = design)", 0, "mm²"], ["db", "Outer bar diameter", 25, "mm"],
+        ["rb", "Inside bend radius of outer bars (0 = report required)", 0, "mm"], ["cc", "Side cover to outer bars", 50, "mm"],
+        ["strut_class", "Diagonal strut class", "interior_reinf", "class"]],
+      build(code, p) {
+        const { hc, hb, b, lc, lb, fc, fy, c, As_out, As_in, As_diag, As_v, db, rb, cc, strut_class } = p;
+        const M = p.M || 0, V = p.V || 0, N = p.N || 0, wc = p.wc;
+        const opening = String(p.moment || "closing").trim().toLowerCase().startsWith("o");
+        const Mabs = Math.abs(M), Ht = lc + hb, xc = hc + lb, auto = wc == null || Number.isNaN(wc);
+        let a = auto ? 0.2 * hb : wc, ac = a, T, Cb, Cc;
+        for (let it = 0; it < 30; it++) {
+          const z = hb - c - a / 2; T = Mabs * 1e3 / z + N / 2; Cb = Mabs * 1e3 / z - N / 2;
+          const zc = hc - c - ac / 2;
+          if (!opening) { const yE = Ht - c, yF = Ht - hb + a / 2; Cc = (V * (xc - c) + T * yE - Cb * yF) / zc; }
+          else { const yE = Ht - a / 2, yF = Ht - hb + c; Cc = (Cb * yE - T * yF - V * (xc - (hc - c))) / zc; }
+          if (!auto) break;
+          const kind = opening ? "CCT" : "CCC";
+          const f = Math.min(code.phi_node * fceNode(code, fc, kind), code.phi_strut * fceStrut(code, fc, strut_class)) * b / 1e3;
+          const na = Math.min(Math.max(Math.ceil(Math.max(Cb, 0) / f / 10) * 10, 50), 0.4 * hb);
+          const nac = Math.min(Math.max(Math.ceil(Math.abs(Cc) / f / 10) * 10, 50), 0.4 * hc);
+          if (Math.abs(na - a) < 0.5 && Math.abs(nac - ac) < 0.5) break;
+          a = na; ac = nac;
+        }
+        const z = hb - c - a / 2; T = Mabs * 1e3 / z + N / 2; Cb = Mabs * 1e3 / z - N / 2;
+        const m = Model("Frame corner", 2, b, fc, fy);
+        if (!opening) {
+          const xt = c, xcm = hc - ac / 2, yt = Ht - c, ycm = Ht - hb + a / 2;
+          addNode(m, "A", [xt, 0], { fix: XY, wt: 2 * c, cut: true }); addNode(m, "B", [xcm, 0], { fix: XY, lb: ac, cut: true });
+          addNode(m, "C", [xt, yt], { wt: 2 * c, curved: true }); addNode(m, "D", [xcm, ycm], { lb: ac, wt: a });
+          addNode(m, "E", [xc, yt], { load: [T, -V], wt: 2 * c, cut: true }); addNode(m, "F", [xc, ycm], { load: [-Cb, 0], wt: a, cut: true });
+          addMember(m, "TC", "A", "C", { As: As_out }); addMember(m, "TB", "C", "E", { As: As_out });
+          addMember(m, "SC", "B", "D", { strut_class: "boundary" }); addMember(m, "SB", "D", "F", { strut_class: "boundary" });
+          addMember(m, "CD", "C", "D", { strut_class });
+        } else {
+          const xcm = ac / 2, xt = hc - c, ycm = Ht - a / 2, yt = Ht - hb + c;
+          addNode(m, "A", [xcm, 0], { fix: XY, lb: ac, cut: true }); addNode(m, "B", [xt, 0], { fix: XY, wt: 2 * c, cut: true });
+          addNode(m, "C", [xcm, ycm], { lb: ac, wt: a }); addNode(m, "D", [xt, yt], { lb: 2 * c, wt: 2 * c });
+          addNode(m, "E", [xc, ycm], { load: [-Cb, -V], wt: a, cut: true }); addNode(m, "F", [xc, yt], { load: [T, 0], wt: 2 * c, cut: true });
+          addMember(m, "SC", "A", "C", { strut_class: "boundary" }); addMember(m, "SB", "C", "E", { strut_class: "boundary" });
+          addMember(m, "TC", "B", "D", { As: As_in }); addMember(m, "TB", "D", "F", { As: As_in });
+          addMember(m, "CD", "C", "D", { As: As_diag });
+        }
+        if (V >= 0) addMember(m, "DE", "E", "D", { strut_class }); else addMember(m, "CF", "C", "F", { strut_class });
+        addMember(m, "EF", "F", "E", { As: As_v }); addMember(m, "AD", "A", "D", { strut_class });
+        m.meta = { template: "frame_corner", d: hb - c, M, V, N, moment: opening ? "opening" : "closing", db, rb, cc, As_out,
+          outline: [[[0, -0.25 * hc], [hc, -0.25 * hc], [hc, Ht - hb], [xc + 0.25 * hb, Ht - hb], [xc + 0.25 * hb, Ht], [0, Ht]]],
+          notes: [`${opening ? "Opening" : "Closing"} moment M = ${Mabs.toFixed(1)} kN·m at the beam cut, ${lb.toFixed(0)} mm from the column face; lever arm z = ${z.toFixed(0)} mm`,
+            `Beam cut forces: T = ${T.toFixed(1)} kN, C = ${Cb.toFixed(1)} kN, V = ${V.toFixed(1)} kN (+ down), N = ${N.toFixed(1)} kN (+ tension)`,
+            `Compression zones: beam ${a.toFixed(0)} mm, column ${ac.toFixed(0)} mm ${auto ? "(sized for the corner node and diagonal strut)" : "(given)"}; column compression ${Cc.toFixed(1)} kN`,
+            "Column cut nodes A and B are the supports; their reactions are the column section forces. Nodes at the cuts (A, B, E, F) are not nodal zones and get no face checks",
+            opening ? "Tie CD across the re-entrant corner needs diagonal bars or closed loops; inner bars TC/TB anchored past D"
+              : "Outer bars TC/TB run continuously round the corner: node C is a curved-bar node, checked by its bend radius (ACI 23.10)"] };
+        return m;
+      },
+    },
     footing: {
       name: "Pile / spread / abutment footing",
       params: [["kind", "Foundation: pile or spread", "pile", "text"], ["B", "Footing length B", 7000, "mm"], ["H", "Footing depth H", 2000, "mm"],
@@ -564,6 +629,30 @@
     return { xs, R: k.map((c, i) => c * (aa + bb * (xs[i] - xbar))), Hr: k.map(c => -Hx * c / K), W };
   }
 
+  // ACI 318-19 23.10: bend radius of the outer bars round curved-bar node C (closing frame corner)
+  function curvedBarChecks(m, res, code) {
+    const mt = m.meta, db = +mt.db || 25, rb = +mt.rb || 0, cc = +mt.cc || 50, fc = m.fc, fy = m.fy, b = m.b;
+    const T1 = Math.max(res.forces.TC || 0, 0), T2 = Math.max(res.forces.TB || 0, 0), Tl = Math.max(T1, T2), Ts = Math.min(T1, T2);
+    if (Tl <= 0) return [];
+    const As = +mt.As_out || 0, Ats = As > 0 ? As : Tl * 1e3 / (code.phi_tie * fy), src = As > 0 ? "provided" : "required";
+    let r1 = 2 * Ats * fy / (b * fc);
+    let how = `2·Ats·fy/(b·f'c) = 2·${Ats.toFixed(0)}·${fy.toFixed(0)}/(${b.toFixed(0)}·${fc.toFixed(0)}) = ${r1.toFixed(0)} mm (Ats ${src})`;
+    if (cc < 2 * db) { r1 *= 2 * db / cc; how += `, × 2db/cc = ${(2 * db).toFixed(0)}/${cc.toFixed(0)} (23.10.3)`; }
+    const half = (db <= 25 ? 3 : db <= 36 ? 4 : 5) * db;
+    if (half > r1) how += `; half the minimum bend diameter of Table 25.3.1 = ${half.toFixed(0)} mm governs`;
+    r1 = Math.max(r1, half);
+    const k = db <= 20 ? 2.1 : 1.7, fcd = code.key.startsWith("ACI") ? fc : 0.8 * fc;
+    const ld = Math.max(300, fy / (k * Math.sqrt(fcd)) * db), tanc = Ts / Tl;
+    const r2 = Math.max(0, 2 * ld * (1 - tanc) / Math.PI - db / 2), out = [];
+    [[r1, "ACI 318-19 23.10.1–23.10.3, Table 25.3.1", `curved-bar node: rb ≥ ${how}`],
+     [r2, "ACI 318-19 23.10.6", `unequal ties (${Ts.toFixed(1)} / ${Tl.toFixed(1)} kN, tanθc = ${tanc.toFixed(3)}): ℓcb = π/2·(rb + db/2) ≥ ℓd(1 − tanθc), ℓd = ${ld.toFixed(0)} mm → rb ≥ ${r2.toFixed(0)} mm`]]
+      .forEach(([req, clause, txt]) => {
+        if (rb > 0) out.push(C("C", "detail", req, rb, req / rb, rb >= req - 1e-9 ? "OK" : "NG", clause, txt + `; provided rb = ${rb.toFixed(0)} mm`));
+        else out.push(C("C", "detail", req, null, null, "INFO", clause, txt + "; enter the bend radius rb to check it"));
+      });
+    return out;
+  }
+
   function extraChecks(m, res, code) {
     const t = m.meta.template, out = [], fc = m.fc, fy = m.fy;
     if (t === "deep_beam") [["ρ_h", m.meta.rho_h], ["ρ_v", m.meta.rho_v]].forEach(([lab, r]) =>
@@ -578,6 +667,7 @@
       out.push(C("section", "detail", Vu, Vl, Vu / Vl, Vu <= Vl ? "OK" : usesSE ? "NG" : "INFO", code.refs.sizeeffect,
         `Vu ≤ φ·0.42·λs·√f'c·bw·d, λs = ${ls.toFixed(3)}, bw = ${bw.toFixed(0)}, d = ${d.toFixed(0)}; required when β_s = 0.75 is used without distributed reinforcement`));
     }
+    if (t === "frame_corner" && m.meta.moment === "closing") out.push(...curvedBarChecks(m, res, code));
     if (t === "corbel") {
       const { d, av, Vu, Nuc } = m.meta, b = m.b;
       out.push(C("geometry", "detail", av / d, 1, av / d, av / d <= 1 ? "OK" : "NG", code.refs.corbel, `a_v/d = ${av}/${d} = ${(av / d).toFixed(2)} ≤ 1.0`));
@@ -634,6 +724,6 @@
     return { model: m, res, checks, code, summary: summary(checks) };
   }
 
-  const API = { CODES, STRUT_CLASSES, TEMPLATES, Model, addNode, addMember, geometry, solve, runChecks, extraChecks, buildCustom, toSpec, strutWidth: strutWidth2d, strutWidthModel, foundationLoads, nodeKind, runCase, summary, version: "0.6.0" };
+  const API = { CODES, STRUT_CLASSES, TEMPLATES, Model, addNode, addMember, geometry, solve, runChecks, extraChecks, buildCustom, toSpec, strutWidth: strutWidth2d, strutWidthModel, foundationLoads, nodeKind, runCase, summary, version: "0.7.0" };
   if (typeof module !== "undefined" && module.exports) module.exports = API; else root.STM = API;
 })(typeof window !== "undefined" ? window : globalThis);

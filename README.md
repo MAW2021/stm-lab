@@ -5,7 +5,7 @@ It covers parametric templates, 2D/3D truss analysis, strut/tie/node checks with
 clause references, and a printable calculation report. It runs on Windows, macOS or Linux
 with Python and numpy. Nothing leaves your computer.
 
-> **Status: v0.6 (pre-release).** ACI 318-19 Chapter 23 and AASHTO LRFD 5.8.2 checks are implemented.
+> **Status: v0.7 (pre-release).** ACI 318-19 Chapter 23 and AASHTO LRFD 5.8.2 checks are implemented.
 > Scope is **American codes only**. Calibration against an independent commercial tool is
 > in progress (see [docs/benchmark-plan.md](docs/benchmark-plan.md)). Always review the results
 > as an engineer before you use them.
@@ -14,11 +14,11 @@ with Python and numpy. Nothing leaves your computer.
 
 | Step | STM-Lab |
 |---|---|
-| Template | Deep beam / transfer girder (1 or 2 loads), corbel, dapped end, pile / spread / abutment footing (1 or 2 columns), two-pile cap, four-pile cap (3D), hammerhead pier cap, or any custom truss written in JSON |
+| Template | Deep beam / transfer girder (1 or 2 loads), corbel, dapped end, frame corner / knee joint (closing or opening moment), pile / spread / abutment footing (1 or 2 columns), two-pile cap, four-pile cap (3D), hammerhead pier cap, or any custom truss written in JSON |
 | Geometry, load, material | Dimensions, bearing plates, tie depth, f'c, fy, provided steel |
 | STM model | Nodes are placed automatically. The compression chord / node depth is sized so that the CCC node is at capacity |
 | Analysis | Pin-jointed truss solved by direct stiffness (2D and 3D), with equilibrium and stability checks. Indeterminate trusses can use uniform or section stiffness (Es·As for ties, Ec·w·b for struts) |
-| Checks | Struts (β_s), ties (As,req and bar options), nodal faces and bearing (β_n, β_c), 25° strut–tie angle limit, distributed reinforcement (23.5), size-effect limit (23.4.4), corbel limits (16.5) |
+| Checks | Struts (β_s), ties (As,req and bar options), nodal faces and bearing (β_n, β_c), 25° strut–tie angle limit, distributed reinforcement (23.5), size-effect limit (23.4.4), corbel limits (16.5), curved-bar nodes at frame corners (23.10) |
 | Deliverable | A self-contained HTML calculation report with the drawn model, force tables, check tables and clause references. Print it to PDF from the browser |
 
 ## Browser app (no installation)

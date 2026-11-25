@@ -43,6 +43,10 @@ def strut_end_width_2d(mdl, m, node_name):
     if m.width > 0:
         return m.width, "given"
     node = mdl.nodes[node_name]
+    if node.curved:
+        return None, "curved-bar node (checked by 23.10)"
+    if node.cut:
+        return None, "section cut (member continues)"
     w, how = None, "no node geometry"
     if node.lb > 0 or node.wt > 0:
         _, u = mdl.geometry(m)
@@ -212,7 +216,7 @@ def run_checks(res: Result, code: CodeSet) -> List[Check]:
             P = P + np.array(res.reactions[nn])
         ax = node.bearing_axis if node.bearing_axis >= 0 else mdl.dim - 1
         Pn = abs(float(P[ax]))
-        if Pn > 1e-6:
+        if Pn > 1e-6 and not node.cut:   # at a section cut the member continues: no bearing
             if mdl.dim == 2 and node.lb > 0:
                 A = node.lb * b
             elif mdl.dim == 3 and node.bearing_area > 0:
@@ -228,8 +232,9 @@ def run_checks(res: Result, code: CodeSet) -> List[Check]:
                                  f"{k} node bearing face, normal force on A = {A:.0f} mm²"))
 
     # ---------------- strut/tie angle limit
+    ftol = 1e-6 * max([abs(f) for f in res.forces.values()] + [1.0])
     for nn in mdl.nodes:
-        here = [m for m in mdl.members if nn in (m.i, m.j) and abs(res.forces[m.name]) > 1e-6]
+        here = [m for m in mdl.members if nn in (m.i, m.j) and abs(res.forces[m.name]) > ftol]
         for s in here:
             if res.forces[s.name] >= 0:
                 continue

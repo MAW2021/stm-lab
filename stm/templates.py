@@ -258,6 +258,102 @@ def dapped_end(code: CodeSet, H, hn, ln, xb, b, Vu, fc, fy, Nuc=None, e_h=75, a_
                          "Nib tie TN1/TN2 and hanger HG1/HG2 need full anchorage at both ends (check hooks at A)"])
     return m
 
+# ---------------------------------------------------------------------------
+def frame_corner(code: CodeSet, hc=600, hb=700, b=400, lc=600, lb=700, M=300, V=150, N=0,
+                 moment="closing", fc=30, fy=420, c=60, wc=None, As_out=0.0, As_in=0.0,
+                 As_diag=0.0, As_v=0.0, db=25, rb=0, cc=50, strut_class="interior_reinf", title=None):
+    """Frame corner (knee joint): column below (outer face x = 0, inner face x = hc),
+    beam to the right (top at y = lc + hb).  The column is cut lc below the beam soffit
+    (nodes A, B: supports) and the beam lb beyond the column face (nodes E, F: loads).
+    At the beam cut: M (kN·m) with T = M/z + N/2 and C = M/z − N/2 on the tension and
+    compression lines, N = beam axial force (+ tension), V = beam shear (+ down).
+    moment = "closing" (tension on the outer faces, e.g. a portal frame under gravity)
+    or "opening" (tension on the inner faces; the corner needs a diagonal tie CD).
+    Closing: the outer bars bend round node C, a curved-bar node checked by ACI 23.10
+    (db = bar diameter, rb = inside bend radius, 0 = report the required value,
+    cc = side cover to the bar)."""
+    opening = str(moment).strip().lower().startswith("o")
+    Mabs = abs(M)
+    Ht = lc + hb
+    xc = hc + lb
+    auto = wc in (None, "")
+    # beam compression zone a (horizontal chord band) and column compression zone ac
+    # (vertical band), each sized so that the CCC node face at the corner is at capacity
+    a = ac = float(wc) if not auto else 0.2 * hb
+    for _ in range(30):
+        z = hb - c - a / 2
+        T, C = Mabs * 1e3 / z + N / 2, Mabs * 1e3 / z - N / 2
+        zc = hc - c - ac / 2
+        if not opening:   # tie at x = c, compression at x = hc - ac/2; moments about the tie
+            yE, yF = Ht - c, Ht - hb + a / 2
+            Cc = (V * (xc - c) + T * yE - C * yF) / zc
+        else:             # compression at x = ac/2, tie at x = hc - c; moments about the tie
+            yE, yF = Ht - a / 2, Ht - hb + c
+            Cc = (C * yE - T * yF - V * (xc - (hc - c))) / zc
+        if not auto:
+            break
+        # the diagonal strut CD bears on the face a·cosθ + ac·sinθ of the corner node, so
+        # both zones use the lower of the node and diagonal-strut strengths
+        kind = "CCT" if opening else "CCC"
+        f = min(code.phi_node * code.fce_node(fc, kind),
+                code.phi_strut * code.fce_strut(fc, strut_class)) * b / 1e3   # kN per mm
+        na = min(max(math.ceil(max(C, 0.0) / f / 10) * 10, 50.0), 0.4 * hb)
+        nac = min(max(math.ceil(abs(Cc) / f / 10) * 10, 50.0), 0.4 * hc)
+        if abs(na - a) < 0.5 and abs(nac - ac) < 0.5:
+            break
+        a, ac = na, nac
+    z = hb - c - a / 2
+    T, C = Mabs * 1e3 / z + N / 2, Mabs * 1e3 / z - N / 2
+    m = STModel(title or "Frame corner", dim=2, b=b, fc=fc, fy=fy)
+    if not opening:   # tension outside
+        xt, xcmp = c, hc - ac / 2
+        yt, ycmp = Ht - c, Ht - hb + a / 2
+        m.add_node("A", (xt, 0), fix=XY, wt=2 * c, cut=True)
+        m.add_node("B", (xcmp, 0), fix=XY, lb=ac, cut=True)
+        m.add_node("C", (xt, yt), wt=2 * c, curved=True)
+        m.add_node("D", (xcmp, ycmp), lb=ac, wt=a)
+        m.add_node("E", (xc, yt), load=(T, -V), wt=2 * c, cut=True)
+        m.add_node("F", (xc, ycmp), load=(-C, 0.0), wt=a, cut=True)
+        m.add_member("TC", "A", "C", As=As_out)
+        m.add_member("TB", "C", "E", As=As_out)
+        m.add_member("SC", "B", "D", strut_class="boundary")
+        m.add_member("SB", "D", "F", strut_class="boundary")
+        m.add_member("CD", "C", "D", strut_class=strut_class)
+    else:             # tension inside
+        xcmp, xt = ac / 2, hc - c
+        ycmp, yt = Ht - a / 2, Ht - hb + c
+        m.add_node("A", (xcmp, 0), fix=XY, lb=ac, cut=True)
+        m.add_node("B", (xt, 0), fix=XY, wt=2 * c, cut=True)
+        m.add_node("C", (xcmp, ycmp), lb=ac, wt=a)
+        m.add_node("D", (xt, yt), lb=2 * c, wt=2 * c)
+        m.add_node("E", (xc, ycmp), load=(-C, -V), wt=a, cut=True)
+        m.add_node("F", (xc, yt), load=(T, 0.0), wt=2 * c, cut=True)
+        m.add_member("SC", "A", "C", strut_class="boundary")
+        m.add_member("SB", "C", "E", strut_class="boundary")
+        m.add_member("TC", "B", "D", As=As_in)
+        m.add_member("TB", "D", "F", As=As_in)
+        m.add_member("CD", "C", "D", As=As_diag)
+    if V >= 0:
+        m.add_member("DE", "E", "D", strut_class=strut_class)
+    else:
+        m.add_member("CF", "C", "F", strut_class=strut_class)
+    m.add_member("EF", "F", "E", As=As_v)
+    m.add_member("AD", "A", "D", strut_class=strut_class)
+    m.meta = dict(template="frame_corner", d=hb - c, M=M, V=V, N=N, moment="opening" if opening else "closing",
+                  db=db, rb=rb, cc=cc, As_out=As_out,
+                  outline=[[(0, -0.25 * hc), (hc, -0.25 * hc), (hc, Ht - hb), (xc + 0.25 * hb, Ht - hb),
+                            (xc + 0.25 * hb, Ht), (0, Ht)]],
+                  notes=[f"{'Opening' if opening else 'Closing'} moment M = {Mabs:.1f} kN·m at the beam cut, "
+                         f"{lb:.0f} mm from the column face; lever arm z = {z:.0f} mm",
+                         f"Beam cut forces: T = {T:.1f} kN, C = {C:.1f} kN, V = {V:.1f} kN (+ down), N = {N:.1f} kN (+ tension)",
+                         f"Compression zones: beam {a:.0f} mm, column {ac:.0f} mm "
+                         f"{'(given)' if not auto else '(sized for the corner node and diagonal strut)'}; column compression {Cc:.1f} kN",
+                         "Column cut nodes A and B are the supports; their reactions are the column section forces. "
+                         "Nodes at the cuts (A, B, E, F) are not nodal zones and get no face checks",
+                         ("Outer bars TC/TB run continuously round the corner: node C is a curved-bar node, checked by its bend radius (ACI 23.10)" if not opening else
+                          "Tie CD across the re-entrant corner needs diagonal bars or closed loops; inner bars TC/TB anchored past D")])
+    return m
+
 
 # ---------------------------------------------------------------------------
 def _num_list(v):
@@ -398,10 +494,53 @@ TEMPLATES = {
     "pier_cap": pier_cap,
     "dapped_end": dapped_end,
     "footing": footing,
+    "frame_corner": frame_corner,
 }
 
 
 # ---------------------------------------------------------------------------
+def _curved_bar_checks(model, res, code):
+    """ACI 318-19 23.10: bend radius of the bars round the curved-bar node C of a closing
+    frame corner (ties TC and TB)."""
+    mt = model.meta
+    db, rb, cc = float(mt.get("db") or 25), float(mt.get("rb") or 0), float(mt.get("cc") or 50)
+    fc, fy, b = model.fc, model.fy, model.b
+    T1, T2 = (max(res.forces.get(k, 0.0), 0.0) for k in ("TC", "TB"))
+    Tl, Ts = max(T1, T2), min(T1, T2)
+    if Tl <= 0:
+        return []
+    As = float(mt.get("As_out") or 0)
+    Ats = As if As > 0 else Tl * 1e3 / (code.phi_tie * fy)
+    src = "provided" if As > 0 else "required"
+    r1 = 2 * Ats * fy / (b * fc)
+    how = f"2·Ats·fy/(b·f'c) = 2·{Ats:.0f}·{fy:.0f}/({b:.0f}·{fc:.0f}) = {r1:.0f} mm (Ats {src})"
+    if cc < 2 * db:
+        r1 *= 2 * db / cc
+        how += f", × 2db/cc = {2 * db:.0f}/{cc:.0f} (23.10.3)"
+    half = (3 if db <= 25 else 4 if db <= 36 else 5) * db
+    if half > r1:
+        how += f"; half the minimum bend diameter of Table 25.3.1 = {half:.0f} mm governs"
+    r1 = max(r1, half)
+    k = 2.1 if db <= 20 else 1.7
+    fcd = fc if code.key.startswith("ACI") else 0.8 * fc
+    ld = max(300.0, fy / (k * math.sqrt(fcd)) * db)
+    tan_c = Ts / Tl
+    r2 = max(0.0, 2 * ld * (1 - tan_c) / math.pi - db / 2)
+    out = []
+    for lab, req, clause, txt in (
+            ("C", r1, "ACI 318-19 23.10.1–23.10.3, Table 25.3.1", f"curved-bar node: rb ≥ {how}"),
+            ("C", r2, "ACI 318-19 23.10.6", f"unequal ties ({Ts:.1f} / {Tl:.1f} kN, tanθc = {tan_c:.3f}): "
+                                            f"ℓcb = π/2·(rb + db/2) ≥ ℓd(1 − tanθc), ℓd = {ld:.0f} mm "
+                                            f"→ rb ≥ {r2:.0f} mm")):
+        if rb > 0:
+            out.append(Check(lab, "detail", req, rb, req / rb, "OK" if rb >= req - 1e-9 else "NG", clause,
+                             txt + f"; provided rb = {rb:.0f} mm"))
+        else:
+            out.append(Check(lab, "detail", req, None, None, "INFO", clause,
+                             txt + "; enter the bend radius rb to check it"))
+    return out
+
+
 def extra_checks(model: STModel, res, code: CodeSet):
     """Template-specific code checks that are not strut/tie/node strength."""
     t = model.meta.get("template")
@@ -430,6 +569,8 @@ def extra_checks(model: STModel, res, code: CodeSet):
                          "OK" if Vu <= Vlim else ("NG" if uses_se else "INFO"), code.refs["sizeeffect"],
                          f"Vu ≤ φ·0.42·λs·√f'c·bw·d, λs = {lam_s:.3f}, bw = {bw:.0f}, d = {d:.0f}; required when "
                          "β_s = 0.75 is used without distributed reinforcement"))
+    if t == "frame_corner" and model.meta.get("moment") == "closing":
+        out += _curved_bar_checks(model, res, code)
     if t == "corbel":
         d, av, b = model.meta["d"], model.meta["av"], model.b
         Vu, Nuc = model.meta["Vu"], model.meta["Nuc"]

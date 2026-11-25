@@ -1,0 +1,20 @@
+{
+ "template": "frame_corner",
+ "code": "ACI318-19",
+ "element": "FC-3",
+ "params": {
+  "moment": "closing",
+  "M": 420,
+  "V": 260,
+  "N": -60,
+  "hc": 700,
+  "hb": 800,
+  "b": 450,
+  "fc": 35,
+  "As_out": 2500,
+  "rb": 250,
+  "db": 25,
+  "cc": 40,
+  "wc": 150
+ }
+}
