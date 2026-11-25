@@ -1,0 +1,21 @@
+{
+ "template": "dapped_end",
+ "code": "ACI318-19",
+ "element": "DE-2",
+ "interior_width_rule": "secant",
+ "params": {
+  "H": 900,
+  "hn": 450,
+  "ln": 400,
+  "xb": 200,
+  "b": 400,
+  "Vu": 350,
+  "Nuc": 100,
+  "fc": 40,
+  "fy": 420,
+  "e_h": 80,
+  "a_c": 300,
+  "As_hanger": 1600,
+  "As_vert": 1200
+ }
+}

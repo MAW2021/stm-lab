@@ -42,3 +42,23 @@ def test_deep_beam_widths_and_anchorage():
     assert abs(1 / d1.ratio - 3.09) < 0.01
     anc = next(c for c in checks if c.kind == "anchorage" and c.item == "BC1@B1")
     assert abs(anc.demand - 1220) < 1 and abs(anc.capacity - 424) < 1
+
+
+def test_dapped_end_checks():
+    case = _load(ROOT / "benchmarks" / "astruttie" / "DE-AST-1.json")
+    ref = case["reference"]
+    _, checks, _ = run_case(case)
+    sf = {c.item: c.capacity / c.demand for c in checks if c.kind in ("strut", "tie")}
+    for k, v in {**ref["strut_sf"], **ref["tie_sf"]}.items():
+        assert abs(sf[k] - v) <= 0.006 * v + 0.005, (k, sf[k], v)
+    faces = {}
+    for c in checks:
+        if c.kind == "node":
+            mem = re.search(r"face of (\w+)", c.detail).group(1)
+            faces[f"{c.item}/{mem}"] = c.capacity / c.demand
+    for k, v in ref["node_sf"].items():
+        if k in faces:
+            assert abs(faces[k] - v) <= 0.006 * v + 0.005, (k, faces[k], v)
+    anc = next(c for c in checks if c.kind == "anchorage" and c.item == "TN1@A")
+    assert abs(anc.demand - ref["anchorage"]["TN1@A"]["ld"]) <= 2
+    assert abs(anc.capacity - ref["anchorage"]["TN1@A"]["lanc"]) <= 1

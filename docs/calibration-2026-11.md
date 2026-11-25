@@ -13,6 +13,7 @@ ourselves are recorded. No code, text or graphics were copied.
 | DB-AST-1 deep beam, H = 1600 (determinate fan truss) | 11 member forces, As,req, tie safety factors, φ·f_ce for every strut and node type, bearing plates, tie-face node checks, strut–tie angles, straight-bar ld and available ℓanc | **Exact** (to 0.1 kN / 1 mm) |
 | DB-AST-2 deep beam, H = 1200 | forces, strut widths, safety factors | **Exact** |
 | CB-AST-1 corbel (column + bracket, 6 nodes) | all 9 member forces, As,req | **Exact**. Supports: lower rear node pinned, lower front node roller |
+| DE-AST-1 dapped end (7 nodes, 10 members), f'c 24, fy 400, V 400 / H 80 kN | 10 member forces, As,req of 6 ties, strut and tie safety factors, node face factors at A, C0, B, D, G, H, ℓanc and ld of the nib tie at A | **Exact** with the secant rule and the S2 width at D entered (173.7 mm) |
 | PR-AST-1 pier coping, 5 bearings, H loads (14 nodes, 25 members) | all 25 member forces | **Within 1.4 kN** (the reference shows forces rounded to 1 kN) |
 | PF-AST-1 pile footing with pile springs + moment | member forces | **Not yet matched.** The model is indeterminate; we still need the reference's column-load transfer and member EA convention |
 | Four-pile cap 3D | – | Not run: 3D templates need the reference's Pro plan |
@@ -33,6 +34,7 @@ ourselves are recorded. No code, text or graphics were copied.
 4. **Plate nodes and bearing checks:** these already matched exactly (`lb·sinθ + wt·cosθ`).
 
 ## Still to do
+- Dapped end: reproduce the reference strut widths at hanger nodes C and D (it measures S2 at D from the vertical hanger: 150/cos30.3° = 173.7 mm), its bearing check on the vertical reaction only, and the available ℓanc at C and D.
 - Spring supports have been added to the solver. Matching PF-AST-1 still needs the stiffness convention.
 - Hooked/headed anchorage (25.4.3 / 25.4.4).
 - 3D pile cap: compare against a published worked example, because the reference's 3D is paid.

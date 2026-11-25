@@ -1,0 +1,421 @@
+{
+ "code": "ACI318-19",
+ "interior_width_rule": "secant",
+ "element": "DE-AST-1 dapped end",
+ "custom": {
+  "title": "Dapped end (AStrutTie template, f'c 24, fy 400)",
+  "dim": 2,
+  "b": 500,
+  "fc": 24,
+  "fy": 400,
+  "interior_width_rule": "secant",
+  "nodes": [
+   {
+    "name": "A",
+    "xyz": [
+     250,
+     675
+    ],
+    "fix": [
+     false,
+     false
+    ],
+    "load": [
+     -80,
+     400
+    ],
+    "spring": null,
+    "lb": 150,
+    "wt": 150,
+    "bearing_area": 0,
+    "bearing_axis": -1,
+    "confine": 1,
+    "kind_override": "",
+    "anchor_ext": 210
+   },
+   {
+    "name": "C0",
+    "xyz": [
+     575,
+     675
+    ],
+    "fix": [
+     false,
+     false
+    ],
+    "load": [
+     0,
+     0
+    ],
+    "spring": null,
+    "lb": 0,
+    "wt": 150,
+    "bearing_area": 0,
+    "bearing_axis": -1,
+    "confine": 1,
+    "kind_override": "",
+    "anchor_ext": -1
+   },
+   {
+    "name": "B",
+    "xyz": [
+     575,
+     1125
+    ],
+    "fix": [
+     false,
+     false
+    ],
+    "load": [
+     0,
+     0
+    ],
+    "spring": null,
+    "lb": 0,
+    "wt": 150,
+    "bearing_area": 0,
+    "bearing_axis": -1,
+    "confine": 1,
+    "kind_override": "",
+    "anchor_ext": -1
+   },
+   {
+    "name": "D",
+    "xyz": [
+     575,
+     75
+    ],
+    "fix": [
+     false,
+     false
+    ],
+    "load": [
+     0,
+     0
+    ],
+    "spring": null,
+    "lb": 0,
+    "wt": 150,
+    "bearing_area": 0,
+    "bearing_axis": -1,
+    "confine": 1,
+    "kind_override": "",
+    "anchor_ext": -1
+   },
+   {
+    "name": "C",
+    "xyz": [
+     925,
+     675
+    ],
+    "fix": [
+     false,
+     false
+    ],
+    "load": [
+     0,
+     0
+    ],
+    "spring": null,
+    "lb": 0,
+    "wt": 150,
+    "bearing_area": 0,
+    "bearing_axis": -1,
+    "confine": 1,
+    "kind_override": "",
+    "anchor_ext": -1
+   },
+   {
+    "name": "G",
+    "xyz": [
+     925,
+     1125
+    ],
+    "fix": [
+     true,
+     true
+    ],
+    "load": [
+     0,
+     0
+    ],
+    "spring": null,
+    "lb": 0,
+    "wt": 150,
+    "bearing_area": 0,
+    "bearing_axis": -1,
+    "confine": 1,
+    "kind_override": "",
+    "anchor_ext": -1
+   },
+   {
+    "name": "H",
+    "xyz": [
+     925,
+     75
+    ],
+    "fix": [
+     true,
+     true
+    ],
+    "load": [
+     0,
+     0
+    ],
+    "spring": null,
+    "lb": 0,
+    "wt": 150,
+    "bearing_area": 0,
+    "bearing_axis": -1,
+    "confine": 1,
+    "kind_override": "",
+    "anchor_ext": -1
+   }
+  ],
+  "members": [
+   {
+    "name": "S1",
+    "i": "A",
+    "j": "B",
+    "role": "auto",
+    "strut_class": "interior_reinf",
+    "width": 0,
+    "area": 0,
+    "As": 0,
+    "fy": 0,
+    "db": 0,
+    "EA": 0
+   },
+   {
+    "name": "TN1",
+    "i": "A",
+    "j": "C0",
+    "role": "auto",
+    "strut_class": "interior_no_reinf",
+    "width": 0,
+    "area": 0,
+    "As": 2027,
+    "fy": 0,
+    "db": 25.4,
+    "EA": 0
+   },
+   {
+    "name": "TN2",
+    "i": "C0",
+    "j": "C",
+    "role": "auto",
+    "strut_class": "interior_no_reinf",
+    "width": 0,
+    "area": 0,
+    "As": 2027,
+    "fy": 0,
+    "db": 25.4,
+    "EA": 0
+   },
+   {
+    "name": "HG1",
+    "i": "C0",
+    "j": "B",
+    "role": "auto",
+    "strut_class": "interior_no_reinf",
+    "width": 0,
+    "area": 0,
+    "As": 2027,
+    "fy": 0,
+    "db": 0,
+    "EA": 0
+   },
+   {
+    "name": "HG2",
+    "i": "D",
+    "j": "C0",
+    "role": "auto",
+    "strut_class": "interior_no_reinf",
+    "width": 0,
+    "area": 0,
+    "As": 2027,
+    "fy": 0,
+    "db": 0,
+    "EA": 0
+   },
+   {
+    "name": "TC1",
+    "i": "B",
+    "j": "G",
+    "role": "auto",
+    "strut_class": "boundary",
+    "width": 0,
+    "area": 0,
+    "As": 0,
+    "fy": 0,
+    "db": 0,
+    "EA": 0
+   },
+   {
+    "name": "BC1",
+    "i": "D",
+    "j": "H",
+    "role": "auto",
+    "strut_class": "interior_no_reinf",
+    "width": 0,
+    "area": 0,
+    "As": 3040,
+    "fy": 0,
+    "db": 25.4,
+    "EA": 0
+   },
+   {
+    "name": "S2",
+    "i": "D",
+    "j": "C",
+    "role": "auto",
+    "strut_class": "interior_reinf",
+    "width": 173.7,
+    "area": 0,
+    "As": 0,
+    "fy": 0,
+    "db": 0,
+    "EA": 0
+   },
+   {
+    "name": "S3",
+    "i": "B",
+    "j": "C",
+    "role": "auto",
+    "strut_class": "interior_reinf",
+    "width": 0,
+    "area": 0,
+    "As": 0,
+    "fy": 0,
+    "db": 0,
+    "EA": 0
+   },
+   {
+    "name": "V1",
+    "i": "C",
+    "j": "H",
+    "role": "auto",
+    "strut_class": "interior_no_reinf",
+    "width": 0,
+    "area": 0,
+    "As": 1146,
+    "fy": 0,
+    "db": 0,
+    "EA": 0
+   }
+  ],
+  "outline": [
+   [
+    [
+     0,
+     600
+    ],
+    [
+     500,
+     600
+    ],
+    [
+     500,
+     0
+    ],
+    [
+     1525,
+     0
+    ],
+    [
+     1525,
+     1200
+    ],
+    [
+     0,
+     1200
+    ]
+   ]
+  ],
+  "notes": [
+   "Bearing reaction Vu = 400.0 kN (up) and restraint Nuc = 80.0 kN (outward) act on the nib at A",
+   "Hanger at 75 mm from the re-entrant corner; truss cut 350 mm beyond the hanger (nodes C, G, H)",
+   "G and H carry the section forces into the rest of the beam",
+   "Nib tie TN1/TN2 and hanger HG1/HG2 need full anchorage at both ends (check hooks at A)"
+  ],
+  "meta": {
+   "template": "dapped_end",
+   "H": 1200,
+   "hn": 600,
+   "ln": 500,
+   "xb": 250,
+   "Vu": 400,
+   "Nuc": 80,
+   "d": 1125
+  }
+ },
+ "reference": {
+  "source": "AStrutTie web (free plan), Dapped end template, LC01 = 1.0D + 1.0L (V 400 kN up, H 80 kN outward), ACI 318-25 mode (Ch. 23 identical to 318-19), f'c 24 MPa, fy 400 MPa, b 500 mm, D25 bars, run 2026-11-25",
+  "forces": {
+   "S1": -493.4,
+   "TN1": 368.9,
+   "TN2": 368.9,
+   "HG1": 499.6,
+   "HG2": 499.6,
+   "TC1": -211.4,
+   "BC1": 291.4,
+   "S2": -578.4,
+   "S3": -126.2,
+   "V1": 400
+  },
+  "As_req": {
+   "TN1": 1230,
+   "TN2": 1230,
+   "HG1": 1665,
+   "HG2": 1665,
+   "BC1": 971,
+   "V1": 1333
+  },
+  "strut_sf": {
+   "S1": 2.44,
+   "TC1": 5.43,
+   "S2": 1.72,
+   "S3": 11.11
+  },
+  "tie_sf": {
+   "TN1": 1.65,
+   "TN2": 1.65,
+   "HG1": 1.22,
+   "HG2": 1.22,
+   "BC1": 3.13,
+   "V1": 0.86
+  },
+  "strut_width": {
+   "S1@A": 209.4,
+   "S1@B": 256.2,
+   "S2@D": 173.7,
+   "S2@C": 302.3,
+   "S3@B": 244.3,
+   "S3@C": 276.3
+  },
+  "node_sf": {
+   "A/S1": 2.6,
+   "A/TN1": 2.49,
+   "A/plate (V only)": 2.3,
+   "C0/TN1": 1.87,
+   "B/S1": 3.18,
+   "B/TC1": 4.34,
+   "B/S3": 11.85,
+   "D/BC1": 2.36,
+   "D/S2": 1.38,
+   "G/TC1": 5.43,
+   "H/BC1": 2.36
+  },
+  "anchorage": {
+   "TN1@A": {
+    "ld": 1220,
+    "lanc": 339
+   }
+  },
+  "notes": [
+   "S2 width at D (173.7 = 150/cos30.3, measured from the vertical hanger) is entered as a member width override; the reference rule for nodes C and D is not yet reproduced by STM-Lab",
+   "Reference bearing check uses the vertical reaction only (400 kN); STM-Lab uses the resultant (408 kN)",
+   "Development lengths at C and D (reference 735 / 136 mm available) are not compared"
+  ]
+ }
+}

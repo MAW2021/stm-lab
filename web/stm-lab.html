@@ -488,6 +488,37 @@ h2.sec{font-size:14px;margin:14px 0 6px;padding-bottom:3px;border-bottom:1.5px s
         return m;
       },
     },
+    dapped_end: {
+      name: "Dapped end",
+      params: [["H", "Overall beam depth H", 1200, "mm"], ["hn", "Nib depth hn", 600, "mm"], ["ln", "Nib length (end to re-entrant corner)", 500, "mm"],
+        ["xb", "Bearing centre from beam end", 250, "mm"], ["b", "Width b", 500, "mm"], ["Vu", "Factored bearing reaction Vu", 400, "kN"],
+        ["Nuc", "Restraint force Nuc (blank = 0.2Vu)", "", "kN"], ["fc", "Concrete strength", 30, "MPa"], ["fy", "Steel yield fy", 420, "MPa"],
+        ["e_h", "Re-entrant corner to hanger centreline", 75, "mm"], ["a_c", "Hanger to nib-tie anchorage node", 350, "mm"],
+        ["lb", "Bearing pad width (along beam)", 150, "mm"], ["c_top", "Top chord centroid from top", 75, "mm"], ["c_bot", "Bottom chord centroid from soffit", 75, "mm"],
+        ["c_nib", "Nib tie centroid above nib soffit", 75, "mm"], ["c_end", "Bar end cover at beam end", 40, "mm"],
+        ["As_nib", "Nib tie As (0 = design)", 0, "mm²"], ["As_hanger", "Hanger As (0 = design)", 0, "mm²"], ["As_bot", "Bottom chord As (0 = design)", 0, "mm²"],
+        ["As_vert", "Vertical tie V1 As (0 = design)", 0, "mm²"], ["db", "Nib tie / chord bar diameter (0 = skip anchorage)", 25, "mm"],
+        ["strut_class", "Diagonal strut class", "interior_reinf", "class"]],
+      build(code, p) {
+        const { H, hn, ln, xb, b, Vu, fc, fy, e_h, a_c, lb, c_top, c_bot, c_nib, c_end, As_nib, As_hanger, As_bot, As_vert, db, strut_class } = p;
+        const Nuc = p.Nuc == null ? 0.2 * Vu : p.Nuc, yA = H - hn + c_nib, yT = H - c_top, yB = c_bot, xh = ln + e_h, xc = xh + a_c;
+        const m = Model("Dapped end", 2, b, fc, fy);
+        addNode(m, "A", [xb, yA], { load: [-Nuc, Vu], lb, wt: 2 * c_nib, anchor_ext: xb - c_end });
+        addNode(m, "C0", [xh, yA], { wt: 2 * c_nib }); addNode(m, "B", [xh, yT], { wt: 2 * c_top }); addNode(m, "D", [xh, yB], { wt: 2 * c_bot });
+        addNode(m, "C", [xc, yA], { wt: 2 * c_nib }); addNode(m, "G", [xc, yT], { fix: XY, wt: 2 * c_top }); addNode(m, "H", [xc, yB], { fix: XY, wt: 2 * c_bot });
+        addMember(m, "S1", "A", "B", { strut_class }); addMember(m, "TN1", "A", "C0", { As: As_nib, db }); addMember(m, "TN2", "C0", "C", { As: As_nib, db });
+        addMember(m, "HG1", "C0", "B", { As: As_hanger }); addMember(m, "HG2", "D", "C0", { As: As_hanger }); addMember(m, "TC1", "B", "G", { strut_class: "boundary" });
+        addMember(m, "BC1", "D", "H", { As: As_bot, db }); addMember(m, "S2", "D", "C", { strut_class }); addMember(m, "S3", "B", "C", { strut_class });
+        addMember(m, "V1", "C", "H", { As: As_vert });
+        m.meta = { template: "dapped_end", H, hn, ln, xb, Vu, Nuc, d: H - c_bot,
+          outline: [[[0, H - hn], [ln, H - hn], [ln, 0], [xc + hn, 0], [xc + hn, H], [0, H]]],
+          notes: [`Bearing reaction Vu = ${Vu.toFixed(1)} kN (up) and restraint Nuc = ${Nuc.toFixed(1)} kN (outward) act on the nib at A`,
+            `Hanger at ${e_h.toFixed(0)} mm from the re-entrant corner; truss cut ${a_c.toFixed(0)} mm beyond the hanger (nodes C, G, H)`,
+            "G and H carry the section forces into the rest of the beam",
+            "Nib tie TN1/TN2 and hanger HG1/HG2 need full anchorage at both ends (check hooks at A)"] };
+        return m;
+      },
+    },
     pile_cap_2: {
       name: "Two-pile cap",
       params: [["s", "Pile spacing s", 1800, "mm"], ["c", "Column width c", 500, "mm"], ["h", "Cap depth h", 1000, "mm"],
@@ -628,7 +659,7 @@ h2.sec{font-size:14px;margin:14px 0 6px;padding-bottom:3px;border-bottom:1.5px s
     return { model: m, res, checks, code, summary: summary(checks) };
   }
 
-  const API = { CODES, STRUT_CLASSES, TEMPLATES, Model, addNode, addMember, geometry, solve, runChecks, extraChecks, buildCustom, toSpec, strutWidth: strutWidth2d, nodeKind, runCase, summary, version: "0.4.0" };
+  const API = { CODES, STRUT_CLASSES, TEMPLATES, Model, addNode, addMember, geometry, solve, runChecks, extraChecks, buildCustom, toSpec, strutWidth: strutWidth2d, nodeKind, runCase, summary, version: "0.5.0" };
   if (typeof module !== "undefined" && module.exports) module.exports = API; else root.STM = API;
 })(typeof window !== "undefined" ? window : globalThis);
 
