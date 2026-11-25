@@ -1,0 +1,13 @@
+{
+ "template": "frame_corner",
+ "code": "ACI318-19",
+ "element": "FC-2",
+ "params": {
+  "moment": "opening",
+  "M": 150,
+  "V": -80,
+  "N": 40,
+  "As_in": 1200,
+  "As_diag": 800
+ }
+}

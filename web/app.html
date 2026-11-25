@@ -672,7 +672,8 @@ function renderInspector(){
           : `<div class="row2"><label>Bearing area mm²<input data-nnum="bearing_area" value="${n.bearing_area}" inputmode="decimal" ${dis}></label><label>Bearing axis<select data-nsel="bearing_axis" ${dis}>${[[-1,"auto (z)"],[0,"x"],[1,"y"],[2,"z"]].map(([v, l]) => `<option value="${v}" ${n.bearing_axis === v ? "selected" : ""}>${l}</option>`).join("")}</select></label></div>`}
         <div class="row2"><label>β_c confinement<input data-nnum="confine" value="${n.confine}" inputmode="decimal" ${dis}></label><label>Node type<select data-nsel="kind_override" ${dis}>${[["","auto"],["CCC","CCC"],["CCT","CCT"],["CTT","CTT"]].map(([v, l]) => `<option value="${v}" ${n.kind_override === v ? "selected" : ""}>${l}</option>`).join("")}</select></label></div>
         ${d === 2 ? `<div class="row2"><label>Vertical tie band wt,v mm<input data-nnum="wt_v" value="${n.wt_v || 0}" inputmode="decimal" ${dis}></label><label>Chord band angle °<input data-nnum="band_dir" value="${n.band_dir || 0}" inputmode="decimal" ${dis}></label></div>
-        <label class="f"><span>Bar extension past node <span class="u">mm, −1 = no check</span></span><input data-nnum="anchor_ext" value="${n.anchor_ext}" inputmode="decimal" ${dis}></label>` : ""}</div>`;
+        <label class="f"><span>Bar extension past node <span class="u">mm, −1 = no check</span></span><input data-nnum="anchor_ext" value="${n.anchor_ext}" inputmode="decimal" ${dis}></label>
+        <div class="row2"><label>Nodal zone<select data-nflag ${dis}>${[["zone","checked (23.9)"],["curved","curved-bar node (23.10)"],["cut","section cut (no check)"]].map(([v, l]) => `<option value="${v}" ${(n.curved ? "curved" : n.cut ? "cut" : "zone") === v ? "selected" : ""}>${l}</option>`).join("")}</select></label><span></span></div>` : ""}</div>`;
     if (st.out) h += `<div class="grp"><h3>Results</h3><dl class="kvt"><dt>Node type</dt><dd>${L.kinds[n.name] || "–"}</dd>${R ? `<dt>Reaction</dt><dd>${R.map(v => fmt(v, 1)).join(", ")} kN</dd>` : ""}<dt>Max utilisation</dt><dd style="color:${ucol(L.nutil[n.name])}">${L.nutil[n.name] != null ? L.nutil[n.name].toFixed(2) : "–"}</dd></dl>${ckItems(L.nchecks[n.name] || [])}</div>`;
     if (edit && st.step === 3) h += `<button class="btn warn" id="i_del" type="button">Delete node and its members</button>`;
   } else if (s.t === "m") {
@@ -712,6 +713,7 @@ function bindInspector(){
     q("[data-nload]").forEach(i => i.addEventListener("change", () => mutate(() => n().load[+i.dataset.nload] = num(i.value))));
     q("[data-nspr]").forEach(i => i.addEventListener("change", () => mutate(() => { const N = n(); const sp = N.spring ? N.spring.slice() : Array(st.spec.dim).fill(0); sp[+i.dataset.nspr] = num(i.value); N.spring = sp.some(v => v) ? sp : null; })));
     q("[data-nnum]").forEach(i => i.addEventListener("change", () => mutate(() => n()[i.dataset.nnum] = num(i.value))));
+    q("[data-nflag]").forEach(i => i.addEventListener("change", () => mutate(() => { const o = n(); o.curved = i.value === "curved"; o.cut = i.value === "cut"; })));
     q("[data-nsel]").forEach(i => i.addEventListener("change", () => mutate(() => n()[i.dataset.nsel] = i.dataset.nsel === "bearing_axis" ? +i.value : i.value)));
   } else if (s.t === "m") {
     const m = () => st.spec.members.find(x => x.name === s.id);

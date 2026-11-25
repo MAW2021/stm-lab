@@ -1,0 +1,6 @@
+{
+ "template": "frame_corner",
+ "code": "ACI318-19",
+ "element": "FC-1",
+ "params": {}
+}

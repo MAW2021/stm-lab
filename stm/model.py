@@ -32,6 +32,8 @@ class Node:
     spring: Tuple[float, ...] = ()  # elastic support stiffness per DOF (kN/mm); 0 = none
     anchor_ext: float = -1.0  # tie anchorage: distance node centre -> bar end (mm); <0 = not an anchorage
     smeared: bool = False   # smeared (continuous) node: no nodal-zone face checks
+    curved: bool = False    # curved-bar node (ACI 23.10): checked by bend radius, no face checks
+    cut: bool = False       # section-cut node: members continue beyond it, no face checks
 
 
 @dataclass
