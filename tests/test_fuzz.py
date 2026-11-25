@@ -15,7 +15,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 def _js_runs():
     p = subprocess.run(["node", str(ROOT / "tests/fuzz.js"), str(ROOT / "web/stm-engine.js")],
-                       capture_output=True, text=True, check=True)
+                       capture_output=True, text=True, encoding="utf-8", check=True)
     return json.loads(p.stdout)
 
 

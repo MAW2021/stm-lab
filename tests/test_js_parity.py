@@ -23,7 +23,7 @@ def test_js_matches_python():
         for code in sorted(codes):
             cases.append(dict(c, code=code))
     p = subprocess.run(["node", "-e", JS, str(ROOT / "web/stm-engine.js")], input=json.dumps(cases),
-                       capture_output=True, text=True, check=True)
+                       capture_output=True, text=True, encoding="utf-8", check=True)
     for c, o in zip(cases, json.loads(p.stdout)):
         r, ch, _ = run_case(c)
         for k, v in r.forces.items():
