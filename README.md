@@ -23,8 +23,20 @@ with Python and numpy. Nothing leaves your computer.
 
 ## Browser app (no installation)
 Open **`web/stm-lab.html`** in Chrome, Edge or Firefox. It is a single file that runs fully offline, so you can copy it
-anywhere and share it. It has every template and check of the Python engine, a live model drawing, check tables,
-and a calculation report that prints to PDF. You can also save and open case files (.json).
+anywhere and share it. The work follows six steps:
+
+| Step | What you do |
+|---|---|
+| 1 Element | Pick a template (or a blank custom model), enter dimensions, loads and materials |
+| 2 Geometry | Edit the concrete outline: drag corners, double-click an edge to add one, or type coordinates |
+| 3 STM model | Edit the truss on the canvas: drag nodes (snap to grid), add nodes (N), connect members (M), delete (Del), and set supports, loads, plates, strut class, As and bars in the inspector |
+| 4 Analysis | Forces drawn with line weight ∝ force, reactions, stability and equilibrium |
+| 5 Checks | Struts, ties and nodes coloured by utilisation, with the stress field (strut widths) and nodal zones drawn; click any item for its clause-by-clause checks |
+| 6 Report | Printable calculation report with both drawings, all tables and clause references |
+
+The canvas zooms (wheel), pans (drag empty space) and fits (F); 3D models orbit by dragging. Every edit re-runs the
+analysis and checks instantly, and Ctrl+Z / Ctrl+Y undo and redo. Cases save and open as JSON; an edited template model
+keeps its template-specific checks (corbel 16.5, size effect 23.4.4, distributed reinforcement 23.5).
 The browser engine (`web/stm-engine.js`) is tested against the Python engine on every benchmark case.
 After you edit `web/app.html` or `web/stm-engine.js`, rebuild with `python web/build.py`.
 

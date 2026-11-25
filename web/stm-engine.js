@@ -405,7 +405,7 @@
         const Vn = Math.min(0.2 * fc, 3.3 + 0.08 * fc, 11) * b * d / 1e3;
         out.push(C("section", "detail", Vu, 0.75 * Vn, Vu / (0.75 * Vn), Vu <= 0.75 * Vn ? "OK" : "NG", code.refs.corbel, "Vu ≤ φ·min(0.2f'c, 3.3+0.08f'c, 11)·bw·d (16.5.2.4)"));
         const Asmin = 0.04 * fc / fy * b * d, tie = m.members.find(e => e.name === "AB");
-        out.push(C("AB", "detail", tie.As, Asmin, tie.As ? Asmin / tie.As : null, tie.As ? (tie.As >= Asmin ? "OK" : "NG") : "INFO", code.refs.corbel, `As,min = 0.04·(f'c/fy)·b·d = ${Asmin.toFixed(0)} mm² (16.5.5.5)`));
+        if (tie) out.push(C("AB", "detail", tie.As, Asmin, tie.As ? Asmin / tie.As : null, tie.As ? (tie.As >= Asmin ? "OK" : "NG") : "INFO", code.refs.corbel, `As,min = 0.04·(f'c/fy)·b·d = ${Asmin.toFixed(0)} mm² (16.5.5.5)`));
       }
     }
     return out;
@@ -416,8 +416,18 @@
     m.interior_width_rule = d.interior_width_rule || "projection";
     d.nodes.forEach(n => { const o = Object.assign({}, n); delete o.name; delete o.xyz; addNode(m, n.name, n.xyz, o); });
     d.members.forEach(e => { const o = Object.assign({}, e); delete o.name; delete o.i; delete o.j; addMember(m, e.name, e.i, e.j, o); });
-    m.meta = { template: "custom", notes: d.notes || [], outline: d.outline || [] };
+    m.meta = Object.assign({}, d.meta || {}, { template: (d.meta && d.meta.template) || "custom", notes: d.notes || [], outline: d.outline || [] });
     return m;
+  }
+
+  // editable model description (same shape as a custom JSON case); keeps template meta so extra checks still run
+  function toSpec(m) {
+    const meta = JSON.parse(JSON.stringify(m.meta || {}));
+    const outline = meta.outline || [], notes = meta.notes || [];
+    delete meta.outline; delete meta.notes;
+    return { title: m.title, dim: m.dim, b: m.b, fc: m.fc, fy: m.fy, interior_width_rule: m.interior_width_rule,
+      nodes: m.order.map(n => JSON.parse(JSON.stringify(m.nodes[n]))),
+      members: m.members.map(e => Object.assign({}, e)), outline, notes, meta };
   }
 
   function summary(checks) {
@@ -440,6 +450,6 @@
     return { model: m, res, checks, code, summary: summary(checks) };
   }
 
-  const API = { CODES, STRUT_CLASSES, TEMPLATES, Model, addNode, addMember, geometry, solve, runChecks, extraChecks, buildCustom, runCase, summary, version: "0.3.1" };
+  const API = { CODES, STRUT_CLASSES, TEMPLATES, Model, addNode, addMember, geometry, solve, runChecks, extraChecks, buildCustom, toSpec, strutWidth: strutWidth2d, nodeKind, runCase, summary, version: "0.4.0" };
   if (typeof module !== "undefined" && module.exports) module.exports = API; else root.STM = API;
 })(typeof window !== "undefined" ? window : globalThis);

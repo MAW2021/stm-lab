@@ -20,7 +20,9 @@ def build_custom(d):
     for e in d["members"]:
         e = dict(e)
         m.add_member(e.pop("name"), e.pop("i"), e.pop("j"), **e)
-    m.meta = dict(template="custom", notes=d.get("notes", []), outline=d.get("outline", []))
+    m.meta = dict(d.get("meta", {}))
+    m.meta.setdefault("template", "custom")
+    m.meta.update(notes=d.get("notes", []), outline=d.get("outline", []))
     return m
 
 
