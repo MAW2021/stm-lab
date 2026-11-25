@@ -1,0 +1,146 @@
+{
+ "code": "ACI318-19",
+ "element": "CB-AST-1 corbel (AStrutTie default template)",
+ "custom": {
+  "title": "Corbel - same nodes as reference",
+  "dim": 2,
+  "b": 750,
+  "fc": 24,
+  "fy": 400,
+  "nodes": [
+   {
+    "name": "n0",
+    "xyz": [
+     80,
+     1020
+    ]
+   },
+   {
+    "name": "n1",
+    "xyz": [
+     666,
+     1020
+    ],
+    "load": [
+     86,
+     -430
+    ]
+   },
+   {
+    "name": "n3",
+    "xyz": [
+     420,
+     500
+    ]
+   },
+   {
+    "name": "n4",
+    "xyz": [
+     420,
+     80
+    ],
+    "fix": [
+     false,
+     true
+    ]
+   },
+   {
+    "name": "n5",
+    "xyz": [
+     80,
+     80
+    ],
+    "fix": [
+     true,
+     true
+    ]
+   },
+   {
+    "name": "n6",
+    "xyz": [
+     80,
+     500
+    ]
+   }
+  ],
+  "members": [
+   {
+    "name": "T1",
+    "i": "n0",
+    "j": "n1"
+   },
+   {
+    "name": "DS1",
+    "i": "n1",
+    "j": "n3"
+   },
+   {
+    "name": "DS2",
+    "i": "n0",
+    "j": "n3"
+   },
+   {
+    "name": "BC1",
+    "i": "n3",
+    "j": "n4"
+   },
+   {
+    "name": "FC1",
+    "i": "n6",
+    "j": "n0"
+   },
+   {
+    "name": "FC2",
+    "i": "n5",
+    "j": "n6"
+   },
+   {
+    "name": "HS1",
+    "i": "n3",
+    "j": "n6"
+   },
+   {
+    "name": "DS3",
+    "i": "n6",
+    "j": "n4"
+   },
+   {
+    "name": "BB1",
+    "i": "n4",
+    "j": "n5"
+   }
+  ]
+ },
+ "reference": {
+  "source": "AStrutTie web, Corbel (bracket) template defaults (V=250+180 kN, H=50+36 kN, LC01=D+L), ACI 318-25, 2026-11-25",
+  "forces": {
+   "T1": 289.4,
+   "DS1": -475.7,
+   "DS2": -528.9,
+   "BC1": -872.6,
+   "FC1": 442.6,
+   "FC2": 548.9,
+   "HS1": 86.0,
+   "DS3": -136.7
+  },
+  "As_req": {
+   "T1": 965,
+   "FC1": 1475,
+   "FC2": 1830,
+   "HS1": 287
+  },
+  "anchorage": {
+   "FC1@n0": {
+    "db": 19.1,
+    "ld": 743,
+    "lanc": 715
+   },
+   "T1@n0": {
+    "db": 25.4,
+    "ld": 1220,
+    "lanc": 154
+   }
+  },
+  "note": "Support n5 pinned, n4 roller reproduces all member forces. Strut widths at nodes without bearing plates follow an internal AStrutTie rule not stated in its report."
+ }
+}

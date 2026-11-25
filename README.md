@@ -5,7 +5,7 @@ It covers parametric templates, 2D/3D truss analysis, strut/tie/node checks with
 clause references, and a printable calculation report. It runs on Windows, macOS or Linux
 with Python and numpy. Nothing leaves your computer.
 
-> **Status: v0.1 (pre-release).** The ACI 318-19 checks are implemented from Chapter 23.
+> **Status: v0.2 (pre-release).** The ACI 318-19 checks are implemented from Chapter 23.
 > The **ECP 203 factors are provisional** and are flagged in every report until they have been
 > verified against ECP 203 §6-11. Calibration against an independent commercial tool is
 > in progress (see [docs/benchmark-plan.md](docs/benchmark-plan.md)). Always review the results
@@ -50,6 +50,12 @@ See the docstring in `stm/__main__.py`, or pick **Custom model (JSON)** in the U
 - `stm/report.py`: HTML report
 - `stm/ui.py`: local web UI
 - `benchmarks/`: calibration cases and comparison results
+
+## Calibration status
+Round 1 (Nov 2026) compared STM-Lab with a commercial STM program on a deep beam, a corbel and a pier
+coping. Forces, required steel, node and bearing checks, and development length match exactly or
+within display rounding. See [docs/calibration-2026-11.md](docs/calibration-2026-11.md). Regression tests in
+`tests/test_calibration.py` keep it that way.
 
 ## Contributing
 Feedback and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md).

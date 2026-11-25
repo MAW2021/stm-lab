@@ -8,7 +8,8 @@ from .templates import TEMPLATES, extra_checks
 
 def build_custom(d):
     m = STModel(d.get("title", "Custom STM"), dim=d.get("dim", 2), b=d.get("b", 300),
-                fc=d["fc"], fy=d["fy"])
+                fc=d["fc"], fy=d["fy"],
+                interior_width_rule=d.get("interior_width_rule", "projection"))
     for n in d["nodes"]:
         n = dict(n)
         name, xyz = n.pop("name"), n.pop("xyz")
@@ -29,6 +30,7 @@ def run_case(case):
         model = build_custom(case["custom"])
     else:
         model = TEMPLATES[case["template"]](code, **case["params"])
+        model.interior_width_rule = case.get("interior_width_rule", "projection")
     res = model.solve()
     checks = run_checks(res, code) + extra_checks(model, res, code)
     html = html_report(res, checks, code, project=case.get("project", ""),

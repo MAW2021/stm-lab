@@ -1,0 +1,177 @@
+{
+ "code": "ACI318-19",
+ "element": "DB-AST-2 deep beam H1=1200",
+ "custom": {
+  "title": "Deep beam - fan truss, same nodes as reference",
+  "dim": 2,
+  "b": 650,
+  "fc": 24,
+  "fy": 400,
+  "nodes": [
+   {
+    "name": "B1",
+    "xyz": [
+     200,
+     100
+    ],
+    "fix": [
+     true,
+     true
+    ],
+    "lb": 400,
+    "wt": 200,
+    "anchor_ext": 160
+   },
+   {
+    "name": "B2",
+    "xyz": [
+     1100,
+     100
+    ],
+    "wt": 200
+   },
+   {
+    "name": "B3",
+    "xyz": [
+     2900,
+     100
+    ],
+    "wt": 200
+   },
+   {
+    "name": "B4",
+    "xyz": [
+     3800,
+     100
+    ],
+    "fix": [
+     false,
+     true
+    ],
+    "lb": 400,
+    "wt": 200,
+    "anchor_ext": 160
+   },
+   {
+    "name": "T1",
+    "xyz": [
+     1100,
+     1100
+    ],
+    "wt": 200
+   },
+   {
+    "name": "T2",
+    "xyz": [
+     2000,
+     1100
+    ],
+    "load": [
+     0,
+     -1500
+    ],
+    "lb": 400,
+    "wt": 200
+   },
+   {
+    "name": "T3",
+    "xyz": [
+     2900,
+     1100
+    ],
+    "wt": 200
+   }
+  ],
+  "members": [
+   {
+    "name": "BC1",
+    "i": "B1",
+    "j": "B2",
+    "As": 4053.6,
+    "db": 25.4
+   },
+   {
+    "name": "BC2",
+    "i": "B2",
+    "j": "B3",
+    "As": 4053.6
+   },
+   {
+    "name": "BC3",
+    "i": "B3",
+    "j": "B4",
+    "As": 4053.6,
+    "db": 25.4
+   },
+   {
+    "name": "TC1",
+    "i": "T1",
+    "j": "T2",
+    "strut_class": "boundary"
+   },
+   {
+    "name": "TC2",
+    "i": "T2",
+    "j": "T3",
+    "strut_class": "boundary"
+   },
+   {
+    "name": "D1",
+    "i": "B1",
+    "j": "T1",
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "D2",
+    "i": "B2",
+    "j": "T2",
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "D4",
+    "i": "B3",
+    "j": "T2",
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "D3",
+    "i": "B4",
+    "j": "T3",
+    "strut_class": "interior_reinf"
+   },
+   {
+    "name": "V1",
+    "i": "T1",
+    "j": "B2",
+    "As": 1719
+   },
+   {
+    "name": "V2",
+    "i": "T3",
+    "j": "B3",
+    "As": 1719
+   }
+  ],
+  "interior_width_rule": "secant"
+ },
+ "reference": {
+  "source": "AStrutTie web, Deep beam (simple), H1=1200, determinate fan, ACI 318-25, 2026-11-25",
+  "forces": {
+   "BC1": 675,
+   "BC2": 1350,
+   "TC1": -675,
+   "D1": -1009,
+   "V1": 750
+  },
+  "widths": {
+   "D1@T1": 299
+  },
+  "strut_sf": {
+   "D1": 2.21,
+   "TC1": 2.95
+  },
+  "tie_sf": {
+   "BC2": 0.9
+  }
+ }
+}
