@@ -95,8 +95,8 @@ def _on_edge(p, poly, tol):
     return False
 
 
-def validate_model(m):
-    errs = []
+def validate_model(m, strict=True):
+    errs, warn = [], []
     if not 17 <= m.fc <= 120:
         errs.append(f"f'c = {m.fc:g} MPa is outside 17–120 MPa (ACI 318-19 19.2.1.1)")
     if not 280 <= m.fy <= 690:
@@ -144,7 +144,9 @@ def validate_model(m):
         out = [n for n, N in m.nodes.items()
                if not any(_in_poly(N.xyz, poly) or _on_edge(N.xyz, poly, 1.0) for poly in ol)]
         if out:
-            errs.append(f"node{'s' if len(out) > 1 else ''} {', '.join(out)} {'lie' if len(out) > 1 else 'lies'} "
-                        "outside the concrete outline (check the dimensions, covers and tie positions)")
+            (errs if strict else warn).append(
+                f"node{'s' if len(out) > 1 else ''} {', '.join(out)} {'lie' if len(out) > 1 else 'lies'} "
+                "outside the concrete outline (check the dimensions, covers and tie positions)")
     if errs:
         raise InputError("Model problem: " + "; ".join(errs))
+    return warn

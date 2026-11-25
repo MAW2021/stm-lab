@@ -2,7 +2,7 @@
 import math
 
 from .validate import PARAMS, InputError, validate_model, validate_params
-from .checks import run_checks
+from .checks import Check, run_checks
 from .codes import CODES
 from .model import STModel
 from .report import html_report
@@ -67,12 +67,13 @@ def run_case(case):
         model = TEMPLATES[case["template"]](code, **params)
         if case.get("interior_width_rule"):
             model.interior_width_rule = case["interior_width_rule"]
-    validate_model(model)
+    warn = validate_model(model, strict="custom" not in case)
     res = model.solve()
     bad = [k for k, v in res.forces.items() if not math.isfinite(v)]
     if bad:
         raise InputError("Analysis failed: non-finite force in " + ", ".join(bad))
-    checks = run_checks(res, code) + extra_checks(model, res, code)
+    checks = run_checks(res, code) + extra_checks(model, res, code) + \
+        [Check("geometry", "detail", None, None, None, "NG", "", w) for w in warn]
     html = html_report(res, checks, code, project=case.get("project", ""),
                        engineer=case.get("engineer", ""), element=case.get("element", ""))
     return res, checks, html

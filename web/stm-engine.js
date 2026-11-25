@@ -751,8 +751,8 @@
     const [ax, ay] = poly[j], [bx, by] = poly[i], dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy || 1;
     const t = Math.max(0, Math.min(1, ((p[0] - ax) * dx + (p[1] - ay) * dy) / L2)); if (Math.hypot(p[0] - ax - t * dx, p[1] - ay - t * dy) <= tol) return true; } return false; }
   // model-level checks for templates and hand-drawn models
-  function validateModel(m) {
-    const errs = [];
+  function validateModel(m, strict = true) {
+    const errs = [], warn = [];
     if (!(m.fc >= 17 && m.fc <= 120)) errs.push(`f'c = ${m.fc} MPa is outside 17–120 MPa (ACI 318-19 19.2.1.1)`);
     if (!(m.fy >= 280 && m.fy <= 690)) errs.push(`fy = ${m.fy} MPa is outside 280–690 MPa`);
     if (m.dim === 2 && !(m.b > 0)) errs.push(`thickness b must be greater than zero (got ${m.b})`);
@@ -776,9 +776,10 @@
     const ol = (m.meta && m.meta.outline) || [];
     if (m.dim === 2 && ol.length && ol.every(p => p.length >= 3 && p.every(q => q.length === 2 && q.every(isFinite)))) {
       const tol = 1.0, out = m.order.filter(n => { const p = m.nodes[n].xyz; return !ol.some(poly => inPoly(p, poly) || onEdge(p, poly, tol)); });
-      if (out.length) errs.push(`node${out.length > 1 ? "s" : ""} ${out.join(", ")} ${out.length > 1 ? "lie" : "lies"} outside the concrete outline (check the dimensions, covers and tie positions)`);
+      if (out.length) (strict ? errs : warn).push(`node${out.length > 1 ? "s" : ""} ${out.join(", ")} ${out.length > 1 ? "lie" : "lies"} outside the concrete outline (check the dimensions, covers and tie positions)`);
     }
     if (errs.length) throw new InputError("Model problem: " + errs.join("; "));
+    return warn;
   }
 
   function runCase(cs) {
@@ -791,11 +792,11 @@
       if (!T) throw new InputError(`unknown template "${cs.template}"`);
       validateParams(T, prm, code);
       m = T.build(code, prm); if (cs.interior_width_rule) m.interior_width_rule = cs.interior_width_rule; }
-    validateModel(m);
+    const warn = validateModel(m, !cs.custom);
     const res = solve(m);
     const bad = Object.entries(res.forces).filter(([, v]) => !isFinite(v)).map(([k]) => k);
     if (bad.length) throw new InputError(`Analysis failed: non-finite force in ${bad.join(", ")}`);
-    const checks = runChecks(res, code).concat(extraChecks(m, res, code));
+    const checks = runChecks(res, code).concat(extraChecks(m, res, code), warn.map(w => C("geometry", "detail", null, null, null, "NG", "", w)));
     return { model: m, res, checks, code, summary: summary(checks) };
   }
 
@@ -964,6 +965,6 @@
     return { steel_kg: kg, ties: n };
   }
 
-  const API = { CODES, STRUT_CLASSES, TEMPLATES, Model, addNode, addMember, geometry, solve, runChecks, extraChecks, buildCustom, toSpec, strutWidth: strutWidth2d, strutWidthModel, foundationLoads, nodeKind, runCase, summary, advise, autoDesign, fixesFor, explain, checkKey, quantities, validateModel, InputError, version: "0.8.0" };
+  const API = { CODES, STRUT_CLASSES, TEMPLATES, Model, addNode, addMember, geometry, solve, runChecks, extraChecks, buildCustom, toSpec, strutWidth: strutWidth2d, strutWidthModel, foundationLoads, nodeKind, runCase, summary, advise, autoDesign, fixesFor, explain, checkKey, quantities, barsFor, validateModel, validateParams, InputError, version: "0.8.0" };
   if (typeof module !== "undefined" && module.exports) module.exports = API; else root.STM = API;
 })(typeof window !== "undefined" ? window : globalThis);
