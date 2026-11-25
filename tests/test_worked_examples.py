@@ -23,7 +23,8 @@ def _sf(checks):
         if c.kind in ("strut", "tie"):
             out[("member", c.item)] = c.capacity / c.demand
         elif c.kind == "node":
-            out[("node", f"{c.item}/{re.search(r'face of (\w+)', c.detail).group(1)}")] = c.capacity / c.demand
+            face = re.search(r"face of (\w+)", c.detail).group(1)
+            out[("node", f"{c.item}/{face}")] = c.capacity / c.demand
         elif c.kind == "bearing":
             out[("node", f"{c.item}/bearing")] = c.capacity / c.demand
     return out
