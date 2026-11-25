@@ -1,0 +1,85 @@
+{
+ "element": "PF-AST-1 pile footing (4 piles, springs, moment) - NOT YET MATCHED",
+ "reference": {
+  "source": "AStrutTie web, Pile footing template defaults, 2026-11-25",
+  "inputs": {
+   "B": 7000,
+   "FH": 2000,
+   "b": 7000,
+   "CW": 2500,
+   "covers": 100,
+   "piles": 4,
+   "dp": 600,
+   "Kv": 300,
+   "Kh": 100,
+   "pile_x": [
+    650,
+    2550,
+    4450,
+    6350
+   ],
+   "D": {
+    "V": 6000,
+    "H": 0,
+    "M": 0
+   },
+   "L": {
+    "V": 3000,
+    "H": 500,
+    "M": 5000
+   },
+   "fc": 24,
+   "fy": 400
+  },
+  "nodes": {
+   "b1": [
+    650,
+    100
+   ],
+   "b2": [
+    2550,
+    100
+   ],
+   "b3": [
+    4450,
+    100
+   ],
+   "b4": [
+    6350,
+    100
+   ],
+   "t1": [
+    650,
+    1900
+   ],
+   "t2": [
+    2550,
+    1900
+   ],
+   "t3": [
+    4450,
+    1900
+   ],
+   "t4": [
+    6350,
+    1900
+   ]
+  },
+  "forces": {
+   "m1": -69,
+   "m2": 1992,
+   "m3": 2443,
+   "m4": 0,
+   "m5": -1139,
+   "m6": 0,
+   "m7": 0,
+   "m8": -1026,
+   "m9": -1880,
+   "m10": 0,
+   "m11": -1225,
+   "m12": -2861,
+   "m13": -4775
+  },
+  "note": "Statically indeterminate (degree 5) with pile springs, solved by stiffness. Reproducing it needs the reference's column-load transfer and member EA convention; open calibration item."
+ }
+}

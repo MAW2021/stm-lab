@@ -27,6 +27,8 @@ class Node:
     bearing_axis: int = -1  # 3D: axis normal to bearing face (default vertical)
     confine: float = 1.0    # beta_c confinement factor (ACI 23.4.3), 1.0..2.0
     kind_override: str = ""  # force CCC / CCT / CTT if given
+    spring: Tuple[float, ...] = ()  # elastic support stiffness per DOF (kN/mm); 0 = none
+    anchor_ext: float = -1.0  # tie anchorage: distance node centre -> bar end (mm); <0 = not an anchorage
 
 
 @dataclass
@@ -42,6 +44,7 @@ class Member:
     # Tie data
     As: float = 0.0          # provided tie steel area (mm2)
     fy: float = 0.0          # 0 = use model default
+    db: float = 0.0          # tie bar diameter (mm) for development length; 0 = skip
     EA: float = 0.0          # axial stiffness override (kN); 0 = uniform
 
 
@@ -50,11 +53,15 @@ class STModel:
     title: str
     dim: int = 2
     b: float = 300.0          # out-of-plane thickness (2D) in mm
-    fc: float = 30.0          # ACI: f'c cylinder (MPa); ECP: fcu cube (MPa)
+    fc: float = 30.0          # f'c cylinder strength (MPa)
     fy: float = 420.0
     nodes: Dict[str, Node] = field(default_factory=dict)
     members: List[Member] = field(default_factory=list)
     meta: dict = field(default_factory=dict)   # template inputs, notes
+    # Strut width at a node with no bearing plate (lb = 0):
+    #   "projection": wt*cos(theta)  (face of the chord zone; conservative, default)
+    #   "secant":     wt/cos(theta)  (strut spread over the chord band; matches AStrutTie)
+    interior_width_rule: str = "projection"
 
     # ------------------------------------------------------------------
     def add_node(self, name, xyz, **kw):
@@ -103,6 +110,12 @@ class STModel:
             K[di, dj] -= k
             K[dj, di] -= k
             units.append((L, u, EA))
+        Kspring = np.zeros(ndof)
+        for n in names:
+            sp = self.nodes[n].spring
+            if sp:
+                Kspring[idx[n] * dim: idx[n] * dim + dim] = sp
+        K = K + np.diag(Kspring)
         fixed = np.zeros(ndof, dtype=bool)
         for n in names:
             fixed[idx[n] * dim: idx[n] * dim + dim] = self.nodes[n].fix
@@ -127,6 +140,9 @@ class STModel:
         reactions = {}
         for n in names:
             sl = slice(idx[n] * dim, idx[n] * dim + dim)
+            if self.nodes[n].spring and not any(self.nodes[n].fix):
+                reactions[n] = tuple(float(-k * u) for k, u in zip(Kspring[sl], U[sl]))
+                continue
             if any(self.nodes[n].fix):
                 reactions[n] = tuple(float(r) if f else 0.0 for r, f in
                                      zip(R[sl], self.nodes[n].fix))

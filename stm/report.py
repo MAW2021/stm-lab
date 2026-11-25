@@ -130,10 +130,6 @@ def html_report(res, checks, code, project="", engineer="", element=""):
     h.append(f"<h1>Strut-and-tie calculation: {E(element or mdl.title)}</h1>")
     h.append(f"<div class='sub'>Project: {E(project or '—')} · Engineer: {E(engineer or '—')} · "
              f"Date: {now} · Code: {E(code.name)} · STM-Lab v{__version__}</div>")
-    if code.provisional:
-        h.append("<div class='banner'>PROVISIONAL CODE FACTORS – the ECP 203 strength factors in "
-                 "this tool have not yet been confirmed against the code text. Do not use for "
-                 "design until they are verified.</div>")
     if not res.stable:
         h.append("<div class='banner'>The truss is unstable or not in equilibrium under these "
                  f"loads (residual {res.residual:.3g} kN). Results are not valid.</div>")
@@ -187,7 +183,7 @@ def html_report(res, checks, code, project="", engineer="", element=""):
     h.append("</table>")
 
     groups = [("5. Strut checks", ("strut",)), ("6. Tie checks", ("tie",)),
-              ("7. Nodal zone checks", ("node", "bearing")), ("8. Geometry and detailing", ("angle", "detail"))]
+              ("7. Nodal zone checks", ("node", "bearing")), ("8. Geometry, anchorage and detailing", ("angle", "anchorage", "detail"))]
     for title, kinds in groups:
         rows = [c for c in checks if c.kind in kinds]
         if not rows:
@@ -209,7 +205,7 @@ def html_report(res, checks, code, project="", engineer="", element=""):
              f"error {res.equilibrium_error:.2e} kN.</li>")
     h.append("<li>Strut width at a node = lb·sinθ + wt·cosθ (projection of the nodal face); strut "
              "capacity taken at the weaker end.</li>")
-    h.append("<li>Not yet checked by this tool: tie anchorage / development beyond the extended "
-             "nodal zone, crack-control reinforcement detailing, and serviceability.</li></ul>")
+    h.append("<li>Not yet checked by this tool: hooked/headed anchorage, crack-control "
+             "reinforcement detailing, and serviceability.</li></ul>")
     h.append("</body></html>")
     return "".join(h)

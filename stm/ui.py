@@ -19,7 +19,7 @@ PORT = 8765
 
 LABELS = {
     "L": "Span between supports L (mm)", "h": "Overall depth h (mm)", "b": "Thickness b (mm)",
-    "P": "Factored load P (kN)", "fc": "Concrete strength (MPa)  [ACI f'c / ECP fcu]",
+    "P": "Factored load P (kN)", "fc": "Concrete strength f'c (MPa)",
     "fy": "Steel yield fy (MPa)", "a": "Shear span a for two loads (mm, blank = one central load)",
     "lb_load": "Load plate length (mm)", "lb_sup": "Support plate length (mm)",
     "d_tie": "Tie centroid from face (mm)", "wc": "Top node / chord depth (mm, blank = auto)",
@@ -111,6 +111,9 @@ iframe{{width:100%;height:80vh;border:1px solid #d5dbe2;background:#fff}}
 <label>Design code<select name='code'>{copts}</select></label>
 <label>Project<input name='project' value='{E(project)}'></label>
 <label>Element name<input name='element' value='{E(element)}'></label>
+<label>Strut width at nodes without a plate<select name='interior_width_rule'>
+<option value='projection'>Projection wt·cosθ (conservative, default)</option>
+<option value='secant' {'selected' if values.get('interior_width_rule')=='secant' else ''}>Secant wt/cosθ (as AStrutTie)</option></select></label>
 <hr>{''.join(rows)}
 <button>Run analysis and checks</button>
 </form><section><div class='err'>{E(error)}</div>{rep}</section></main></body></html>"""
@@ -145,10 +148,12 @@ class H(BaseHTTPRequestHandler):
         q = {k: v[0] for k, v in parse_qs(self.rfile.read(n).decode("utf-8"), keep_blank_values=True).items()}
         tpl, code = q.pop("template"), q.pop("code")
         project, element = q.pop("project", ""), q.pop("element", "")
-        case = {"code": code, "project": project, "element": element}
+        rule = q.pop("interior_width_rule", "projection")
+        case = {"code": code, "project": project, "element": element, "interior_width_rule": rule}
         try:
             if tpl == "custom":
                 case["custom"] = json.loads(q["custom"])
+                case["custom"].setdefault("interior_width_rule", rule)
             else:
                 params = {k: _num(v) for k, v in q.items()}
                 case["template"] = tpl

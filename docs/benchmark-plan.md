@@ -41,4 +41,4 @@ independent tool on identical inputs. Explain every difference that remains.
 4. If a difference exceeds the tolerance, find the cause. Then either fix STM-Lab (with a test) or
    document it as a deliberate modelling difference.
 
-The same sequence is then repeated for ECP 203 once its factors are confirmed from §6-11.
+The same sequence will be repeated for AASHTO LRFD 5.8.2 when it is added.

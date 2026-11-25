@@ -44,6 +44,9 @@ def _strut_end_width_2d(res: Result, m, node_name):
     if node.lb <= 0 and node.wt <= 0:
         return None, "no node geometry"
     _, u = res.model.geometry(m)
+    if node.lb <= 0 and res.model.interior_width_rule == "secant" and abs(u[0]) > 0.17:
+        ws = node.wt / abs(u[0])
+        return ws, f"wt/cosθ = {node.wt:.0f}/{abs(u[0]):.3f} (interior node, secant rule)"
     ws = node.lb * abs(u[1]) + node.wt * abs(u[0])
     return ws, f"lb·sinθ + wt·cosθ = {node.lb:.0f}·{abs(u[1]):.3f} + {node.wt:.0f}·{abs(u[0]):.3f}"
 
@@ -148,6 +151,21 @@ def run_checks(res: Result, code: CodeSet) -> List[Check]:
                              code.refs["node"],
                              f"{k} node, β_n = {code.beta_n[k]}, β_c = {node.confine}, "
                              f"face of {m.name}, f_ce = {fce:.2f} MPa"))
+        # tie faces (tie force acting as bearing on the back face of the node)
+        if mdl.dim == 2:
+            for m in mdl.members:
+                if nn not in (m.i, m.j) or res.forces[m.name] <= 1e-6:
+                    continue
+                w, how = _strut_end_width_2d(res, m, nn)
+                if not w or m.width > 0:
+                    continue
+                T = res.forces[m.name]
+                cap = cap_stress * w * b / 1e3
+                r = T / cap
+                out.append(Check(nn, "node", T, cap, r, "OK" if r <= 1 else "NG",
+                                 code.refs["node"],
+                                 f"{k} node, β_n = {code.beta_n[k]}, tie face of {m.name}, "
+                                 f"w = {w:.0f} mm, f_ce = {fce:.2f} MPa"))
         # bearing face (load or reaction)
         P = np.array(node.load, dtype=float)
         if nn in res.reactions:
@@ -183,6 +201,47 @@ def run_checks(res: Result, code: CodeSet) -> List[Check]:
                 out.append(Check(nn, "angle", ang, code.min_angle_deg, None,
                                  "OK" if ok else "NG", code.refs["angle"],
                                  f"angle {s.name}–{t.name} = {ang:.1f}° (min {code.min_angle_deg:.0f}°)"))
+    out += _development(res, code)
+    return out
+
+
+def _development(res, code):
+    """Straight-bar development of ties at anchorage nodes (ACI 25.4.2.4, psi = 1, normal-weight).
+    Available length per 23.8.2: from where the tie centroid leaves the extended nodal zone
+    to the bar end = anchor_ext + lb/2 + (wt/2)/tan(theta)."""
+    mdl = res.model
+    out = []
+    if mdl.dim != 2:
+        return out
+    for nn, node in mdl.nodes.items():
+        if node.anchor_ext < 0:
+            continue
+        for t in mdl.members:
+            if nn not in (t.i, t.j) or res.forces[t.name] <= 1e-6 or t.db <= 0:
+                continue
+            _, ut = mdl.geometry(t)
+            struts = [s for s in mdl.members if nn in (s.i, s.j) and res.forces[s.name] < -1e-6]
+            angs = []
+            for s in struts:
+                _, us = mdl.geometry(s)
+                c = min(1.0, abs(float(np.dot(us, ut))))
+                if c < 0.999:
+                    angs.append(math.acos(c))
+            if not angs:
+                continue
+            th = max(angs)
+            avail = node.anchor_ext + node.lb / 2 + (node.wt / 2) / math.tan(th)
+            fy = t.fy or mdl.fy
+            fc = mdl.fc if code.key.startswith("ACI") else 0.8 * mdl.fc
+            k = 2.1 if t.db <= 20 else 1.7
+            ld = max(300.0, fy / (k * math.sqrt(fc)) * t.db)
+            r = ld / avail
+            out.append(Check(f"{t.name}@{nn}", "anchorage", ld, avail, r,
+                             "OK" if r <= 1 else "NG", "ACI 318-19 23.8.2, 25.4.2.4",
+                             f"straight bar db = {t.db:.0f}: ld = fy/({k}·√f'c)·db = {ld:.0f} mm; "
+                             f"available ℓanc = {node.anchor_ext:.0f} + {node.lb:.0f}/2 + "
+                             f"({node.wt:.0f}/2)/tan{math.degrees(th):.1f}° = {avail:.0f} mm "
+                             "(hooks/heads not yet modelled)"))
     return out
 
 

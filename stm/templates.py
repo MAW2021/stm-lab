@@ -273,9 +273,10 @@ def extra_checks(model: STModel, res, code: CodeSet):
                              "OK" if Vu <= 0.75 * Vn else "NG", code.refs["corbel"],
                              "Vu ≤ φ·min(0.2f'c, 3.3+0.08f'c, 11)·bw·d (16.5.2.4)"))
             Asmin = 0.04 * fc / fy * b * d
-            tie = next(m for m in model.members if m.name == "AB")
-            out.append(Check("AB", "detail", tie.As, Asmin, (Asmin / tie.As) if tie.As else None,
-                             ("OK" if tie.As >= Asmin else "NG") if tie.As else "INFO",
-                             code.refs["corbel"],
-                             f"As,min = 0.04·(f'c/fy)·b·d = {Asmin:.0f} mm² (16.5.5.5)"))
+            tie = next((m for m in model.members if m.name == "AB"), None)
+            if tie is not None:
+                out.append(Check("AB", "detail", tie.As, Asmin, (Asmin / tie.As) if tie.As else None,
+                                 ("OK" if tie.As >= Asmin else "NG") if tie.As else "INFO",
+                                 code.refs["corbel"],
+                                 f"As,min = 0.04·(f'c/fy)·b·d = {Asmin:.0f} mm² (16.5.5.5)"))
     return out
