@@ -246,7 +246,6 @@ function reportHTML(o, cs){
   return `<div class="hd"><div><h1>Strut-and-tie calculation: ${E(cs.element || m.title)}</h1>
     <div class="note">Project: ${E(cs.project||"—")} · Engineer: ${E(cs.engineer||"—")} · Date: ${today} · Code: ${E(c.name)} · STM-Lab v${S.version}</div></div>
     <div><span class="pill ${sm.ok?"OK":"NG"}">${sm.ok?"ALL CHECKS PASS":sm.n_ng+" CHECK(S) FAIL"}</span></div></div>
-    ${c.provisional?`<p class="banner">Provisional code factors: the ECP 203 factors have not been confirmed against the code text. Do not use for design until verified.</p>`:""}
     <h2 class="sec">1. Input data</h2>${inputs}<p class="note">Units: mm, kN, MPa. Loads are factored. Strut width at nodes without a plate: ${m.interior_width_rule}.</p>
     <h2 class="sec">2. Code parameters</h2><div class="tw"><table>
       <tr><td>Effective strength</td><td>${E(c.refs.fce)}</td></tr>
@@ -267,7 +266,7 @@ function render(o){
   $("verdict").innerHTML = `<span class="pill ${sm.ok?"OK":"NG"}">${sm.ok?"All checks pass":sm.n_ng+" check(s) fail"}</span>` +
     (w ? `<span class="kv">Governing: ${E(w.kind)} ${E(w.item)} at ${w.ratio.toFixed(2)}</span>` : "") +
     `<span class="kv">${o.model.order.length} nodes · ${o.model.members.length} members · ${E(o.code.name)}</span>`;
-  $("banners").innerHTML = (o.code.provisional ? `<div class="banner">ECP 203 factors are provisional until checked against §6-11.</div>` : "") +
+  $("banners").innerHTML = 
     (o.res.stable ? "" : `<div class="banner">The truss is unstable or out of equilibrium under these loads. Results are not valid.</div>`);
   $("drawing").innerHTML = drawSVG(o);
   document.querySelector('[data-panel="checks"]').innerHTML = checksHTML(o.checks);

@@ -139,7 +139,6 @@ h2.sec{font-size:14px;margin:16px 0 6px;padding-bottom:3px;border-bottom:1.5px s
     interior_no_reinf: "Interior strut, all other cases",
     tension_zone: "Strut in tension member / tension zone",
   };
-  const GC = 1.5, GS = 1.15;
   const CODES = {
     "ACI318-19": {
       key: "ACI318-19", name: "ACI 318-19 Chapter 23",
@@ -152,19 +151,6 @@ h2.sec{font-size:14px;margin:16px 0 6px;padding-bottom:3px;border-bottom:1.5px s
         tie: "ACI 318-19 23.7.2", angle: "ACI 318-19 23.2.7", distributed: "ACI 318-19 23.5.1",
         sizeeffect: "ACI 318-19 23.4.4", corbel: "ACI 318-19 16.5", anchorage: "ACI 318-19 23.8.2, 25.4.2.4",
         fce: "f_ce = 0.85·β_c·β_s·f'c (23.4.3) ; 0.85·β_c·β_n·f'c (23.9.2)",
-      },
-    },
-    ECP203: {
-      key: "ECP203", name: "ECP 203 §6-11 (PROVISIONAL factors)",
-      beta_s: { boundary: 1.0, interior_reinf: 0.75, interior_joint: 0.75, interior_sizeeffect: 0.6, interior_no_reinf: 0.6, tension_zone: 0.4 },
-      beta_n: { CCC: 1.0, CCT: 0.8, CTT: 0.6 },
-      k_c: 0.67 / GC, phi_strut: 1, phi_node: 1, phi_tie: 1, steel_factor: 1 / GS,
-      min_angle_deg: 25, fc_symbol: "fcu", provisional: true,
-      refs: {
-        strut: "ECP 203 6-11-3-2 (verify)", node: "ECP 203 6-11-3-4 (verify)", tie: "ECP 203 6-11-3-3 (verify)",
-        angle: "ECP 203 6-11 (verify)", distributed: "ECP 203 6-11 (verify)", sizeeffect: "n/a",
-        corbel: "ECP 203 short cantilevers (verify)", anchorage: "ACI-type straight bar, fcu→0.8fcu (verify)",
-        fce: "f_ce = 0.67·β·fcu/1.5 ; ties fy/1.15",
       },
     },
   };
@@ -580,7 +566,7 @@ h2.sec{font-size:14px;margin:16px 0 6px;padding-bottom:3px;border-bottom:1.5px s
     return { model: m, res, checks, code, summary: summary(checks) };
   }
 
-  const API = { CODES, STRUT_CLASSES, TEMPLATES, Model, addNode, addMember, geometry, solve, runChecks, extraChecks, buildCustom, runCase, summary, version: "0.3.0" };
+  const API = { CODES, STRUT_CLASSES, TEMPLATES, Model, addNode, addMember, geometry, solve, runChecks, extraChecks, buildCustom, runCase, summary, version: "0.3.1" };
   if (typeof module !== "undefined" && module.exports) module.exports = API; else root.STM = API;
 })(typeof window !== "undefined" ? window : globalThis);
 
@@ -708,7 +694,6 @@ function reportHTML(o, cs){
   return `<div class="hd"><div><h1>Strut-and-tie calculation: ${E(cs.element || m.title)}</h1>
     <div class="note">Project: ${E(cs.project||"—")} · Engineer: ${E(cs.engineer||"—")} · Date: ${today} · Code: ${E(c.name)} · STM-Lab v${S.version}</div></div>
     <div><span class="pill ${sm.ok?"OK":"NG"}">${sm.ok?"ALL CHECKS PASS":sm.n_ng+" CHECK(S) FAIL"}</span></div></div>
-    ${c.provisional?`<p class="banner">Provisional code factors: the ECP 203 factors have not been confirmed against the code text. Do not use for design until verified.</p>`:""}
     <h2 class="sec">1. Input data</h2>${inputs}<p class="note">Units: mm, kN, MPa. Loads are factored. Strut width at nodes without a plate: ${m.interior_width_rule}.</p>
     <h2 class="sec">2. Code parameters</h2><div class="tw"><table>
       <tr><td>Effective strength</td><td>${E(c.refs.fce)}</td></tr>
@@ -729,7 +714,7 @@ function render(o){
   $("verdict").innerHTML = `<span class="pill ${sm.ok?"OK":"NG"}">${sm.ok?"All checks pass":sm.n_ng+" check(s) fail"}</span>` +
     (w ? `<span class="kv">Governing: ${E(w.kind)} ${E(w.item)} at ${w.ratio.toFixed(2)}</span>` : "") +
     `<span class="kv">${o.model.order.length} nodes · ${o.model.members.length} members · ${E(o.code.name)}</span>`;
-  $("banners").innerHTML = (o.code.provisional ? `<div class="banner">ECP 203 factors are provisional until checked against §6-11.</div>` : "") +
+  $("banners").innerHTML = 
     (o.res.stable ? "" : `<div class="banner">The truss is unstable or out of equilibrium under these loads. Results are not valid.</div>`);
   $("drawing").innerHTML = drawSVG(o);
   document.querySelector('[data-panel="checks"]').innerHTML = checksHTML(o.checks);

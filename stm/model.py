@@ -53,7 +53,7 @@ class STModel:
     title: str
     dim: int = 2
     b: float = 300.0          # out-of-plane thickness (2D) in mm
-    fc: float = 30.0          # ACI: f'c cylinder (MPa); ECP: fcu cube (MPa)
+    fc: float = 30.0          # f'c cylinder strength (MPa)
     fy: float = 420.0
     nodes: Dict[str, Node] = field(default_factory=dict)
     members: List[Member] = field(default_factory=list)

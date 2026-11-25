@@ -17,7 +17,7 @@ def test_js_matches_python():
     for f in files:
         c = json.loads(pathlib.Path(f).read_text(encoding="utf-8"))
         c.pop("reference", None)
-        for code in ("ACI318-19", "ECP203"):
+        for code in ("ACI318-19",):
             cases.append(dict(c, code=code))
     p = subprocess.run(["node", "-e", JS, str(ROOT / "web/stm-engine.js")], input=json.dumps(cases),
                        capture_output=True, text=True, check=True)

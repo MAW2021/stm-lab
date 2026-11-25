@@ -8,7 +8,7 @@ body:
       options: [Deep beam, Corbel, Two-pile cap, Four-pile cap, Pier cap, Custom]
     validations: {required: true}
   - type: dropdown
-    attributes: {label: Code, options: [ACI 318-19, ECP 203, Other]}
+    attributes: {label: Code, options: [ACI 318-19, ACI 318-25, AASHTO LRFD, Other]}
   - type: textarea
     attributes: {label: Inputs (attach the STM-Lab case JSON), render: json}
     validations: {required: true}

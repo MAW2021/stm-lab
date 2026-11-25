@@ -13,7 +13,6 @@
     interior_no_reinf: "Interior strut, all other cases",
     tension_zone: "Strut in tension member / tension zone",
   };
-  const GC = 1.5, GS = 1.15;
   const CODES = {
     "ACI318-19": {
       key: "ACI318-19", name: "ACI 318-19 Chapter 23",
@@ -26,19 +25,6 @@
         tie: "ACI 318-19 23.7.2", angle: "ACI 318-19 23.2.7", distributed: "ACI 318-19 23.5.1",
         sizeeffect: "ACI 318-19 23.4.4", corbel: "ACI 318-19 16.5", anchorage: "ACI 318-19 23.8.2, 25.4.2.4",
         fce: "f_ce = 0.85·β_c·β_s·f'c (23.4.3) ; 0.85·β_c·β_n·f'c (23.9.2)",
-      },
-    },
-    ECP203: {
-      key: "ECP203", name: "ECP 203 §6-11 (PROVISIONAL factors)",
-      beta_s: { boundary: 1.0, interior_reinf: 0.75, interior_joint: 0.75, interior_sizeeffect: 0.6, interior_no_reinf: 0.6, tension_zone: 0.4 },
-      beta_n: { CCC: 1.0, CCT: 0.8, CTT: 0.6 },
-      k_c: 0.67 / GC, phi_strut: 1, phi_node: 1, phi_tie: 1, steel_factor: 1 / GS,
-      min_angle_deg: 25, fc_symbol: "fcu", provisional: true,
-      refs: {
-        strut: "ECP 203 6-11-3-2 (verify)", node: "ECP 203 6-11-3-4 (verify)", tie: "ECP 203 6-11-3-3 (verify)",
-        angle: "ECP 203 6-11 (verify)", distributed: "ECP 203 6-11 (verify)", sizeeffect: "n/a",
-        corbel: "ECP 203 short cantilevers (verify)", anchorage: "ACI-type straight bar, fcu→0.8fcu (verify)",
-        fce: "f_ce = 0.67·β·fcu/1.5 ; ties fy/1.15",
       },
     },
   };
@@ -454,6 +440,6 @@
     return { model: m, res, checks, code, summary: summary(checks) };
   }
 
-  const API = { CODES, STRUT_CLASSES, TEMPLATES, Model, addNode, addMember, geometry, solve, runChecks, extraChecks, buildCustom, runCase, summary, version: "0.3.0" };
+  const API = { CODES, STRUT_CLASSES, TEMPLATES, Model, addNode, addMember, geometry, solve, runChecks, extraChecks, buildCustom, runCase, summary, version: "0.3.1" };
   if (typeof module !== "undefined" && module.exports) module.exports = API; else root.STM = API;
 })(typeof window !== "undefined" ? window : globalThis);

@@ -6,8 +6,7 @@ clause references, and a printable calculation report. It runs on Windows, macOS
 with Python and numpy. Nothing leaves your computer.
 
 > **Status: v0.2 (pre-release).** The ACI 318-19 checks are implemented from Chapter 23.
-> The **ECP 203 factors are provisional** and are flagged in every report until they have been
-> verified against ECP 203 §6-11. Calibration against an independent commercial tool is
+> Scope is **American codes only** (ACI 318 now; AASHTO LRFD 5.8.2 is planned). Calibration against an independent commercial tool is
 > in progress (see [docs/benchmark-plan.md](docs/benchmark-plan.md)). Always review the results
 > as an engineer before you use them.
 
@@ -16,7 +15,7 @@ with Python and numpy. Nothing leaves your computer.
 | Step | STM-Lab |
 |---|---|
 | Template | Deep beam / transfer girder (1 or 2 loads), corbel, two-pile cap, four-pile cap (3D), hammerhead pier cap, or any custom truss written in JSON |
-| Geometry, load, material | Dimensions, bearing plates, tie depth, f'c / fcu, fy, provided steel |
+| Geometry, load, material | Dimensions, bearing plates, tie depth, f'c, fy, provided steel |
 | STM model | Nodes are placed automatically. The compression chord / node depth is sized so that the CCC node is at capacity |
 | Analysis | Pin-jointed truss solved by direct stiffness (2D and 3D), with equilibrium and stability checks |
 | Checks | Struts (β_s), ties (As,req and bar options), nodal faces and bearing (β_n, β_c), 25° strut–tie angle limit, distributed reinforcement (23.5), size-effect limit (23.4.4), corbel limits (16.5) |

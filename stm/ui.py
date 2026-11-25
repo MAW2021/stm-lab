@@ -19,7 +19,7 @@ PORT = 8765
 
 LABELS = {
     "L": "Span between supports L (mm)", "h": "Overall depth h (mm)", "b": "Thickness b (mm)",
-    "P": "Factored load P (kN)", "fc": "Concrete strength (MPa)  [ACI f'c / ECP fcu]",
+    "P": "Factored load P (kN)", "fc": "Concrete strength f'c (MPa)",
     "fy": "Steel yield fy (MPa)", "a": "Shear span a for two loads (mm, blank = one central load)",
     "lb_load": "Load plate length (mm)", "lb_sup": "Support plate length (mm)",
     "d_tie": "Tie centroid from face (mm)", "wc": "Top node / chord depth (mm, blank = auto)",

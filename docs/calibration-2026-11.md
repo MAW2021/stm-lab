@@ -35,5 +35,4 @@ ourselves are recorded. No code, text or graphics were copied.
 ## Still to do
 - Spring supports have been added to the solver. Matching PF-AST-1 still needs the stiffness convention.
 - Hooked/headed anchorage (25.4.3 / 25.4.4).
-- ECP 203 §6-11 factors: confirm them from the code text.
 - 3D pile cap: compare against a published worked example, because the reference's 3D is paid.
