@@ -86,6 +86,8 @@ See the docstring in `stm/__main__.py`, or pick **Custom model (JSON)** in the U
 - `stm/ui.py`: local web UI
 - `benchmarks/`: calibration cases and comparison results
 - `tools/ast_convert.py`: converts a reference model and its result tables into an SI benchmark case
+- `docs/verification/`: hand-calculation verification, one file per model
+- `AGENTS.md`: the specialist Claude Code agents in `.claude/agents/` and which files and tasks each one owns
 
 ## Calibration status
 Round 2 (Nov 2026) checked 12 solved examples (FHWA, ACI SP-208, ACI SP-273 and a technical book): all member forces and required steel match, and strut, tie and node checks match in 10 of 12. See the round 2 table in the calibration notes.
